@@ -1,0 +1,87 @@
+\documentclass[]{report}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{listings}
+\usepackage{hyperref}
+\usepackage{hypcap}
+\usepackage{graphicx}
+\usepackage{amssymb,amsmath}
+
+% Set up some colors
+\definecolor{gray92}{gray}{.92}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+% Set up some PDF options and reference coloration
+\hypersetup{
+    pdftitle={Selected Topics},
+    pdfauthor={Daniel E. Bruce},     % author
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=red,          % color of internal links
+    citecolor=black,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+% listings settings
+\lstset{
+  breaklines=true,
+  framerule=0.5pt,
+  linewidth=\textwidth,
+  numbers=left,
+  showstringspaces=false
+}
+
+\lstdefinestyle{console}
+{
+  numbers=none,
+  basicstyle=\bf\ttfamily,
+  backgroundcolor=\color{gray92},
+  frame=lrtb,
+}
+
+\lstset{style=console}
+
+
+% Use "normal" paragraph separation
+\setlength{\parskip}{1.3ex plus 0.2ex minus 0.2ex}
+\setlength{\parindent}{0pt}
+
+% Nicer margin comments
+\let\oldmarginpar\marginpar
+\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%
+{\raggedright\footnotesize #1}}
+
+
+%
+% Document begins here
+%
+\begin{document}
+\title{Selected Topics}
+\author{Daniel E. Bruce}
+\date{\today}
+\maketitle
+
+\tableofcontents
+
+\chapter{Introduction}
+
+
+\chapter{Game AI}
+\label{cha:conclusion}
+
+\subsection{Techniques}
+\label{sec:techniques}
+
+\subsection{Entertainment value}
+\label{sec:entertainment-value}
+
+\chapter{Automatic Programming}
+\label{cha:autom-progr}
+
+
+\bibliography{thesis}{}
+\bibliographystyle{plain}
+
+\end{document}
+
+% LocalWords:  ADATE
