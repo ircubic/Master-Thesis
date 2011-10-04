@@ -1,0 +1,63 @@
+* Refs for spesialpensum
+** Game AI
+1. Orkin03 - Orkin, J., "Applying Goal-Oriented Action Planning to Games," AI
+   Game Programming Wisdom 2, Charles River Media, 2003
+2. Isla02 - Isla, D. and Blumberg, B., "New Challenges for Character-Based AI in
+   Games," Artificial Intelligence and Interactive Entertainment: Papers from
+   the 2002 AAAI Spring Symposium, AAAI Press, 2002
+   https://www.aaai.org/Papers/Symposia/Spring/2002/SS-02-01/SS02-01-009.pdf
+3. [Mateas02] Mateas, M. and Stern, A., “A Behavior Language for Story-based
+   Believable Agents,”
+   http://www-2.cs.cmu.edu/~michaelm/publications/AI-IE2002.pdf
+4. Efficient, Realistic NPC Control Systems using Behavior-Based Technique
+5. Symbolic Representation of Game World State: Toward Real-Time Planning in Games
+6. Motivated Reinforcement Learning for Non-Player Characters in Persisten
+   Computer Game Worlds
+** Automated programming / ADATE
+* Notes on methodology
+** Experimentation platform
+   Should the game used as a basis for the research be pre-made, or is one to be
+   created alongside the research?
+
+   Pros to using pre-made:
+   - Little-to-no time wasted on implementation issues
+   - Better tested and more functional than a homegrown solution
+
+   Cons to using pre-made:
+   - Might not support everything we want in AI programming
+   - Might be hard to find something simple enough to make the project feasible
+
+   A third option is hacking an existing solution to support what we want.
+** How to measure results
+   Since the aim of the project is to measure how engaging or fun an AI is to
+   play with, it might be hard to find a reliable way to measure this. The
+   method most used outside of academia is user testing, but this might be hard
+   to pull off, takes time, and lacks rigour. Another method is to set up
+   certain criteria by which to measure "fun," and apply those to the AI's
+   performance to get our results.
+
+   Ultimately the difficulty lies with finding a balance between practical
+   application of the research results and the academic value of the research,
+   and this has to be found by deciding how close to align oneself with the
+   methods of each "camp".
+
+   Most crucially, the question of whether generated AI is even distinguishable
+   from a reasonable well created "static", complex AI, and if the added
+   overhead and lack of control is even worth it, must be answered.
+** How to drive the AI
+   Should the code being generated be the sole driver of the NPC's AI, possibly
+   having been derived from a few selections of "decent" pre-programmed AIs that
+   exhibit certain "Classes of behaviour"; Or should the AI being generated
+   instead make use of existing AI frameworks and algorithms?
+
+   The benefit of using existing frameworks and algorithms would lie in allowing
+   much more complex AI to be utilized, at a much higher performance than
+   anything that could be produced during the course of the project.
+
+   The downside is that it will be much harder to accomodate for the intricacies
+   of existing solutions in the scope of automated programming. This is perhaps
+   a side-point to be explored when evaluating the usefulness of automated
+   programming for NPC behaviour. Another downside is that it might be harder to
+   compare the performance of premade NPCs and generated NPCs when their
+   behaviour grows more complex, so sticking to a simple self-grown AI code
+   might be a better idea for simpler analysis of results.
