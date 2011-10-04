@@ -1,7 +1,7 @@
 * Refs for spesialpensum
-** Game AI
-1. Orkin03 - Orkin, J., "Applying Goal-Oriented Action Planning to Games," AI
-   Game Programming Wisdom 2, Charles River Media, 2003
+** Game AI - techniques
+1. Intelligent Agents in Computer Games
+   https://www.aaai.org/Papers/AAAI/1999/AAAI99-143.pdf
 2. Isla02 - Isla, D. and Blumberg, B., "New Challenges for Character-Based AI in
    Games," Artificial Intelligence and Interactive Entertainment: Papers from
    the 2002 AAAI Spring Symposium, AAAI Press, 2002
@@ -9,11 +9,61 @@
 3. [Mateas02] Mateas, M. and Stern, A., “A Behavior Language for Story-based
    Believable Agents,”
    http://www-2.cs.cmu.edu/~michaelm/publications/AI-IE2002.pdf
-4. Efficient, Realistic NPC Control Systems using Behavior-Based Technique
-5. Symbolic Representation of Game World State: Toward Real-Time Planning in Games
-6. Motivated Reinforcement Learning for Non-Player Characters in Persisten
+4. Efficient, Realistic NPC Control Systems using Behavior-Based Techniques
+   http://www.aaai.org/Papers/Symposia/Spring/2002/SS-02-01/SS02-01-010.pdf
+5. Orkin03 - Orkin, J., "Applying Goal-Oriented Action Planning to Games," AI
+   Game Programming Wisdom 2, Charles River Media, 2003
+6. Motivated Reinforcement Learning for Non-Player Characters in Persistent
    Computer Game Worlds
+   http://portal.acm.org/citation.cfm?id=1178828
+7. Games, computers, and artificial intelligence
+   http://www.acso.uneb.br/marcosimoes/Arquivos/IA/sdarticle_games.pdf
+** Game AI - entertainment
+1. Symbolic Representation of Game World State: Toward Real-Time Planning in
+   Games
+   http://www.aaai.org/Papers/Workshops/2004/WS-04-04/WS04-04-006.pdf
+2. AI in computer games: generating interesting interactive opponents by the use
+   of evolutionary computation
+   http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.60.6998&rep=rep1&type=pdf
+3. Adaptive Game AI
+   http://www.computerscience.nl/docs/vakken/mgmag/Adaptive%20Game%20AI%202010.pdf
+4. AI in Computer Games: Generating Interesting Interactive Opponents by the use
+   of Evolutionary Computation
+   http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.60.6998&rep=rep1&type=pdf
+5. TOWARDS OPTIMIZING ENTERTAINMENT IN COMPUTER GAMES
+   http://www.mip.sdu.dk/~georgios/AAI.pdf
+6. Maintaining optimal challenge in computer games through real-time
+   physiological feedback
+   http://research.vuse.vanderbilt.edu/rasl/PDF%20files/HCI_Pramila.pdf
+7. Difficulty scaling of AI
+   http://www.nici.ru.nl/~idak/publications/papers/SpronckGAMEON2004.pdf
+8. Evolving opponents for interesting interactive computer games
+   http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.60.6629&rep=rep1&type=pdf
+9. Real-time game adaptation for optimizing player satisfaction
+   http://www.itu.dk/people/yannakakis/TCIAIG_RealTimeAdaptation.pdf
+10. How to model and augment player satisfaction: A review
+    http://www.itu.dk/people/yannakakis/wocci.pdf
 ** Automated programming / ADATE
+1. Genetic Programming and Emergent Intelligence
+   http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.15.5594&rep=rep1&type=pdf
+2. J. R. Olsson, Inductive functional programming using incremental program
+   transformation and Execution of logic programs by iterative-deepening A*
+   SLD-tree search, Research report 189, Dr scient thesis, ISBN 82-7368-099-1,
+   University of Oslo, October 1994.
+3. J. R. Olsson, Inductive functional programming using incremental program
+   transformation, Artificial Intelligence, volume 74, number 1, March 1995,
+   pp. 55-83.
+4. J. R. Olsson, Population management for automatic design of algorithms through
+   evolution, International Conference on Evolutionary Computation, IEEE Press,
+   1998.
+5. J. R. Olsson, The art of writing specifications for the ADATE automatic
+   programming system, Genetic Programming 1998, Morgan Kaufmann.
+6. J. R. Olsson and B. Wilcox, Self-Improvement for the ADATE Automatic Programming
+   System, A more preliminary version of this paper was published at the 3rd
+   WSES International Conference on Evolutionary Computation, WSES Press, 2002.
+7. J.R. Olsson and D. M. W. Powers, Machine Learning of Human Language through
+   Automatic Programming, International Conference on Cognitive Science,
+   University of New South Wales, July 2003, pp. 507-512.
 * Notes on methodology
 ** Experimentation platform
    Should the game used as a basis for the research be pre-made, or is one to be
