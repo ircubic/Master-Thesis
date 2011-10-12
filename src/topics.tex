@@ -1,10 +1,12 @@
 \documentclass[]{report}
+\usepackage[round,sort&compress,authoryear]{natbib}
 \usepackage[usenames,dvipsnames]{color}
 \usepackage{listings}
 \usepackage{hyperref}
 \usepackage{hypcap}
 \usepackage{graphicx}
 \usepackage{amssymb,amsmath}
+
 
 % Set up some colors
 \definecolor{gray92}{gray}{.92}
@@ -65,9 +67,32 @@
 
 \chapter{Introduction}
 
+This document covers a selection of the most relevant previous work related to
+my Thesis.
 
-\chapter{Game AI}
+There are two main areas that have to be covered, specifically the topics of
+Artificial Intelligence in games, divided into AI implementation techniques and
+AI entertainment value, and Automatic Programming.
+
+There is also some work that relates to the specific topic of using Automatic
+Programming to improve game AI, either for skill or entertainment value.
+
+\chapter{Related work}
+\label{cha:related-work}
+
+\section{Game AI}
 \label{cha:conclusion}
+
+The work existing on the topic of Artificial Intelligence in games can be roughly
+divided between work describing various implementation techniques, and work
+describing how to make game AI more entertaining within the constraints of
+existing implementation techniques.
+
+The line between these two subtopics is very fuzzy and gradual, so some
+judgment has been employed when putting the work into one category or the other,
+in some cases the choice is purely symbolical, such as when the work describes a
+new implementation technique created for the express purpose of increasing
+entertainment value, such as in \citet{Mateas02}.
 
 \subsection{Techniques}
 \label{sec:techniques}
@@ -75,12 +100,14 @@
 \subsection{Entertainment value}
 \label{sec:entertainment-value}
 
-\chapter{Automatic Programming}
+\section{Automatic Programming}
 \label{cha:autom-progr}
 
+\chapter{Conclusion}
+\label{cha:conclusion-1}
 
-\bibliography{thesis}{}
-\bibliographystyle{plain}
+\bibliographystyle{abbrvnat}
+\bibliography{topics}
 
 \end{document}
 
