@@ -15,7 +15,7 @@
 
 % Set up some PDF options and reference coloration
 \hypersetup{
-    pdftitle={Selected Topics},
+    pdftitle={Selected Topics regarding Automated Synthesis of NPCs},
     pdfauthor={Daniel E. Bruce},     % author
     colorlinks=true,       % false: boxed links; true: colored links
     linkcolor=red,          % color of internal links
@@ -53,7 +53,6 @@
 \renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%
 {\raggedright\footnotesize #1}}
 
-
 %
 % Document begins here
 %
@@ -64,6 +63,7 @@
 \maketitle
 
 \tableofcontents
+
 
 \chapter{Introduction}
 \label{cha:introduction}
@@ -152,14 +152,14 @@ Before going further it would be useful to go through the history of Artificial
 Intelligence, to see its roots, and how closely it has developed alongside the
 field of computer science itself. \citep{luger2005artificial,buchanan2002brief}
 
-The field has traces back to antiquitiy with greek myths about artificial
+The field has traces back to antiquity with Greek myths about artificial
 beings, such as the golems and homunculus, and to the writings of many ancient
 scholars (among others, Aristotle and Euclid) on the topic of reasoning, logic
 and the mind. Further there have been many people working on mechanical
 automaton, which tried to emulate human behaviour.
 
 There was early work on intelligent machines from the very point where there
-existed computers, but computer AI as a field didn't really come into existance
+existed computers, but computer AI as a field didn't really come into existence
 until 1950, through a pair of papers.
 
 \begin{enumerate}
@@ -202,7 +202,7 @@ within a limited space on the same level as a human expert, using the
 traditional symbolic methods, before Neural Networks become widely used using
 backpropagation (first introduced in \citet{werbos1974beyond}).
 
-Around the 80s, the American Assosication for Artificial Intelligence (AAAI, now
+Around the 80s, the American Association for Artificial Intelligence (AAAI, now
 named the Association for the Advancement of Artificial Intelligence after a
 name change in 2007), which hosts many conferences and symposia each year, and
 supports several journals on AI.
@@ -225,7 +225,7 @@ from the goal of creating a human machine.
 \subsection{Symbolic AI}
 \label{sec:symbolic-ai}
 
-This subfield of AI is also known as ``traditional'' or ``classic'' AI, and was
+This sub-field of AI is also known as ``traditional'' or ``classic'' AI, and was
 the approach that was used during the inception of AI, and is still heavily used
 today. It is characterized by a top-down focus on logic and reasoning, and
 relies on a symbolic description of the world, such as a set of rules, and is
@@ -238,7 +238,7 @@ processing.
 \subsection{Biology-inspired AI}
 \label{sec:biology-inspired-ai}
 
-This term describes two subfields of AI, ``Neural Networks'' and ``Evolutionary
+This term describes two sub-fields of AI, ``Neural Networks'' and ``Evolutionary
 Computing'', both of which attempt to mimic biological processes, although not
 in a way that attempts to emulate them faithfully. The two are also part of a
 branch of Artificial Intelligence called Machine Learning, alongside techniques
@@ -292,7 +292,7 @@ mechanics of biological evolution: reproduction, mutation, recombination and
 selection.
 
 These methods present the problem by taking a starting point towards a solution,
-(which can be of any complexity, from nonexistant to a ``best-known'' program),
+(which can be of any complexity, from nonexistent to a ``best-known'' program),
 then ``reproduce'' it by applying a random set of mutations to generate a
 certain amount of new solutions (called individuals). These individuals are then
 tested with a fitness function defined by the person attempting to solve the
@@ -306,9 +306,10 @@ the list is culled to a specific length by removing the least fit
 individuals. This process is repeated until an optimal solution is found, or the
 solution is deemed good enough.
 
-The system used in my thesis, ADATE \citep{vattekar2006adate}, fits into a
-subfield of Evolutionary Computing called Inductive Programming, which will be
-described in Chapter \ref{cha:induct-progr}.
+The system used in my thesis, ADATE \citep{olsson1995inductive}, is an
+Evolutionary Computing system that fits into a sub-field of Artificial
+Intelligence called Inductive Programming, which will be described in Chapter
+\ref{cha:induct-progr}.
 
 \section{Game AI techniques}
 \label{sec:game-ai-techniques}
@@ -389,7 +390,7 @@ Traditional game AI or ``simple AI'' is what game AI started out as, and still
 to this day mostly uses. It's based upon simple rules or simple logical systems,
 and has traditionally used a sampling of simple techniques, such as simply hard
 coding the AI in a single routine, utilizing Finite State Machines, or using
-rule-based systems. In addition, pathfinding has always been a topic with AIs,
+rule-based systems. In addition, path finding has always been a topic with AIs,
 where simple algorithms like A* have been dominant for a long time.
 
 The common factor in traditional game AI techniques is that they tend to be
@@ -407,10 +408,10 @@ used to this day, as it's easy to create, and usually many minor opponents in
 games don't need more sophistication than this method creates.
 
 A good example of this technique is Pac-Man's ghosts, which used simple
-pathfinding, and a selection of ``modes'' for the ghosts globally, then four
+path finding, and a selection of ``modes'' for the ghosts globally, then four
 different targeting rules to give each ghost a ``personality'' as their entire
 AI \citep{birch2010pacman,pittmanpac}. Even this very simple AI creates
-interesting behaviours and engaging gameplay which propelled Pac-Man to one of
+interesting behaviours and engaging game play which propelled Pac-Man to one of
 the most recognized games in video game history, evidence that you don't need
 fancy high-powered neural nets to create interesting games.
 
@@ -510,7 +511,7 @@ computer being shot. In the traditional FSM-based system, each state had to be
 exited fully before being able to transition, so when the NPC was shot, they
 would exit their ``work'' state by turning off their computer, pushing out their
 chair, and standing up, before promptly falling over dead. Not really what one
-would consider human-like, or even believeable, behaviour. In a planning system,
+would consider human-like, or even believable, behaviour. In a planning system,
 that transition would be dynamically created, and the NPC would just slump over
 dead from its chair, as one would expect.
 
@@ -587,13 +588,13 @@ Measuring a real human being's response to a game will give you the most
 accurate measurement of entertainment, but it comes at a cost. The methods of
 doing so can be very costly, in equipment, time, or both. There is also ample
 room for bias either by the one doing the measurements or the measured person,
-concious or subconscious.
+conscious or subconscious.
 
 Techniques employed here can range from very primitive to very advanced, and
 include everything from surveys, to hooking a player up to gear to measure brain
 waves.
 
-Simple surveys or questionnares are easy and cheap to implement, but suffer from
+Simple surveys or questionnaires are easy and cheap to implement, but suffer from
 not being able to capture complex data. In addition, and suffer from bias on the
 part of the person filling out the data, where they subconsciously fill out data
 closer to what they think you might be looking for than what they actually think
@@ -645,7 +646,7 @@ this, it's argued, is having a way of directly quantifying ``fun''.
 
 As demonstrated in the reports, being able to do this quantification is
 important for being able to evolve ``fun'' AI offline. It is prohibitively
-difficul to make a fitness function for entertaining NPCs otherwise, as it is
+difficult to make a fitness function for entertaining NPCs otherwise, as it is
 unreasonable to expect to be able to have a player play against every new
 individual and rate the AI's fitness.
 
