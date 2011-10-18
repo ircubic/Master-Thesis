@@ -694,24 +694,139 @@ more detail in Chapter \ref{cha:game-ai-via}.
 \chapter{Inductive Programming}
 \label{cha:induct-progr}
 
-As noted in section \ref{sec:evol-comp}, ADATE \citep{olsson1994inductive,vattekar2006adate} fits
-into a subfield of evolutionary computing called Inductive Programing. This
-subfield applies evolutionary computing to the problem of making computer
-programs, and the units which are manipulated (the ``genes'' if you will) are
-computer code operations. Apart from that, the process which is followed is very
-much like the one described in the previous section.
+As noted in section \ref{sec:evol-comp}, ADATE \citep{olsson1995inductive} fits
+into a sub-field of Artificial Intelligence called Inductive Programming, which is
+actually a field recently emerging from being fragmented across Inductive Logic
+Programming, Genetic Programming, and Machine Learning
+\citep{kitzelmann2010inductive}.
 
-The aim of Inductive Programming is to create programs based on incomplete
-specifications. These specifications are given in the form of a set of inputs
-with matching outputs or an output evaluation function that are used to evaluate
-a generated program's fitness. The systems can take other inputs to help guide
-it towards an acceptable solution, in the form of constraints on efficiency and
-complexity; background information about data types, functions available for use
-in the generated code and information about the flow of the intended program;
-heuristics or bias to guide the system towards a certain
-solution. \citep{aaip2010intro}
+\section{Introduction to Inductive Programming}
+\label{sec:intr-induct-progr}
 
+As described by the Approaches and Applications of Inductive Programming work
+group \citep{aaip2010intro}, the aim of Inductive Programming is to create
+programs based on incomplete specifications. These specifications are given in
+the form of a set of inputs with matching outputs or an output evaluation
+function that are used to evaluate a generated program's fitness. This is
+opposed to Deductive approaches which start with a high-level description of the
+wanted system, then have the system generate code that matches the
+description.
 
+The biggest difference between the two approaches is that the Deductive approach
+guarantees that a solution is correct, although it requires the problem to be
+well-understood and a specification to be written, whereas the Inductive
+approach does not guarantee a fully correct solution, but only requires input
+and output data to create its solution.
+
+To help guide it towards an acceptable solution the Inductive Programming system
+can also take other inputs in their specifications, in the form of constraints
+on efficiency and complexity; background information about data types, functions
+available for use in the generated code and information about the flow of the
+intended program; heuristics or bias to guide the system towards a certain
+solution. These are, however, not required.
+
+As my thesis will be using the ADATE system, I will be explaining the details of
+Inductive Programming in context of the ADATE system, as described in
+\citet{olsson1994inductive} and \citet{vattekar2006adate}.
+
+\section{The ADATE system}
+\label{sec:adate-system}
+
+ADATE's approach to Inductive Programming, formally named Evolutionary Inductive
+Programming \citep{crossleycombining}, applies evolutionary computing to the
+problem of making computer programs and the units which are manipulated (the
+``genes'' if you will) are computer code operations. Apart from that, the
+process which is followed is very much like the one described in the previous
+section about evolutionary computing (section \ref{sec:evol-comp}).
+
+All Inductive Programming system generate code in a specific programming
+language, usually simplified or streamlined for the purpose, and ADATE is no
+exception. It uses a subset of Standard ML, called ADATE-ML, for its generated
+code, as well as for parts of its specification. \marginpar{Fill out details about ADATE ML here}
+
+As mentioned before, all Inductive Programming systems make use of a
+specification with the input and output necessary to frame the problem. ADATE's
+specifications only make use of an output evaluation function, it does not
+support, out of the box, the simpler variety of matching input data with output
+data, although it is trivial to write an output evaluation function that works
+in such a manner. ADATE also requires an initial program to be part of its
+specification, although this program may be as simple as an empty function, as
+the method it uses to generate programs is a form of local optimization, in
+which a program is continuously improved to find better and better solutions.
+
+ADATE's specification is written in two parts, one in ADATE ML and the other in
+Standard ML, separated by a ``\%\%'' token.
+
+The ADATE ML part contains three different things:
+\begin{enumerate}
+\item Definitions of data types and functions that can be used by the code that
+  is generated by ADATE.
+\item The initial program, called \(f\), that the ADATE system will start from
+  and improve, which takes the inputs and returns an output.
+\item A function \(main\) which is called by the ADATE's evaluation cycle, and
+  can provide a scaffolding or a context around \(f\). This comes in handy
+  if \(f\) is supposed to be a small part of a larger program, but the
+  performance of the program is dependant on the performance of \(main\)
+  itself, which may call \(f\) several times (perhaps not a constant or
+  determinable amount) during its execution.
+\end{enumerate}
+
+The Standard ML part of the specification can contain any user supplied code
+that might be used as part of the evaluation, but must define a certain set of
+callbacks that are called by the ADATE system. These callbacks define things
+such as the input data, any validation inputs, the set of functions that should
+be available for generated code, the evaluation function, the parameters
+governing amount and complexity of generated individuals, and other small
+details (consult \citet[sect.~4.2]{vattekar2006adate} for details).
+
+As ADATE is an evolutionary system, it uses the same general process as other
+genetic systems, being that of a cycle of procreation, evaluation and culling in
+the search for ever improving performance. These steps will now be described as
+they apply to ADATE.
+
+The process of creating new individuals in ADATE functions like most other
+Evolutionary Computing solutions, in that it utilizes both mutation and genetic
+crossover (albeit only in a limited fashion). When ADATE creates a new
+individual it starts out with an individual from the ``kingdom'' existing
+individuals (which at the beginning is only one program), then applies a series
+of transformations called ``compound transformations'' to create the new
+individual.
+
+The six basic transformations available for use by ADATE are as follows:
+\begin{description}
+\item[R] is the only transformation that can actually change the semantics of a
+  program, and it does this by replacing a part of the program with a new
+  synthesized expression.
+\item[REQ] is an \(R\) transformation that is guaranteed to not make the program
+  worse.
+\item[ABSTR] abstracts a piece of the program out into a separate function which
+  can then later be reused by the program in several places.
+\item[EMB] updates an existing function by adding a new parameter to it, and
+  updates all calls to the function to take into account the new parameter.
+\item[CASE-DIST] rearranges code within \(case\) and \(let\) expressions in a
+  way such that semantics are preserved.
+\item[Crossover] takes a series of REQ transformation and treats them as alleles
+  in a genetic recombination.
+\end{description}
+
+The individuals are then evaluated by running the evaluation function specified
+in the specification file on \(main\), using the current individual as \(f\),
+over all the examples given. The evaluation value from this function is then
+used to compute a few values regarding the individual's performance (among others
+the time it takes to run and the complexity of the program).
+
+If the individual evaluates better than any of the solutions currently in the
+kingdom, the evaluation value is then used to group the individual with others
+of similar performance in the kingdom. The kingdom is then culled by removing
+the lowest ranked individual. The process then continues by creating a new
+individual from the same base individual as before, until a given time limit is
+elapsed, at which point a new base individual is chosen.
+
+This loop continues forever until the program is halted, and output is written
+to disk while the program runs. This output shows the current state of the
+system, and the current best individuals along with their code. By evaluating
+this output, the user of the system can decide if a good enough solution has
+been created, or if the system needs to be stopped for other reasons.
 
 \chapter{Evolving Game AI}
 \label{cha:game-ai-via}
