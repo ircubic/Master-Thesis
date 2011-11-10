@@ -73,8 +73,9 @@ my Thesis with the working title ``Automated Synthesis of NPC AI with ADATE'',
 on the topic of creating AI for game Non-Playing Characters with inductive
 programming, using the ADATE system.
 
-There are two main areas that have to be covered, specifically the topics of
-Artificial Intelligence and Inductive Programming.
+There are three main areas that have to be covered, specifically Artificial
+Intelligence techniques in general, more specific coverage of Inductive
+Programming which ADATE is part of, and the topic of NPC Entertainment Value.
 
 The work existing on the topic of Artificial Intelligence in games can be
 roughly divided between work describing various implementation techniques, and
@@ -186,7 +187,7 @@ can simulate conversation \citep{weizenbaum1966eliza}.
 
 Later, there was work into ``knowledge-based programs'' for artificial
 reasoning, which created programs able to interpret mass spectra of chemical
-compounds, solve integration problems in math, and play chess good enough to
+compounds, solve integration problems in math, and play chess well enough to
 reach a class-C rating.
 
 In 1969, the beginnings of Neural Networks were appearing with
@@ -557,7 +558,7 @@ technique for research purposes and pitting it against humans and/or other bots
 in a multiplayer setting.
 
 
-\chapter{NPC Entertainment value}
+\chapter{Making NPCs Entertaining}
 \label{cha:npc-entert-value}
 
 When AI is used for NPCs in games, the main goal is not to perfectly emulate a
@@ -613,7 +614,8 @@ directly measure a person's enjoyment of a game, by utilizing physical measures
 such as Galvanic Skin Response, Electrocardiography and respiration. This
 involves hooking the players up to a series of equipment via scores of
 electrodes and wires, and is thus a lot more expensive, time consuming and
-intrusive. One way of doing this is described in \citet{mandryk2006using}.
+intrusive. One way of doing this is described in \citet{mandryk2006using},
+another in \citet{yannakakis2008entertainment}.
 
 \subsection{Quantifying entertainment}
 \label{sec:quant-entert}
@@ -832,8 +834,74 @@ been created, or if the system needs to be stopped for other reasons.
 \chapter{Evolving Game AI}
 \label{cha:game-ai-via}
 
+Using evolutionary techniques for game AI is not an entirely new topic, although
+doing it with the goal of creating entertaining or fun AI is a more recent
+development. The major body of research on this topic focuses on evolving an
+agent that can successfully play a game, or execute certain maneuvers, in a
+human-seeming manner.
+
+Much of the research on evolution in game follows the research on learning in
+games, by focusing on First Person Shooter games, in particular well-known ones
+with good facilities for creating ``bots''. Examples of such research include
+using evolution to tune the parameters given to a bot for the game \emph{Counter
+  Strike} \citep{cole2004using}, using evolution to teach a bot to do rocket
+jumps and dodge fire in an unspecified game \citep{champandard2003ai}.
+
+Other research on using evolution to create game AI, using other kinds of games,
+include the use of evolution to create an AI to play the RTS game \emph{WARGUS}
+(a \emph{WarCraft II} clone implemented in the \emph{Stratagus} engine)
+\citep{spronck2004difficulty}. Another example is the use of an ice hockey
+environment to explore evolutionary learning \citep{blair1999exploring}. There
+are a couple pieces of research on using online co-evolutionary methods against
+human players over the Internet, using the game Tron
+\citep{funes2000measuring,funes1998animal}. In addition, there has been research
+into using offline and online co-evolution with action games
+\citep{demasi2003online}.
+
+There does not exist much research on evolving game AI with the express purpose
+of creating entertaining NPC behaviour, as most of the body of work focus on
+creating human-like behaviour. Of course, as \citet{bauckhage2003learning}
+states, one component of human-like behaviour is to be unpredictable, which, as
+we noted in section \ref{sec:quant-entert}, is a component of interesting or
+entertaining NPCs. It all comes down to how you define ``human-like'', which
+could be either as simple as ``seems to exhibits intelligence'' or having an
+agent that simulates most human traits and capabilities to learn and adapt. No
+matter how you define it, however, the majority of existing research use fitness
+functions that do not specifically test for entertainment value or
+interestingness.
+
+One body of work that does do this is the work of Georgios Yannakakis, along
+with John Hallam, who wrote his PhD dissertation \citep{yannakakis2005ai} on
+this topic. He has also authored a few articles regarding this and related
+topics, such as on how to measure and quantify entertainment
+\citep{yannakakis2007modeling,yannakakis2008model,yannakakis2008entertainment},
+how to use these models to increase a player's satisfaction with a game
+\citep{yannakakis2009real,yannakakis2008model} and of course further articles
+regarding the use of evolution in creating games
+\citep{yannakakis2004evolving,yannakakis2004interactive}.
+
 \chapter{Conclusion}
 \label{cha:conclusion}
+
+What we take away from all of this is that there is a large and voluminous
+body of research on the underpinnings of my thesis, Especially on the topic of
+Artificial Intelligence and their techniques, including the particular sub-field
+under which ADATE falls, as well as their use in games.
+
+There is also a decent amount of research on the topic of what makes games fun,
+techniques to measure a game's entertainment value, and how to increase it by
+the use of intelligent and human-like NPC AI.
+
+However, there is not much work specifically on the topic of evolving NPC AI,
+especially not with direct focus on creating interesting AI, although there is
+enough research to base my own work on.
+
+During my thesis project I will lean on the work of Yannakakis when it comes to
+the framing of my problem and my fitness functions, but I will also incorporate
+information from other sources on NPC entertainment and AI techniques. I will
+also probably utilize a similar game as he, but I will have to frame my problem
+differently due to my use of Inductive Programming which will be tougher to do
+online learning with.
 
 \bibliographystyle{abbrvnat}
 \bibliography{topics}
