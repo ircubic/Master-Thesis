@@ -69,13 +69,16 @@
 \label{cha:introduction}
 
 This document covers a selection of the most relevant previous work related to
-my Thesis with the working title ``Automated Synthesis of NPC AI with ADATE'',
-on the topic of creating AI for game Non-Playing Characters with inductive
-programming, using the ADATE system created by Roland J. Olsson.
+my Master's thesis, with the working title ``Automated Synthesis of NPC AI with
+ADATE'', on the topic of creating AI for game Non-Playing Characters with
+inductive programming using the ADATE system created by Roland J. Olsson.
 
 There are three main areas that have to be covered, specifically Artificial
-Intelligence techniques in general, more specific coverage of Inductive
-Programming which ADATE is part of, and the topic of Making NPCs Entertaining.
+Intelligence techniques in general, both as used by games and as covered by
+traditional research; more specific coverage of the field of Artificial
+Intelligence which ADATE is part of, Inductive Programming; and the topic of
+Making NPCs Entertaining, both methods for measurement of entertainment and AI
+techniques for increasing the entertainment level of NPCs.
 
 The work existing on the topic of Artificial Intelligence in games can be
 roughly divided between work describing various implementation techniques, and
@@ -86,12 +89,11 @@ The line between these two subtopics is very fuzzy and gradual, so some judgment
 has been employed when putting the work into one category or the other, in some
 cases the choice is purely symbolical, such as when the work describes a new
 implementation technique created for the express purpose of increasing
-entertainment value \citep[for example][]{khoo2002efficient}.
+entertainment value.
 
-There is also some work on the more specific subtopic of using Evolutionary
+There is also some work on the more directly related topic of using Evolutionary
 Computing techniques such as Inductive Programming to improve game AI, either
-for skill or entertainment value, which relates directly to the topic of my
-thesis.
+for skill or entertainment value.
 
 \chapter{AI techniques}
 \label{cha:ai-techniques}
@@ -99,28 +101,31 @@ thesis.
 There is constant work on new AI techniques, both to make AI more efficient, and
 to make AI seem smarter or more human. Familiarizing oneself with some of these
 will allow better ability to choose an implementation technique that fits with
-the goal of allowing automatic programming.
+the goal of using inductive programming.
 
-There is some differences between the techniques used in ``traditional'' AI and
-game AI, primarily based on the performance of the various methods and their
-focus on ability to solve problems and be entertaining, respectively. The two
-areas seem to be converging, however, as traditional AI is starting to shift
-from the goal of being ``really smart'' to making computers seem more human,
-have an ability to learn and adapt, and maybe act like assistants, as detailed
-in \citet[][]{ramos2008guest}.
+There is some differences between the techniques employed in ``traditional'' AI
+and game AI, primarily based on the performance of the various methods and their
+focus on the AI's ability to solve problems and be entertaining,
+respectively. The two areas seem to be converging, however, as traditional AI is
+starting to shift from the goal of being ``really smart'' and solving hard
+problems, to making computers that seem more human, have an ability to learn and
+adapt, and maybe act like assistants, as detailed in \citet[][]{ramos2008guest}
+and evidenced by the AI-controlled assistant feature, named Siri, in the
+Apple iPhone 4S \citep{apple2011siri}.
 
 When it comes to games (both video games and traditional games), the biggest
-difference in how to do the AI comes from whether or not the players have
-perfect information and whether there is chance involved. A perfect-information
-game will require a completely different approach to AI than a
-hidden-information or a stochastic game, and this will heavily influence what
+deciding factor in how to implement the AI stems from whether or not the agents
+have perfect information and whether there is chance involved. A
+perfect-information game will require a completely different approach to AI than
+a hidden-information or stochastic game, and this will heavily influence what
 type of AI is utilized, as mentioned in \citet[pg.~4-5]{schaeffer2002games}.
 
 \section{Traditional AI techniques}
 \label{sec:trad-ai-techn}
 
-As noted in \citet[chap.~1]{munakata2008fundamentals} there are six main areas
-of AI techniques, namely:
+As noted in \citet[chap.~1]{munakata2008fundamentals}, AI techniques can be
+divided into six areas, although these divisions can be debated and should not
+be considered a rigorous division, namely:
 
 \begin{enumerate}
 \item Symbolic AI (also ``traditional AI'')
@@ -142,8 +147,8 @@ AI''.
 
 The remaining three methods are more recent developments which attempt to attack
 the problem from a different angle, collectively called ``soft AI'' due to their
-focus on not giving ``hard answers'' and use of uncertainty. These methods are
-less relevant to the topic of my thesis, and as such will not be covered
+focus on not giving ``hard answers'' and reliance on uncertainty. These methods
+are less relevant to the topic of my thesis, and as such will not be covered
 further.
 
 \subsection{History}
@@ -153,15 +158,16 @@ Before going further it would be useful to go through the history of Artificial
 Intelligence, to see its roots, and how closely it has developed alongside the
 field of computer science itself. \citep{luger2005artificial,buchanan2002brief}
 
-The field has traces back to antiquity with Greek myths about artificial
-beings, such as the golems and homunculus, and to the writings of many ancient
-scholars (among others, Aristotle and Euclid) on the topic of reasoning, logic
-and the mind. Further there have been many people working on mechanical
-automaton, which tried to emulate human behaviour.
+The field has traces back to antiquity with Greek myths about artificial beings
+such as the golems and homunculus, which were ``programmed'' to perform tasks
+through occultic writing, and to the writings of many ancient scholars
+(Aristotle and Euclid, among others) on the topic of reasoning, logic and the
+mind. Further there have been many people working on mechanical automaton
+through the ages, attempting to have them emulate human behaviour.
 
-There was early work on intelligent machines from the very point where there
-existed computers, but computer AI as a field didn't really come into existence
-until 1950, through a pair of papers.
+There was early work on intelligent machines from the very time computers
+existed, but computer AI as a field didn't really come into existence until
+1950, through a pair of papers.
 
 \begin{enumerate}
 \item A very important paper was published by by Alan Turing named ``Computing
@@ -172,21 +178,21 @@ until 1950, through a pair of papers.
 \end{enumerate}
 
 The term ``artificial intelligence'' wasn't coined until six years later when
-John McCarthy used the term for the first AI conference in 1956, where the first
-running AI program (the Logic Theorist) was demonstrated.
+John McCarthy used the term for the first conference on the topic in 1956, where
+the first running AI program (the Logic Theorist) was demonstrated.
 
 It didn't take long for AI programs to challenge humans at board games, with the
 first program to challenge a human world champion being made in 1962 by Arthur
-Samuel, aimed at the game of checkers and utilizing machine learning to improve
-its performance.
+Samuel The program was aimed at the game of checkers and utilizing machine
+learning to improve its performance.
 
-Further works into problem solving led to SAINT, that solves calculus at a
-freshman level \citep{slagle1963heuristic}; ANALOGY, that solves the kind of
-analogy questions found on IQ tests \citet{evans1964program}; and ELIZA, which
-can simulate conversation \citep{weizenbaum1966eliza}.
+Further works into computer-assisted problem solving led to SAINT, that solved
+calculus at a freshman level \citep{slagle1963heuristic}; ANALOGY, that solved
+the kind of analogy questions found on IQ tests \citet{evans1964program}; and
+ELIZA, which could simulate conversation \citep{weizenbaum1966eliza}.
 
 Later, there was work into ``knowledge-based programs'' for artificial
-reasoning, which created programs able to interpret mass spectra of chemical
+reasoning, which described programs able to interpret mass spectra of chemical
 compounds, solve integration problems in math, and play chess well enough to
 reach a class-C rating.
 
@@ -199,38 +205,38 @@ Meta-Dendral learning program \citep{buchanan1976applications}.
 
 Through the 70s and into the 80s, an explosion of well-known AI programs
 occurred. Many ``expert systems'' were made that were capable of reasoning
-within a limited space on the same level as a human expert, using the
+within a limited knowledge space on the same level as a human expert, using the
 traditional symbolic methods, before Neural Networks become widely used using
 backpropagation (first introduced in \citet{werbos1974beyond}).
 
 Around the 80s, the American Association for Artificial Intelligence (AAAI, now
 named the Association for the Advancement of Artificial Intelligence after a
-name change in 2007), which hosts many conferences and symposia each year, and
-supports several journals on AI.
+name change in 2007) was founded. The AAAI hosts many conferences and symposia
+each year, and supports several journals on AI.
 
-Another such boom happened in the 90s with major advances in all areas of AI,
-with significant demonstrations in machine learning, intelligent tutoring,
-case-based reasoning, multi-agent planning, scheduling, uncertain reasoning,
-data mining, natural language understanding and translation, vision, virtual
-reality, games, and other topics.
+Another boom in AI research happened in the 90s with major advances in all areas
+of AI, with significant demonstrations in machine learning, intelligent
+tutoring, case-based reasoning, multi-agent planning, scheduling, uncertain
+reasoning, data mining, natural language understanding and translation, vision,
+virtual reality, games, and other topics.
 
-The 90s also had two significant events in games being played by AI, Deep Blue
-beat Garry Kasparov in 1997, and TD-Gammon was written, that played backgammon
-at championship-level. In addition, AI was starting to see use in cataloguing
-the internet.
+The 90s also had two significant accomplishments of AI programs for playing
+games: Deep Blue beat Garry Kasparov in 1997, and TD-Gammon, an AI that played
+backgammon at championship-level, was written. In addition, AI was starting to
+see use in cataloguing the internet.
 
-This brings us to today, with AI seeing use in toys (such as robotic pets), and
-other forms of entertainment (most notably video games), but is still far away
-from the goal of creating a human machine.
+This brings us to today, where AI is proliferating, seeing use in toys (such as
+robotic pets) and other forms of entertainment (most notably video games), but
+is still far away from the goal of creating a truly human machine.
 
 \subsection{Symbolic AI}
 \label{sec:symbolic-ai}
 
 This sub-field of AI is also known as ``traditional'' or ``classic'' AI, and was
-the approach that was used during the inception of AI, and is still heavily used
+the approach that was used during the inception of AI and is still heavily used
 today. It is characterized by a top-down focus on logic and reasoning, and
 relies on a symbolic description of the world, such as a set of rules, and is
-thus said to be ``knowledge-based''.
+thus often said to be ``knowledge-based''.
 
 Techniques included under Symbolic AI are knowledge-based systems, logical
 reasoning, symbolic machine learning, search techniques, and natural language
@@ -248,11 +254,11 @@ such as ``Decision Trees'' and ``Bayesian Learning''.
 \subsubsection{Neural Networks}
 \label{sec:neural-networks}
 
-Neural Networks, or more correctly Artificial Neural Networks (ANN) to separate
-them from the Biological variety, are computer simulations that attempt to mimic
-biological neural networks through a variety of algorithms, but they all revolve
-around small units called ``neurons'' linked in networks of some sort, trained
-by a learning algorithm.
+Neural Networks, more correctly called Artificial Neural Networks (ANN) to
+separate them from the biological variety, are computer simulations that attempt
+to mimic biological neural networks through a variety of algorithms, but they
+all revolve around small units called ``neurons'' linked in networks of some
+sort, trained by a learning algorithm.
 
 The simplest variety of ANN is called a Feedforward Neural Network
 \citep{wikipediafeedforward}, and consists of one or more layers of neurons
@@ -288,24 +294,25 @@ if presented with a long series of less diverse data.
 In Evolutionary Computing the aim is to mimic the biological process of
 evolution to evolve solutions to problems. There are many approaches that fall
 under this name, among others Genetic Algorithms, Genetic Programming and
-Evolutionary Algorithms, but the common trait is that they use the four
-mechanics of biological evolution: reproduction, mutation, recombination and
-selection.
+Evolutionary Algorithms, but the common trait is that they use, to a certain
+extent, the four mechanics of biological evolution: reproduction, mutation,
+recombination and selection.
 
 These methods present the problem by taking a starting point towards a solution,
 (which can be of any complexity, from nonexistent to a ``best-known'' program),
 then ``reproduce'' it by applying a random set of mutations to generate a
 certain amount of new solutions (called individuals). These individuals are then
 tested with a fitness function defined by the person attempting to solve the
-problem, which measures the individual's performance at the problem, and the
+problem, that measures the individual's performance at the problem, and the
 result of this is used to rank the individuals. We further choose one of the
-individuals in the list, and ``reproduce'' to create new individuals either by
-way of mutations or by using an algorithm to combine it with another individual
-in a way that mimics the biological process of recombination. The newly
-generated individuals are also tested for fitness and put into the list, then
-the list is culled to a specific length by removing the least fit
-individuals. This process is repeated until an optimal solution is found, or the
-solution is deemed good enough.
+individuals in the list, and ``reproduce'' it to create new individuals either
+by way of mutations or by using an algorithm to combine it with another
+individual in a way that mimics the biological process of recombination. The
+newly generated individuals are then tested for fitness and put into the list of
+individuals, which is then culled to a specific length by removing the least fit
+individuals. This process reproduction and culling is repeated until the
+solution is deemed good enough or, on rare occasion, an optimal solution is
+found.
 
 The system used in my thesis, ADATE \citep{olsson1995inductive}, is an
 Evolutionary Computing system that fits into a sub-field of Artificial
@@ -315,15 +322,16 @@ Intelligence called Inductive Programming, which will be described in Chapter
 \section{Game AI techniques}
 \label{sec:game-ai-techniques}
 
-The approach to AI used in video games (as opposed to more traditional
-board/card games) is very different from the academic approach, where AI
-programs can take a long time to reach a decision, might require massive amounts
-of resources and usually have as a goal to perform as excellently as possible.
+The approaches to AI used in video games (as opposed to more traditional
+board/card games) are often very different from the academic approaches, where
+AI programs can take a long time to reach a decision, might require massive
+amounts of resources and usually have as a goal to perform as excellently as
+possible at a task.
 
 In games the AI actors might only have a handful of microseconds of CPU time
-available to reach a decision lest they impact the performance of the game, and
-the AIs must fulfill the twin goals of being challenging (but beatable by the
-majority of players) and entertaining (employ novel methods, and seem
+available to reach a decision without harming the performance of the game, and
+the AI must fulfill the twin goals of being challenging (but beatable by the
+majority of players) and entertaining (by employing novel methods and seeming
 human-like).
 
 In addition, game AI is a comparatively recent field when compared to the volume
@@ -351,26 +359,28 @@ the following quote:
 \end{quote}
 
 Continuing on through the article, it is explained that many of the popular
-early games used very crude AI, basically just a handful of simple rules, with
-the exception of games that just digitized board games with well established AI
-research, such as chess.
+early games used very crude AI, basically just consisting of a handful of simple
+rules, with the exception of games that just digitized board games with well
+established AI research such as chess.
 
-Sophisticated AI in video games was first embarked upon with turn-based strategy
-games (such as \emph{Civilization}), then real times strategy games (such as
-\emph{Age of Empires 2: The Age of Kings} and \emph{WarCraft II}). Further, good
-AI started showing up in First Person Shooter games (\emph{Half-Life} and
-\emph{Unreal: Tournament}) that showed tactical ability and the ability to model
-several actors simultaneously, while \emph{Thief: The Dark Project} had actors
-that emulated sense of sight and sound in a human-like fashion, and \emph{SWAT
-  3: Close Quarters Battle} featured randomized AI parameters that allowed each
-actor to have a slightly different personality every time the game is played.
+More sophisticated AI in video games was first embarked upon in the context of
+turn-based strategy games (such as \emph{Civilization}), then in real time
+strategy games (such as \emph{Age of Empires 2: The Age of Kings} and
+\emph{WarCraft II}). Further, good AI started showing up in First Person Shooter
+games (\emph{Half-Life} and \emph{Unreal: Tournament}) that showed tactical
+ability and the ability to model several actors simultaneously, while
+\emph{Thief: The Dark Project} had actors that emulated sense of sight and sound
+in a human-like fashion, and \emph{SWAT 3: Close Quarters Battle} featured
+randomized AI parameters that allowed each actor to have a slightly different
+personality every time the game was played.
 
 After that the variety of different AI exploded, with games focusing entirely on
-watching AI ``life'' grow, with \emph{SimCity} and \emph{The Sims} being very
-well known staples, and \emph{Creatures} which is famous for being one of the
-few games that actually uses a biological model for its ``Norns'', both
-modelling biological processes with great detail and using neural networks for
-the AI \citep[see][]{grand1997creatures}. Other games fit into the ``God games''
+nurturing ``AI life'' in a manner the player decided, with \emph{SimCity} and
+\emph{The Sims} being very well known staples. Another well-known AI life game
+was \emph{Creatures} which is famous for being one of the few games that
+actually used a biological model for its ``Norns'', both modelling biological
+processes with great detail and using neural networks for the AI
+\citep[see][]{grand1997creatures}. Other games fit into the ``God games''
 category, such as \emph{Populous} and \emph{Dungeon Keeper}, alongside
 \emph{Black \& White}, which has the distinction of being the first major game
 to focus the player's attention entirely on the game's AI capabilities, and
@@ -388,16 +398,16 @@ to add human-like behaviour, simulating planning and learning
 \label{sec:traditional-game-ai}
 
 Traditional game AI or ``simple AI'' is what game AI started out as, and still
-to this day mostly uses. It's based upon simple rules or simple logical systems,
+to this day mostly is. It's based upon simple rules or simple logical systems,
 and has traditionally used a sampling of simple techniques, such as simply hard
 coding the AI in a single routine, utilizing Finite State Machines, or using
 rule-based systems. In addition, path finding has always been a topic with AIs,
-where simple algorithms like A* have been dominant for a long time.
+where simple, well known, algorithms such as A* have been dominant for a long
+time.
 
 The common factor in traditional game AI techniques is that they tend to be
 static, the NPCs are only capable of the things they were programmed to do
-beforehand, and has little capability of learning or planning.
-
+beforehand, and have little capability for learning or planning.
 
 \subsubsection{Hard-coded AIs}
 \label{sec:hard-coded-ais}
@@ -408,69 +418,72 @@ opponents, not following any formalized methods for AI. This method is still
 used to this day, as it's easy to create, and usually many minor opponents in
 games don't need more sophistication than this method creates.
 
-A good example of this technique is Pac-Man's ghosts, which used simple
-path finding, and a selection of ``modes'' for the ghosts globally, then four
+A good example of this technique is Pac-Man's ghosts, which used simple path
+finding, and a selection of ``modes'' for the ghosts globally, then four
 different targeting rules to give each ghost a ``personality'' as their entire
-AI \citep{birch2010pacman,pittmanpac}. Even this very simple AI creates
-interesting behaviours and engaging game play which propelled Pac-Man to one of
-the most recognized games in video game history, evidence that you don't need
-fancy high-powered neural nets to create interesting games.
+AI \citep{birch2010pacman,pittmanpac}. Even this very simple AI created the
+interesting behaviours and engaging game play which propelled Pac-Man towards
+becoming one of the most recognized games in video game history, evidence that
+you don't need fancy high-powered algorithms to create interesting and engaging
+games.
 
 \subsubsection{Finite State Machines}
 \label{sec:finite-state-mach}
 
-Finite State Machines (FSM) are the most used game AI technique, although the
-FSM used by game developers do not necessarily work the same as the ones
-described by Computer scientists. They take certain shortcuts which violate the
-traditional definition of FSM, which make them more applicable to games
-\citep{rabin2002implementing}.
+Finite State Machine (FSM) systems are the most commonly used systems in game
+AI, although the FSM systems used by game developers do not necessarily work the
+same as the ones described by Computer scientists. They take certain shortcuts
+which violate the traditional definition of FSM, which make them more applicable
+to games \citep{rabin2002implementing}.
 
 FSM are used to formalize an NPC's behaviour in a simple way, as states and
-transitions. States correspond to a specific behaviour, whereas a transition
-correspond to a change in behaviour due to an event in the game. Using this, one
-can easily map up simple behaviours that allow an NPC to act in a manner that
-can be deemed ``intelligent,'' as long as the programmer thinks of all the
-transitions necessary, and makes them seem natural.
+transitions. States correspond to a specific behaviour or action, whereas a
+transition correspond to a change in behaviour due to an event in the
+game. Using this, one can easily map up simple behaviours that allow an NPC to
+act in a manner that can be deemed ``intelligent,'' as long as the programmer
+thinks of all the transitions necessary and makes them seem natural.
 
 This method of AI creation has the benefits of being simple to understand,
 create and debug, as well as being very versatile by virtue of being a general
 method that can lend itself to most any problem. Of course, there are downsides
-to FSM as well. They can easily grow out of hand in more complex AI creations,
-and they don't have the capability of combining states (so you can't have an NPC
-be in the \emph{run away} and \emph{attack} states at the same time, to have it
-do a tactical retreat, without explicitly programming the option in).
+to FSM as well. They can easily grow out of hand in more complex AI systems,
+need to have every necessary transition programmed in, and they don't have the
+capability of combining states (so you can't have an NPC be in the \emph{run
+  away} and \emph{attack} states at the same time, to have it do a tactical
+retreat, without explicitly programming the option in).
 
-For a more thorough coverage of implementing an FSM, one can consult
+For a more thorough coverage of implementing an FSM system, one can consult
 \citet{rabin2002implementing} or \citet[][chap.~3]{kirby2011introduction}.
 
 \subsubsection{Rule-based systems}
 \label{sec:rule-based-systems}
 
-As with FSM, Rule-based systems stem from traditional AI research, but is used
+As with FSM, Rule-based systems stem from traditional AI research, but are used
 in a more loose form in video games \citep{christian2002simple}. The basic idea
 of rule-based systems is that of a database (the data can be information,
-actions or other things), where each piece of data has a ``matching rule'' which
-is used by the system to infer which pieces of data apply to current situation.
+actions or other things), where each piece of data has a ``matching rule'' used
+by the system to infer which pieces of data apply to the current situation.
 
 In the context of games, this boils down to series of rules coupled with actions
 or behaviours, many of which can apply at the same time, which together make up
 the AI for the given NPC. These are formally named \emph{reaction rules}, and
 are just one type of rule, with the other major one being \emph{consequent
-  rules}, dealing mostly with information.
+  rules} that deal mostly with information.
 
 Usually there is some method of discerning which rules are the most relevant at
-the current time, to prevent the NPC from doing too many things at once (many
-simple AIs only allow the NPC to do a single action per tick), which can range
-from randomly choosing a rule, to weighting each rule based on its specificity
-and choosing the most applicable one \citep{Freeman-Hargis}.
+the current time if many of them match the current situation, to prevent the NPC
+from doing too many things at once (many simple AIs only allow the NPC to do a
+single action per tick). These can range from randomly choosing a rule, to
+weighting each rule based on its specificity and choosing the most applicable
+one \citep{Freeman-Hargis}.
 
-The biggest benefit of this is that you can create a good set of behaviour with
-a comparatively small amount of rules, so you aren't suspect to ``state
-explosion'' as in an FSM, where adding a single new state will result in a
-cascade of new transitions having to be written to handle every single case
-where the NPC can switch in and out of the new state. In a rule-based system you
-just add the new rule and write one matching function for it, and let your
-system handle the rest.
+The biggest benefit of rule-based systems is that you can create a good set of
+behaviour with a comparatively small amount of rules. This means you aren't
+suspect to the ``state explosion'' you might have in an FSM, where adding a
+single new state will result in a cascade of new transitions having to be
+written to handle every single case where the NPC can switch in and out of the
+new state. In a rule-based system you just add the new rule and write one
+matching function for it, and let your system handle the rest.
 
 Of course, the downside in this case is that creating a good AI like this
 requires a bit more thinking to create a set of actions that acts well in the
@@ -484,48 +497,49 @@ More info on writing rule-based systems can be found in
 \subsection{Towards more human game AI}
 \label{sec:towards-more-human}
 
-In recent times there has been efforts in making game NPCs act more human-like,
-by introducing planning and learning behaviours (making the AI adaptable),
-making their decisions be more unpredictable (but rational), culling any
-obviously stupid behaviour, as well as engineering the NPCs to introduce more
-human elements such as adding the feeling of emotion and body-language
+In recent times there has been efforts towards making game NPCs act more
+human-like, by introducing planning and learning behaviours (making the AI
+adaptable), making their decisions be more unpredictable (but rational), culling
+any obviously stupid behaviour, as well as engineering the NPCs to introduce
+more human elements such as adding the feeling of emotion and body-language
 \citep{spronck2005adaptive}.
 
-In the last decade or so, game AI has started taking into use planning and
+In the last decade or so, game AI has started incorporating planning and
 learning behaviour to make NPCs seem smarter and more human-like. Games such as
-F.E.A.R (Using Goal-Oriented Action Planning as described in
-\citet{orkin2006three}) use planning to make their opponents behave in a more
-realistic manner, while other projects have used planning to make AI for
+F.E.A.R (using Goal-Oriented Action Planning as described in
+\citet{orkin2006three}) utilize planning to make their opponents behave in a
+more realistic manner, while other projects have used planning to make AI for
 previously released games, such as WarCraft II (using Hierarchic Task Networks
 as described in \citet{brickmanhtn}).
 
-Planning allows the AI programmer to specify \emph{action sets} and \emph{goals}
-which together make up the AI of the NPCs. Action sets contain actions which
-satisfy goals, and each action may have preconditions which in turn are
-goals. Using this information, the NPCs can plan its action by what it knows of
-the world (which it can learn over time) and which actions it has defined,
-instead of having to have the AI programmers code down every possible such path.
+Planning allows the AI programmer to specify ``action sets'' and ``goals'' which
+together make up the bulk of the AI for the NPCs. Action sets contain actions
+which satisfy goals, and each action may have preconditions which are also
+classified as goals. Using this information, the NPCs can plan its actions by
+what it knows of the world (which it can learn over time) and which actions have
+been defined as being accessible to it, instead of having to have the AI
+programmers code every possible such path.
 
-An example of the benefit of using a planning system comes from
-\citet{orkin2006three}, where they describe an NPC which was working at a
-computer being shot. In the traditional FSM-based system, each state had to be
-exited fully before being able to transition, so when the NPC was shot, they
-would exit their ``work'' state by turning off their computer, pushing out their
-chair, and standing up, before promptly falling over dead. Not really what one
-would consider human-like, or even believable, behaviour. In a planning system,
-that transition would be dynamically created, and the NPC would just slump over
-dead from its chair, as one would expect.
+An example of the benefit of using a planning system is described in
+\citet{orkin2006three}, where they describe an NPC being shot while sitting at a
+computer desk. In the traditional FSM-based system, the NPC had to fully exit
+its current state before being able to transition to the next, so it would exit
+its ``work'' state by turning off the computer, pushing out the chair, and
+standing up, before letting out a death groan and falling over dead. Not really
+what one would consider human-like, or even believable, behaviour. In a planning
+system, that transition would be dynamically created, and the NPC would just
+slump over dead from its chair, as one would expect.
 
 Introducing emotion into games can be done in various ways, not just through
 having the NPC itself show emotion, but also by having various ``AIs'' change
 the mood of the game by altering lighting, music, and texture
 \citep[chap.~9]{kirby2011introduction}.
 
-NPC AI itself can also introduce emotions in the players by being very difficult
-or very easy, or other behaviours giving rise to player experiences such as
-``hard fun'', ``soft fun'' and ``serious fun'' \citep{lazzaro2004we}. NPC
-difficulty can alter itself according to player skill to fulfill any of these
-goals, something which many modern games utilize in what's called ``Difficulty
+NPC AI itself can also introduce emotions in the players by virtue of their
+difficulty or other behaviours that rise to player experiences such as ``hard
+fun'', ``soft fun'' and ``serious fun'' \citep{lazzaro2004we}. NPC difficulty
+can alter itself according to player skill to fulfill any of these goals,
+something which many modern games utilize in what's called ``Difficulty
 scaling'', which can refer to anything from simply giving you enemies with
 higher levels (in RPG-style games such as Fallout 3), spawning more or less
 enemies and changing where they appear (such as the AI Director in Left 4 Dead),
@@ -537,7 +551,7 @@ will be described in more detail later)
 \label{sec:advanced-game-ai}
 
 More advanced game AI utilizes more heavy-duty AI techniques such as Genetic
-programming and Neural Networks that learn and train as the game goes by, in an
+programming or Neural Networks that learn and train as the game goes by, in an
 effort to create an ever-changing experience for the gamer. The most well known
 games which utilize these kinds of techniques are, as described earlier,
 Creatures \citep{grand1997creatures} and Black \& White.
@@ -552,10 +566,10 @@ best series of actions to fulfill a certain goal, which can easily change during
 play as the human player changes its tactics.
 
 Beyond this, the usage of more advanced AI techniques in games has been mostly
-within the realm of research, after the games' release, either through altering
-the source code of released games, or by creation of bots that use a certain AI
-technique for research purposes and pitting it against humans and/or other bots
-in a multiplayer setting.
+within the realm of research and done after the release of the games, either
+through altering the source code of released games, or by creation of bots that
+use a certain AI technique for research purposes and pitting it against humans
+and/or other bots in a multiplayer setting.
 
 
 \chapter{Making NPCs Entertaining}
@@ -563,15 +577,15 @@ in a multiplayer setting.
 
 When AI is used for NPCs in games, the main goal is not to perfectly emulate a
 human, nor to create the most skilled opponent possible, but rather to create an
-opponent that SEEMS human, and possesses behaviour that creates an entertaining
-experience, without being unduly challenging.
+opponent that \emph{seems} human, and possesses behaviour that creates an
+entertaining experience, without being unduly challenging.
 
 There are many methods of doing this, some of which have been described in
-previous sections\marginpar{Link back?}. These range from simple
-difficulty-scaling to match the player's skill level, through having NPCs that
-perform ``human'' tasks such as planning and cooperating smartly, to having NPCs
-and AI that show emotion and alter their behaviour and how they are perceived
-based on their moods.
+previous subsections under section \ref{sec:game-ai-techniques}. These range
+from simple difficulty-scaling methods to match the player's skill level,
+through having NPCs that perform ``human'' tasks such as planning and
+cooperating smartly, to having NPCs and AI that show emotion and alter their
+behaviour and how they are perceived based on their moods.
 
 \section{Evaluating entertainment}
 \label{sec:eval-entert}
@@ -587,7 +601,7 @@ manner.
 
 Measuring a real human being's response to a game will give you the most
 accurate measurement of entertainment, but it comes at a cost. The methods of
-doing so can be very costly, in equipment, time, or both. There is also ample
+doing so can be very expensive, in equipment, time, or both. There is also ample
 room for bias either by the one doing the measurements or the measured person,
 conscious or subconscious.
 
@@ -623,8 +637,8 @@ another in \citet{yannakakis2008entertainment}.
 There is also work going into methods of quantifying entertainment in games,
 with several articles proposing theories on what makes a game fun
 \citep[e.g.][]{malone1981makes,read2002endurability,
-federoff2002heuristics,lazzaro2004we,koster2004theory}, and others proposing methods for augmenting
-or optimizing entertainment value in games
+  federoff2002heuristics,lazzaro2004we,koster2004theory}, and others proposing
+methods for augmenting or optimizing entertainment value in games
 \citep[e.g.][]{yannakakis2009real,yannakakis2008model,yannakakis2007towards,yannakakis2004interactive}.
 
 The presentation ``Why we play games'' \citep{lazzaro2004we} states that there
@@ -669,10 +683,10 @@ behaviours, anticipation, learning and adapting
   yannakakis2009real,spronck2005adaptive}, as described in previous sections.
 
 There is an approach called character-based AI collecting many of these
-techniques \citep[][]{isla2002new}, which is gaining grounds in the game
-industry as a way to give the game's AI agents a reasonable facsimile of human
-behaviour and personality, or a ``character'', to make game opponents and allies
-more entertaining. The term is applied to AI which collect many techniques and
+techniques \citep{isla2002new}, which is gaining grounds in the game industry as
+a way to give the game's AI agents a reasonable facsimile of human behaviour and
+personality, or a ``character'', to make game opponents and allies more
+entertaining. The term is applied to AI which collect many techniques and
 behaviours that make the AI seem more human, like the aforementioned planning,
 learning and adapting, but also the ability to sense patterns, the ability to
 anticipate, and a certain model of the AI actor's perception that limits its
@@ -706,14 +720,13 @@ Programming, Genetic Programming, and Machine Learning
 \section{Introduction to Inductive Programming}
 \label{sec:intr-induct-progr}
 
-As described by the Approaches and Applications of Inductive Programming work
-group \citep{aaip2010intro}, the aim of Inductive Programming is to create
-programs based on incomplete specifications. These specifications are given in
-the form of a set of inputs with matching outputs or an output evaluation
-function that are used to evaluate a generated program's fitness. This is
-opposed to Deductive approaches which start with a high-level description of the
-wanted system, then have the system generate code that matches the
-description.
+As described by Approaches and Applications of Inductive Programming
+\citep{aaip2010intro}, the aim of Inductive Programming is to create programs
+based on incomplete specifications. These specifications are given in the form
+of a set of inputs with matching outputs or an output evaluation function that
+are used to evaluate a generated program's fitness. This is opposed to Deductive
+approaches which start with a high-level description of the wanted system, then
+have the system generate code that matches the description.
 
 The biggest difference between the two approaches is that the Deductive approach
 guarantees that a solution is correct, although it requires the problem to be
