@@ -6,3 +6,5 @@ auto/
 *.dvi
 *.log
 *.out
+*.lot
+*.lof

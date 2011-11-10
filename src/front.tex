@@ -1,0 +1,65 @@
+
+\usepackage{hyperref,fancyhdr,listings,color,suthesis-2e,times}
+
+
+\hypersetup{colorlinks=false,linkbordercolor=1 1 1,citebordercolor=1
+1 1,urlbordercolor=1 1 1}
+\newcommand{\urlBiBTeX}[1]{\url{#1}}
+\newcommand\T{\rule{0pt}{2.6ex}} % to add space above text in table cells
+\newcommand\B{\rule[-1.2ex]{0pt}{0pt}} % to add space below text in table cells
+\newcommand{\R}{\mathbb{R}}
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{lem}[thm]{Lemma}
+
+\makeatletter
+\def\thickhrulefill{\leavevmode \leaders \hrule height 1pt\hfill \kern \z@}
+\renewcommand{\maketitle}{
+  \begin{titlepage}
+    \let\footnotesize\small
+    \let\footnoterule\relax
+    \parindent \z@
+    \reset@font
+    \null
+    \includegraphics{top}
+    %\vskip 10\p@
+    \hbox{
+      \mbox{\hspace{10em}}
+      \vtop{
+
+        \vskip 1in
+        \begin{flushleft}
+          \huge \bfseries \@title \par
+        \end{flushleft}
+        \vskip 0.5in
+        \begin{flushleft}
+          \large Project Report \\
+           \par
+        \end{flushleft}
+        \vskip 1.5in
+        \begin{flushleft}
+          \huge \@author \par
+        \end{flushleft}
+        \vskip .5in
+        %\vfill
+        \begin{flushleft}
+          \large \@date \par
+        \end{flushleft}
+
+      }
+    }
+    %\vskip 200\p@
+    \vfill
+    %\begin{center}
+    %\hrule width 0.9\textwidth
+    %\end{center}
+
+    \includegraphics{hiofmobapp_small}
+
+    \null
+  \end{titlepage}
+  \setcounter{footnote}{0}
+} \makeatother
+%%% Local Variables:
+%%% TeX-master: "main"
+%%% End:

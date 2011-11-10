@@ -1,0 +1,116 @@
+% THANKS TO LINDA KJELDSEN :)
+% A modified version of Stanford University latex thesis style
+% http://help-csli.stanford.edu/tex/suthesis/
+
+\documentclass[11pt,a4paper,twoside]{report} % DO NOT CHANGE, UNLESS IF CHANGING STYLE
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{hyperref}
+\usepackage{hypcap}
+\usepackage{graphicx,subfigure,multirow,listings,amssymb,amsmath,url}
+
+% Set up some colors
+\definecolor{gray92}{gray}{.92}
+\definecolor{gray75}{gray}{.75}
+\definecolor{gray45}{gray}{.45}
+
+% Set up some PDF options and reference coloration
+\hypersetup{
+    pdftitle={Automated Synthesis of NPC AI with ADATE},    % title
+    pdfauthor={Daniel E. Bruce},     % author
+    colorlinks=true,       % false: boxed links; true: colored links
+    linkcolor=red,          % color of internal links
+    citecolor=black,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan           % color of external links
+}
+
+% listings settings
+\lstset{
+  breaklines=true,
+  framerule=0.5pt,
+  linewidth=\textwidth,
+  numbers=left,
+  showstringspaces=false
+}
+
+\lstdefinestyle{console}
+{
+  numbers=none,
+  basicstyle=\bf\ttfamily,
+  backgroundcolor=\color{gray92},
+  frame=lrtb,
+}
+
+%\lstset{style=console}
+
+
+% Use "normal" paragraph separation
+\setlength{\parskip}{1.3ex plus 0.2ex minus 0.2ex}
+\setlength{\parindent}{0pt}
+
+% Nicer margin comments
+\let\oldmarginpar\marginpar
+\renewcommand\marginpar[1]{\-\oldmarginpar[\raggedleft\footnotesize #1]%
+{\raggedright\footnotesize #1}}
+
+
+\input{front}       % DO NOT CHANGE, OR REMOVE IF CHANGING STYLE
+
+\author{Daniel E. Bruce}
+\title{Automated Synthesis of\\ NPC AI with ADATE}
+\date{\today\\
+    Halden, Norway
+}
+\begin{document}
+
+    % FRONT MATTER
+    \input{format1} % DO NOT CHANGE, OR REMOVE IF CHANGING STYLE
+
+    % DO NOT CHANGE
+    %-------------------------------------------------
+    \maketitle
+    \input{abstract}
+    \addcontentsline{toc}{chapter}{Abstract}
+    %-------------------------------------------------
+
+    % OPTIONAL
+    %-------------------------------------------------
+    \input{acknowledgements}
+    \addcontentsline{toc}{chapter}{Acknowledgements}
+    \input{prerequisites}
+    \addcontentsline{toc}{chapter}{Prerequisites}
+    %-------------------------------------------------
+
+    \input{format2}     % DO NOT CHANGE, OR REMOVE IF CHANGING STYLE
+
+    \cite{bogie:_hupdup}
+    % BODY
+    %-------------------------------------------------
+    \input{introduction}
+    \input{background}
+    \input{design}
+    \input{implementation}
+    \input{testing}
+    \input{conclusion}
+    %-------------------------------------------------
+
+
+    % END MATTER
+
+    % DO NOT CHANGE
+    %-------------------------------------------------
+    \bibliographystyle{plain}
+    \renewcommand{\bibname}{References}  % Original name = Bibliography
+    \bibliography{thesis}
+    \listoffigures
+    \addcontentsline{toc}{chapter}{List of figures}
+    \listoftables
+    \addcontentsline{toc}{chapter}{List of tables}
+    %-------------------------------------------------
+
+    % OPTIONAL
+    %-------------------------------------------------
+    %\appendix
+    %\input{glossary}
+    %-------------------------------------------------
+\end{document}
