@@ -71,11 +71,11 @@
 This document covers a selection of the most relevant previous work related to
 my Thesis with the working title ``Automated Synthesis of NPC AI with ADATE'',
 on the topic of creating AI for game Non-Playing Characters with inductive
-programming, using the ADATE system.
+programming, using the ADATE system created by Roland J. Olsson.
 
 There are three main areas that have to be covered, specifically Artificial
 Intelligence techniques in general, more specific coverage of Inductive
-Programming which ADATE is part of, and the topic of NPC Entertainment Value.
+Programming which ADATE is part of, and the topic of Making NPCs Entertaining.
 
 The work existing on the topic of Artificial Intelligence in games can be
 roughly divided between work describing various implementation techniques, and
@@ -484,15 +484,15 @@ More info on writing rule-based systems can be found in
 \subsection{Towards more human game AI}
 \label{sec:towards-more-human}
 
-In recent times there has been efforts in making game NPC act more human-like,
+In recent times there has been efforts in making game NPCs act more human-like,
 by introducing planning and learning behaviours (making the AI adaptable),
 making their decisions be more unpredictable (but rational), culling any
-obviously stupid behaviour, as well as engineering the NPC to introduce more
+obviously stupid behaviour, as well as engineering the NPCs to introduce more
 human elements such as adding the feeling of emotion and body-language
 \citep{spronck2005adaptive}.
 
 In the last decade or so, game AI has started taking into use planning and
-learning behaviour to make NPC seem smarter and more human-like. Games such as
+learning behaviour to make NPCs seem smarter and more human-like. Games such as
 F.E.A.R (Using Goal-Oriented Action Planning as described in
 \citet{orkin2006three}) use planning to make their opponents behave in a more
 realistic manner, while other projects have used planning to make AI for
@@ -500,9 +500,9 @@ previously released games, such as WarCraft II (using Hierarchic Task Networks
 as described in \citet{brickmanhtn}).
 
 Planning allows the AI programmer to specify \emph{action sets} and \emph{goals}
-which together make up the AI of the NPC. Action sets contain actions which
+which together make up the AI of the NPCs. Action sets contain actions which
 satisfy goals, and each action may have preconditions which in turn are
-goals. Using this information, the NPC can plan its action by what it knows of
+goals. Using this information, the NPCs can plan its action by what it knows of
 the world (which it can learn over time) and which actions it has defined,
 instead of having to have the AI programmers code down every possible such path.
 
@@ -896,12 +896,15 @@ However, there is not much work specifically on the topic of evolving NPC AI,
 especially not with direct focus on creating interesting AI, although there is
 enough research to base my own work on.
 
-During my thesis project I will lean on the work of Yannakakis when it comes to
-the framing of my problem and my fitness functions, but I will also incorporate
-information from other sources on NPC entertainment and AI techniques. I will
-also probably utilize a similar game as he, but I will have to frame my problem
-differently due to my use of Inductive Programming which will be tougher to do
-online learning with.
+During my thesis project I will lean on the work of Yannakakis
+\citep{yannakakis2005ai} when it comes to the framing of my problem and my
+fitness functions, but I will also incorporate information from other sources on
+NPC entertainment and AI techniques. I will also probably utilize a similar game
+as Yannakakis did (predator-and-prey games), but I will have to frame my problem
+differently due to my use of ADATE. The use of ADATE means it will be much
+tougher (if not impossible) to do online learning with my agents than the Neural
+Network-based system used by Yannakakis, so this will be one of the most
+important problems to resolve.
 
 \bibliographystyle{abbrvnat}
 \bibliography{topics}
