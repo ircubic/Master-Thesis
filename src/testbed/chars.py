@@ -25,6 +25,12 @@ class Char(object):
     def get_pos(self, ):
         return self.rect.topleft
 
+    def get_rect(self, ):
+        """Get a copy of this character's rectangle
+        """
+        return self.rect.copy()
+
+
     def get_img(self, ):
         return self.image
 
