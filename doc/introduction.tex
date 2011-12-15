@@ -1,69 +1,98 @@
 \cleardoublepage
 \chapter{Introduction}
-\label{intro} The introduction to your document should lead your readers into
-your paper and give them an idea of what to expect. It should not be simply a
-restatement of the abstract even though it will contain some of the same
-material.
-
-Introductions often do the following:
-\begin{itemize}
-  \item State the subject of your document as clearly as possible
-
-  \item Define the problem you are addressing, your approach to the problem, and
-    why this problem is important
-  \item State the purpose of your document
-  \item Define the scope of your document
-  \item Provide necessary and relevant background information
-  \item Give an outline of the rest of the document
-\end{itemize}
-
-
-Because the introduction leads your reader into your document, try to begin with
-a general statement about the topic before moving on to specific issues. This
-strategy will help make the topic accessible to your readers, especially those
-who are not specialists in the field. Illustrations, like Figure~, often help to
-introduce the reader to the problem.
-
-More stuff in Chapter~\ref{rel}.
-
----
-
-Computer games are a major part of the entertainment industry these days, with
-major titles having budgets matching Hollywood movies. Even so, there is a lot
-of potential for improvement on their appeal. Artificial Intelligence is an area
-where games can improve substantially as limitations of the past are
-disappearing, creating games that seem more realistic and interesting. Increases
-in the computing power of the average computer has made it possible to take into
-use techniques previously thought too computationally expensive. Machine
-Learning has the power to create NPC characters that seem intelligent and can
-add more realism to games, and as such make the game more satisfying to the
-player.
+\label{intro} Computer games are a major part of the entertainment industry
+these days, with major titles having budgets matching Hollywood movies. Even so,
+there is a lot of potential for improvement on their appeal. Artificial
+Intelligence is an area where games can improve substantially as limitations of
+the past are disappearing, creating games that seem more realistic and
+interesting. Increases in the computing power of the average computer has made
+it possible to take into use techniques previously thought too computationally
+expensive. Machine Learning has the power to create NPC characters that seem
+intelligent and can add more realism to games, and as such make the game more
+satisfying to the player.
 
 \section{Motivation}
 \label{sec:motivation}
 
-Computer games are a massive industry \marginpar{Find revenue numbers} and a big
-part of many people's regular entertainment \marginpar{how many people play
-  games?}.
+Video games are a massive industry with budgets comparing to the ones of
+Hollywood movies, with Rockstar's GTA 4 having an estimated production budget of
+\$100 million. It follows that video games are a big part of people's regular
+entertainment, with young people spending on average two hours per day on video
+games. \citep{norway08:video_games}
 
-Since its inception, game producers have been heavily focused on creating more
-and more graphically impressive games, and has reached a point where the
-improvements made can only be minor.
+Since the inception of the game industry, game producers have been heavily
+focused on creating more and more audio-visually impressive games, and this
+development has reached a point where the improvements made can only be
+minor. During this process, the development of the AI for game characters has
+been only as necessary, to meet the demand of players for characters that are as
+sophisticated as the graphics. \citep{champandard2003ai}
 
-There has not been much focus on improving the AI utilized by the characters in
-games until recently\cite{tozour2002evolution}.
+Until the late 90s there had not been much focus on improving the AI utilized by
+the characters in games\cite{tozour2002evolution}, but this is shifting rapidly,
+as games focus more on intelligent characters, using it as their latest and
+greatest selling point. There have even been entire game series that focus
+entirely on AI, such as \emph{Creatures} \citep{grand1997creatures}, \emph{Black
+  \& White} \citep{lionhead01:black_white} and \emph{The Sims}
+\citep{maxis00:sims}.
 
-Machine learning could be utilized to create more engaging and interesting
-computer opponents.
+Despite this, the majority of game AI still uses simple techniques that have
+been the cornerstone of game AI since its early days. Simple scripted rules and
+Finite State Machines still dominate the implementation methods due to their
+simplicity, performance and ability to function ``well enough'' to implement
+simple AIs. \citep{woodcock2001game} This creates AI that, while entertaining
+and believable in most situations, is ultimately limited by the forethought of
+the AI programmers, and is easily outmatched by most experienced players.
 
-This thesis will explore if ADATE, a system for doing machine learning, can be
-employed to generate entertaining AI opponents.
+In recent times Massively Multiplayer Online Games have emerged and become
+immensely popular, through titles such as \emph{World of Warcraft}, and games
+have grown to have a high focus on Player versus Player multiplayer, with
+popular shooter game series having either no single player campaign, or an
+extremely short one. This trend gives a strong indication that players are
+looking for more intelligent opponents and more varied game play, and that this
+cannot be provided through the single player opponents in the games.
 
-\section{Objective}
+To alleviate the limitations of simple, static AI opponents, machine learning
+could be utilized. ML could create more engaging and interesting computer
+opponents, and enables the system to scale up to more complex worlds and
+situations. \citep{funge2004artificial} In the same vein, it is believed that
+utilizing evolutionary computing can enable the creating of computer opponents
+that are interesting and interactive, and as such
+entertaining. \citep{yannakakis2005ai}
+
+This thesis will explore if ADATE \citep{olsson1994inductive}, a system for
+inductive programming (an offshoot of evolutionary computing), can be
+employed to generate entertaining AI opponents. Additional challenges consist of
+finding a way to quantify the entertainment value of the generated agents, and
+the creation of a game framework to support the research. Towards this end,
+there are a set of objectives and questions (shown in the following section)
+that need to be addressed to reach our goal.
+
+\section{Objectives and Research Questions}
 \label{sec:objective}
+
+Given the motivation for this thesis, there are a selection of questions to be
+addressed to further our objectives. The questions that will be answered in this
+thesis are as follows.
+
+\begin{enumerate}
+\item How can a player's satisfaction in a game (entertainment) be measured
+  quantitatively?
+\item Can the use of evolutionary computing increase a game's interest and
+  ultimately create a more interesting game than static AI?
+\end{enumerate}
+
+\begin{enumerate}
+\item Establish a metric for measuring a game opponent's interest level to the
+  player.
+\item Adapt this metric to the ADATE platform and decide upon a test bed suited
+  to the platform and metric. \marginpar{maybe change this when a test bed is located?}
+\item Use the platform to enhance the entertainment level of the computer
+  opponents in the test bed.
+\end{enumerate}
 
 \section{Summary}
 \label{sec:summary}
+
 
 \section{Thesis layout}
 \label{sec:thesis-layout}
@@ -74,3 +103,5 @@ employed to generate entertaining AI opponents.
 %%% Local Variables:
 %%% TeX-master: "main"
 %%% End:
+
+% LocalWords:  Warcraft
