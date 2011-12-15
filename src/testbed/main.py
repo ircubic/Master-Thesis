@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import pygame
 import pygame.locals
+from pygame.sprite import Group, spritecollide, collide_mask
 import math
 
 from chars import Cat, Dog, Goal
@@ -37,7 +38,8 @@ class GameState(object):
         self.font = pygame.font.Font(None, 35)
         self.subfont = pygame.font.Font(None, 25)
 
-        self.dogs = []
+        self.sprites = Group()
+        self.dogs = Group()
         self.nums = 4.0
 
         size = self.screen.get_size()
@@ -45,10 +47,13 @@ class GameState(object):
         for i in range(int(self.nums)):
             y = 175 - int(75*math.sin(i*math.pi/(self.nums-1)))
             x = int((space/2)+i*space)
-            self.dogs.append(Dog((x,y)))
+            self.dogs.add(Dog((x,y)))
 
         self.kitty = Cat((int(size[0]/2),int(size[1]*0.8)))
         self.goal = Goal((int(size[0]/2),0))
+        self.sprites.add(self.dogs)
+        self.sprites.add(self.kitty)
+        self.sprites.add(self.goal)
 
         self.clock = pygame.time.Clock()
         self.run = True
@@ -98,15 +103,11 @@ def main_loop(state):
 
             state.kitty.update()
 
-            state.kitty.draw(screen)
-            for dog in state.dogs:
-                dog.draw(screen)
-            state.goal.draw(screen)
+            state.sprites.draw(screen)
 
             kitty_rect = state.kitty.get_rect()
-            dog_rects = [dog.get_rect() for dog in state.dogs]
 
-            if kitty_rect.collidelist(dog_rects) >= 0:
+            if spritecollide(state.kitty, state.dogs, False, collided=collide_mask):
                 state.gameover = True
                 state.gamewin = False
                 preserve_screen(state.background, state.screen)

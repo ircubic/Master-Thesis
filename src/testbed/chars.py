@@ -1,7 +1,8 @@
 import pygame
+from pygame.sprite import Sprite
 from utils import load_png, normalize
 
-class Goal(object):
+class Goal(Sprite):
     """A class that encapsulates the goal
     """
 
@@ -12,6 +13,7 @@ class Goal(object):
         - `start_pos`:
         - `image`:
         """
+        Sprite.__init__(self)
         self.image = load_png('bow.png')
         self.rect = self.image.get_rect()
         self.rect.midtop = start_pos
@@ -21,16 +23,8 @@ class Goal(object):
         """
         return self.rect.copy()
 
-    def draw(self, surface):
-        """
 
-        Arguments:
-        - `surface`:
-        """
-        surface.blit(self.image, self.rect)
-
-
-class Char(object):
+class Char(Sprite):
     """A class that encapsulates the player character, the cat.
     """
     MOVE_MAP = {
@@ -43,6 +37,7 @@ class Char(object):
     def __init__(self, start_pos, image, speed):
         """Initialize the cat
         """
+        Sprite.__init__(self)
         self.image = load_png(image)
         self.speed = speed
         self.rect = self.image.get_rect()
@@ -90,13 +85,6 @@ class Char(object):
         if self.area.contains(newrect):
             self.rect = newrect
 
-    def draw(self, surface):
-        """Draw the cat to the given surface
-
-        Arguments:
-        - `surface`:
-        """
-        return surface.blit(self.image, self.rect)
 
 class Cat(Char):
     DEFAULT_PIC = 'nyan.png'
