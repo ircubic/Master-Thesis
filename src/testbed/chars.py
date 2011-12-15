@@ -1,6 +1,35 @@
 import pygame
 from utils import load_png, normalize
 
+class Goal(object):
+    """A class that encapsulates the goal
+    """
+
+    def __init__(self, start_pos):
+        """
+
+        Arguments:
+        - `start_pos`:
+        - `image`:
+        """
+        self.image = load_png('bow.png')
+        self.rect = self.image.get_rect()
+        self.rect.midtop = start_pos
+
+    def get_rect(self, ):
+        """
+        """
+        return self.rect.copy()
+
+    def draw(self, surface):
+        """
+
+        Arguments:
+        - `surface`:
+        """
+        surface.blit(self.image, self.rect)
+
+
 class Char(object):
     """A class that encapsulates the player character, the cat.
     """

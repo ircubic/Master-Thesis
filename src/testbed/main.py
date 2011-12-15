@@ -3,7 +3,7 @@ import pygame
 import pygame.locals
 import math
 
-from chars import Cat, Dog
+from chars import Cat, Dog, Goal
 
 
 KEY_MAP = {
@@ -38,15 +38,17 @@ class GameState(object):
         self.subfont = pygame.font.Font(None, 25)
 
         self.dogs = []
-        self.nums = 5.0
+        self.nums = 4.0
 
-        space = self.screen.get_size()[0]/float(self.nums)
+        size = self.screen.get_size()
+        space = size[0]/float(self.nums)
         for i in range(int(self.nums)):
-            y = 175 - 75*math.sin(i*math.pi/(self.nums-1))
-            x = (space/2)+i*space
+            y = 175 - int(75*math.sin(i*math.pi/(self.nums-1)))
+            x = int((space/2)+i*space)
             self.dogs.append(Dog((x,y)))
 
-        self.kitty = Cat((320,400))
+        self.kitty = Cat((int(size[0]/2),int(size[1]*0.8)))
+        self.goal = Goal((int(size[0]/2),0))
 
         self.clock = pygame.time.Clock()
         self.run = True
@@ -54,6 +56,9 @@ class GameState(object):
         self.gamewin = False
 
 
+def preserve_screen(dest, screen):
+    dest.blit(screen, (0,0))
+    dest.fill((64,64,64,64),special_flags=pygame.locals.BLEND_SUB)
 
 def handle_events():
     events = []
@@ -96,14 +101,19 @@ def main_loop(state):
             state.kitty.draw(screen)
             for dog in state.dogs:
                 dog.draw(screen)
+            state.goal.draw(screen)
 
             kitty_rect = state.kitty.get_rect()
             dog_rects = [dog.get_rect() for dog in state.dogs]
+
             if kitty_rect.collidelist(dog_rects) >= 0:
                 state.gameover = True
                 state.gamewin = False
-                state.background.blit(state.screen, (0,0))
-                state.background.fill((64,64,64,64),special_flags=pygame.locals.BLEND_SUB)
+                preserve_screen(state.background, state.screen)
+            elif kitty_rect.colliderect(state.goal.get_rect()):
+                state.gameover = True
+                state.gamewin = True
+                preserve_screen(state.background, state.screen)
 
         else:
             for event in events:
@@ -126,7 +136,7 @@ def main_loop(state):
 
 pygame.init()
 
-screen = pygame.display.set_mode((640,480))
+screen = pygame.display.set_mode((800,600))
 pygame.display.set_caption('Dead End')
 state = GameState(screen)
 
