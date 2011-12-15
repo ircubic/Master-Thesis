@@ -30,7 +30,7 @@ class GameState(object):
     def reinitialize(self, ):
         """Reinitialize the game
         """
-        background = pygame.Surface(screen.get_size())
+        background = pygame.Surface(self.screen.get_size())
         self.background = background.convert()
         self.background.fill((200,200,200))
 
