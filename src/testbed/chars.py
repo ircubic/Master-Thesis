@@ -64,7 +64,7 @@ class Char(Sprite):
         Arguments:
         - `direction`:
         """
-        move_vector = self.MOVE_MAP[direction]
+        move_vector = self.MOVE_MAP.get(direction, (0,0))
         self.vector[0] += move_vector[0]
         self.vector[1] += move_vector[1]
 
@@ -72,9 +72,13 @@ class Char(Sprite):
         """Stop movement in designated direction
 
         """
-        move_vector = self.MOVE_MAP[direction]
-        self.vector[0] -= move_vector[0]
-        self.vector[1] -= move_vector[1]
+        if direction == "all":
+            self.vector[0] = 0
+            self.vector[1] = 0
+        else:
+            move_vector = self.MOVE_MAP.get(direction, (0,0))
+            self.vector[0] -= move_vector[0]
+            self.vector[1] -= move_vector[1]
 
     def update(self, ):
         """Update the state of the kitty
@@ -99,7 +103,21 @@ class Dog(Char):
     DEFAULT_PIC = 'dog.png'
     SPEED = 4
 
-    def __init__(self, start_pos):
+    def _default_ai(dog, prev_dir):
+        return "none"
+
+    def __init__(self, start_pos, dog_ai=_default_ai):
         """Set up a cat
         """
+        self._ai = dog_ai
+        self._prev_dir = "none"
         Char.__init__(self, start_pos, self.DEFAULT_PIC, self.SPEED)
+
+    def update(self, ):
+        """Run the AI to get movement, then apply
+
+        """
+        self.stop("all")
+        direction = self._ai(self, self._prev_dir)
+        self.move(direction)
+        Char.update(self)

@@ -1,8 +1,10 @@
 #!/usr/bin/env python
+import math
+import random
+
 import pygame
 import pygame.locals
 from pygame.sprite import Group, spritecollide, collide_mask
-import math
 
 from chars import Cat, Dog, Goal
 
@@ -47,7 +49,7 @@ class GameState(object):
         for i in range(int(self.nums)):
             y = 175 - int(75*math.sin(i*math.pi/(self.nums-1)))
             x = int((space/2)+i*space)
-            self.dogs.add(Dog((x,y)))
+            self.dogs.add(Dog((x,y), dog_ai=random_ai))
 
         self.kitty = Cat((int(size[0]/2),int(size[1]*0.8)))
         self.goal = Goal((int(size[0]/2),0))
@@ -60,6 +62,16 @@ class GameState(object):
         self.gameover = False
         self.gamewin = False
 
+
+def random_ai(dog, prev_dir):
+    """Random movement, aka Seizure AI
+
+    """
+    REPEAT_CHANCE = 0.40
+    if random.random() <= REPEAT_CHANCE:
+        return prev_dir
+    else:
+        return random.choice(('left','right','up','down'))
 
 def preserve_screen(dest, screen):
     dest.blit(screen, (0,0))
@@ -101,6 +113,8 @@ def main_loop(state):
                 elif event['type'] == 'stop':
                     state.kitty.stop(event['dir'])
 
+            for dog in state.dogs:
+                dog.update()
             state.kitty.update()
 
             state.sprites.draw(screen)
