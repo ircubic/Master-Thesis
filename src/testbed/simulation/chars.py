@@ -38,3 +38,11 @@ class Entity(object):
         """Gets the entity's position
         """
         return tuple(self._position)
+
+    def setPosition(self, new_pos):
+        """Set the entity's position
+
+        Arguments:
+        - `new_pos`:
+        """
+        self._position = list(new_pos)
