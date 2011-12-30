@@ -74,6 +74,13 @@ class Simulation(object):
         return state
 
 
+    def getFieldSize(self, ):
+        """Get the size of the game field.
+        """
+        return self._field_size
+
+
+
     def simtick(self, ):
         """Do one tick of the simulation.
         """
