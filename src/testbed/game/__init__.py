@@ -185,9 +185,9 @@ class Game(object):
 
         # We're done with one round of game ticks, time for next sim tick
         if subtick == 0:
-            # If not gameover in the simulation, keep ticking the simulation,
-            # otherwise set game's gameover flag, as we were on our last round
-            # of ticks
+            # If simulation has not finished yet, keep ticking the simulation,
+            # otherwise set game's gameover flag and update all entities to
+            # final position, as we are on the final tick of this game
             if self.simstate["gameover"] == False:
                 self.simstate = self.simulation.simtick()
                 self.cat.updateTarget(self._simToGamePosition(self.simstate["cat"]))
@@ -195,6 +195,9 @@ class Game(object):
                     gamedog.updateTarget(self._simToGamePosition(simdog))
             else:
                 self.gameover = True
+                self.cat.updatePosition(1.0)
+                for dog in self.dogs:
+                    dog.updatePosition(1.0)
 
         if not self.gameover:
             self.cat.updatePosition(percentage)
