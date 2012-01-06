@@ -202,12 +202,3 @@ class Game(object):
                 dog.updatePosition(percentage)
 
             self.tickcount += 1
-
-
-def main():
-    """Little main function stub
-    """
-    pygame.init()
-    g = Game()
-    g.mainLoop()
-    pygame.quit()
