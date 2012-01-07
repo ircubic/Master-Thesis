@@ -79,6 +79,47 @@ class GameEntity(object):
         self.rect.center = self.position
 
 
+class InputState(object):
+    """Contains the current input state.
+
+    Keeps track of the keys that are currently held down, and the order in which they were pressed, making sure
+    that the expressed direction fits what is expected.
+    """
+
+    def __init__(self, ):
+        """
+        """
+
+        self.current_direction = ""
+        self.other_directions = []
+
+    def keydown(self, direction):
+        """Handle key being pressed
+
+        Arguments:
+        - `direction`:
+        """
+        self.other_directions.append(self.current_direction)
+        self.current_direction = str(direction)
+
+    def keyup(self, direction):
+        """Handle key being released
+
+        Arguments:
+        - `direction`:
+        """
+        if self.current_direction == direction:
+            self.current_direction = self.other_directions.pop()
+        elif direction in self.other_directions:
+            self.other_directions.remove(direction)
+
+    def getDirection(self, ):
+        """Get the current movement direction.
+
+        """
+        return self.current_direction
+
+
 
 class Game(object):
     """Represents the game part of the test bed.
