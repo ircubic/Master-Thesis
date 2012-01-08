@@ -98,6 +98,14 @@ class GameEntity(object):
         self.rect.center = self.position
 
 
+DIR_MAP = {
+    K_UP: 'up',
+    K_DOWN: 'down',
+    K_LEFT: 'left',
+    K_RIGHT: 'right',
+}
+
+
 class InputState(object):
     """Contains the current input state.
 
@@ -161,7 +169,8 @@ class Game(object):
     def __init__(self):
         """
         """
-        self.simulation = Simulation(random_ai, random_ai)
+        self.input = InputState()
+        self.simulation = Simulation(InputAI(self.input), random_ai)
         self.simstate = self.simulation.getState()
         field = self.simulation.getFieldSize()
 
@@ -235,6 +244,12 @@ class Game(object):
         for event in pygame.event.get():
             if event.type == QUIT:
                 self.run = False
+            elif event.type == KEYDOWN:
+                if event.key in DIR_MAP:
+                    self.input.keydown(DIR_MAP[event.key])
+            elif event.type == KEYUP:
+                if event.key in DIR_MAP:
+                    self.input.keyup(DIR_MAP[event.key])
 
 
     def updateGameState(self):
