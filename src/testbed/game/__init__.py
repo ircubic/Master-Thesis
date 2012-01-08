@@ -28,6 +28,25 @@ def load_png(name):
         	raise SystemExit, message
 	return image
 
+class InputAI(object):
+    """An AI that is intended to work with key inputs.
+    """
+
+    def __init__(self, keyinput):
+        """Set up the AI with the given InputState.
+
+        Arguments:
+        - `keyinput`: An InputState that the AI is to take directions from.
+        """
+        self._keyinput = keyinput
+
+    def __call__(self, cat, dogs, goal):
+        """The actual AI method.
+
+        """
+        return self._keyinput.getDirection()
+
+
 
 class GameEntity(object):
     """An entity in the game.
