@@ -1,18 +1,10 @@
 import pygame
-import random
 import os.path
 import math
 from pygame.locals import *
 
 from simulation import Simulation
-
-
-def random_ai(cat, dogs, goal):
-    """Randomly moving AI
-
-    """
-    return random.choice(('left','right','up','down'))
-
+import simulation.ai as ai
 
 def load_png(name):
 	""" Load image and return image object"""
@@ -170,7 +162,7 @@ class Game(object):
         """
         """
         self.input = InputState()
-        self.simulation = Simulation(InputAI(self.input), random_ai)
+        self.simulation = Simulation(InputAI(self.input), ai.random_ai)
         self.simstate = self.simulation.getState()
         field = self.simulation.getFieldSize()
 
