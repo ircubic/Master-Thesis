@@ -1,5 +1,6 @@
 from datetime import datetime
 
+import simulation.ai as ai
 from simulation.chars import Entity
 
 class Simulation(object):
@@ -56,6 +57,13 @@ class Simulation(object):
         self._cat_ai = cat_ai
         self._dog_ai = dog_ai
 
+    def setCatMove(self, direction):
+        """Set the cat's move if using ai.ControlAI.
+
+        Arguments:
+        - `direction`:
+        """
+        ai._cat_move = direction
 
     def getState(self, ):
         """Get the state of the simulation.
