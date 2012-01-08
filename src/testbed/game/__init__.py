@@ -20,25 +20,6 @@ def load_png(name):
         	raise SystemExit, message
 	return image
 
-class InputAI(object):
-    """An AI that is intended to work with key inputs.
-    """
-
-    def __init__(self, keyinput):
-        """Set up the AI with the given InputState.
-
-        Arguments:
-        - `keyinput`: An InputState that the AI is to take directions from.
-        """
-        self._keyinput = keyinput
-
-    def __call__(self, cat, dogs, goal):
-        """The actual AI method.
-
-        """
-        return self._keyinput.getDirection()
-
-
 
 class GameEntity(object):
     """An entity in the game.
@@ -162,7 +143,7 @@ class Game(object):
         """
         """
         self.input = InputState()
-        self.simulation = Simulation(InputAI(self.input), ai.random_ai)
+        self.simulation = Simulation(ai.control_ai, ai.random_ai)
         self.simstate = self.simulation.getState()
         field = self.simulation.getFieldSize()
 
@@ -242,6 +223,7 @@ class Game(object):
             elif event.type == KEYUP:
                 if event.key in DIR_MAP:
                     self.input.keyup(DIR_MAP[event.key])
+        self.simulation.setCatMove(self.input.getDirection())
 
 
     def updateGameState(self):
