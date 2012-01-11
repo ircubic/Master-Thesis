@@ -1,3 +1,4 @@
+import random
 from datetime import datetime
 
 import simulation.ai as ai
@@ -46,12 +47,14 @@ class Simulation(object):
         # The goal is flush with the top, also centered
         self._goal = Entity((centerx, self.GOAL_SIZE[1]*0.5), 0)
 
-        # The dogs are arranged on a line somewhere below the goal, evenly spaced
+        # The dogs are arranged randomly within the top half of the screen
         self._dogs = []
-        space = width/(num_dogs+1.0)
+        dog_padding = (self.DOG_SIZE[0]/2,self.DOG_SIZE[1]/2)
+        x_range = (dog_padding[0], width-dog_padding[0])
+        y_range = (dog_padding[1], (height/2)-dog_padding[1])
         for i in range(num_dogs):
-            dogx = space*(i+0.5)
-            dogy = self.DOG_SIZE[1]*2
+            dogx = random.uniform(x_range[0], x_range[1])
+            dogy = random.uniform(y_range[0], y_range[1])
             self._dogs.append(Entity((dogx,dogy), self.DOG_SPEED))
 
         self._cat_ai = cat_ai
