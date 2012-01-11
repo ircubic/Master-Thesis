@@ -114,10 +114,11 @@ class Simulation(object):
         """
         state = self.getState()
         moves = []
-        moves.append(self._cat_ai(state["cat"], state["dogs"], state["goal"]))
-        for dog in self._dogs:
-            moves.append(self._dog_ai(state["cat"], state["dogs"],
-                                      state["goal"]))
+        moves.append(self._cat_ai(state["cat"], state["cat"],
+                                  state["dogs"], state["goal"]))
+        for i, dog in enumerate(self._dogs):
+            moves.append(self._dog_ai(state["dogs"][i], state["cat"],
+                                      state["dogs"], state["goal"]))
         return moves
 
 

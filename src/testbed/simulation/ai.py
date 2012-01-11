@@ -2,7 +2,7 @@ import random
 
 _cat_move = ""
 
-def control_ai(cat, dogs, goal):
+def control_ai(current, cat, dogs, goal):
     """Control AI.
 
     This AI fetches the cat move set by the simulation's "setCatMove", allowing
@@ -11,7 +11,7 @@ def control_ai(cat, dogs, goal):
     return _cat_move
 
 
-def random_ai(cat, dogs, goal):
+def random_ai(current, cat, dogs, goal):
     """Randomly moving AI
 
     """
