@@ -79,7 +79,8 @@ class TestSimulation(unittest.TestCase):
     def _all_in_stage(self, state):
         self.assertTrue(self._in_stage(state["cat"], self.sim.CAT_SIZE))
         for dog in state["dogs"]:
-            self.assertTrue(self._in_stage(dog, self.sim.DOG_SIZE))
+            self.assertTrue(self._in_stage(dog, (self.sim.DOG_RADIUS*2,
+                                                 self.sim.DOG_RADIUS*2)))
         self.assertTrue(self._in_stage(state["goal"], self.sim.GOAL_SIZE))
 
     def _in_stage(self, x, size):
@@ -204,11 +205,11 @@ class TestSimulation(unittest.TestCase):
         # Now check that attempting to move outside the stage will move the
         # entity back in flush with the edge
         old_pos = self.sim._dogs[1].getPosition()
-        self.sim._dogs[1].setPosition((old_pos[0], self.sim.DOG_SIZE[1]*0.5))
+        self.sim._dogs[1].setPosition((old_pos[0], self.sim.DOG_RADIUS))
         self.sim._updateState(moves)
         post_state = self.sim.getState()
         self._all_in_stage(post_state)
-        self.assertEqual(self.sim._dogs[1]._position[1],self.sim.DOG_SIZE[1]*0.5)
+        self.assertEqual(self.sim._dogs[1]._position[1], self.sim.DOG_RADIUS)
 
     def testEnsureInside(self, ):
         """Tests that _ensureInside works.
@@ -291,3 +292,18 @@ class TestSimulation(unittest.TestCase):
         self.assertTrue(self.sim._collideRectWithRect(rect, overlapping))
         self.assertTrue(self.sim._collideRectWithRect(rect, inside))
         self.assertFalse(self.sim._collideRectWithRect(rect, outside))
+
+    def testCollideCircleWithRect(self, ):
+        """Test that the rect to circle collision works
+        """
+        rect = (5, 5, 10, 10)
+        encompasses = (5, 5, 10)
+        inside = (5, 5, 2)
+        outside = (12, 12, 1)
+        corner = (0, 0, 1)
+        edgecase = (5, 1, 2)
+        self.assertTrue(self.sim._collideCircleWithRect(encompasses, rect))
+        self.assertTrue(self.sim._collideCircleWithRect(inside, rect))
+        self.assertTrue(self.sim._collideCircleWithRect(corner, rect))
+        self.assertTrue(self.sim._collideCircleWithRect(edgecase, rect))
+        self.assertFalse(self.sim._collideCircleWithRect(outside, rect))

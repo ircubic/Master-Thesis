@@ -10,9 +10,9 @@ class Simulation(object):
     This is the part that contains all the logic for the game and handles the
     decision making for the entities.
     """
-    # The speed of a cat
+
     CAT_SIZE = (1.5, 1.5)
-    DOG_SIZE = CAT_SIZE
+    DOG_RADIUS = CAT_SIZE[0]/2
     GOAL_SIZE = (5, 2)
     CAT_SPEED = CAT_SIZE[0]
     DOG_SPEED = CAT_SPEED*3.0/4.0
@@ -49,7 +49,7 @@ class Simulation(object):
 
         # The dogs are arranged randomly within the top half of the screen
         self._dogs = []
-        dog_padding = (self.DOG_SIZE[0]/2,self.DOG_SIZE[1]/2)
+        dog_padding = (self.DOG_RADIUS,self.DOG_RADIUS)
         x_range = (dog_padding[0], width-dog_padding[0])
         y_range = (dog_padding[1], (height/2)-dog_padding[1])
         for i in range(num_dogs):
@@ -136,7 +136,7 @@ class Simulation(object):
         self._ensureInside(self._cat, self.CAT_SIZE)
         for i in range(len(self._dogs)):
             self._dogs[i].move(moves[i+1])
-            self._ensureInside(self._dogs[i], self.DOG_SIZE)
+            self._ensureInside(self._dogs[i], (self.DOG_RADIUS*2, self.DOG_RADIUS*2))
 
 
     def _ensureInside(self, entity, size):
@@ -178,8 +178,8 @@ class Simulation(object):
         cat_rect = self._cat.getPosition() + self.CAT_SIZE
         goal_rect = self._goal.getPosition() + self.GOAL_SIZE
         for dog in self._dogs:
-            dog_rect = dog.getPosition() + self.DOG_SIZE
-            if self._collideRectWithRect(cat_rect, dog_rect):
+            dog_circle = dog.getPosition() + (self.DOG_RADIUS,)
+            if self._collideCircleWithRect(dog_circle, cat_rect):
                 collisions.append("dog")
         if self._collideRectWithRect(cat_rect, goal_rect):
             collisions.append("goal")
@@ -212,3 +212,36 @@ class Simulation(object):
             return False
         else:
             return True
+
+    def _collideCircleWithRect(self, circle, rect):
+        """Check for collision between a circle and a rectongle.
+
+        The rectangle has the following format:
+        (centerx, centery, width, height)
+
+        The circle has the following format:
+        (centerx, centery, radius)
+
+        Arguments:
+        - `circle`: The circle to check
+        - `rect`: The rectangle to check
+        """
+        distance_x = abs(circle[0] - rect[0])
+        distance_y = abs(circle[1] - rect[1])
+        collide_width = rect[2]/2
+        collide_height = rect[3]/2
+
+        if distance_x > (collide_width + circle[2]):
+            return False
+        if distance_y > (collide_height + circle[2]):
+            return False
+
+        if distance_x <= collide_width:
+            return True
+        if distance_y <= collide_height:
+            return True
+
+        square_corner_dist = ((distance_x - collide_width)**2 +
+                              (distance_y - collide_height)**2)
+
+        return (square_corner_dist <= circle[2]**2)
