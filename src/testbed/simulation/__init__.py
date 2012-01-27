@@ -66,7 +66,7 @@ class Simulation(object):
         # Some hairy stuff for SML dynamic loading
         argv_type = c_char_p * 2
         argv = argv_type("test", None)
-        self.lib.test_open(1, argv)
+        self.lib.sim_open(1, argv)
 
 
     def setCatMove(self, direction):
