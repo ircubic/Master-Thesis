@@ -52,7 +52,7 @@ class TestSimulation(unittest.TestCase):
             self.goal = []
             self.dogs = []
 
-        def __call__(self, cat, dogs, goal):
+        def __call__(self, current, cat, dogs, goal):
             """AI call. Stores data about the call and returns a default direction.
 
             Arguments:
@@ -141,7 +141,10 @@ class TestSimulation(unittest.TestCase):
         """Test the simtick method for a losing move
         """
         # Move the cat inbetween the dogs and the left wall, to ensure collision
+
         dog_pos = self.sim._dogs[0].getPosition()
+        dog_pos = (self.sim.CAT_SIZE[0]+self.sim.DOG_RADIUS, dog_pos[1])
+        self.sim._dogs[0].setPosition(dog_pos)
         self.sim._cat.setPosition([0, dog_pos[1]])
         state = self.sim.simtick()
         self.assertTrue(state["gameover"])
