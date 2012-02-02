@@ -5,16 +5,8 @@ datatype entity = cat of point * rect
                 | dog of point * circle
 datatype entity_list = entity_nil
                      | entity_cons of entity * entity_list
-
-fun pow ((x, y) : real * int) : real =
-    case y = 0
-     of true => 1.0
-      | false => pow(x, y-1)*x
-
-fun abs ((x) : real) : real =
-    case (x < 0.0)
-     of true => ~x
-      | false => x
+val pow = Math.pow
+val abs = Math.abs
 
 fun clamp ((value, lower, upper) : real*real*real) : real =
     case value < lower
@@ -57,6 +49,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
                      case (x1-(w1*0.5)) > (x2+(w2*0.5)) (* left1 > right2 *)
                       of true => false
                        | false => true)
+
       (* Cat and dog collide with circrle-rect collision *)
       | (cat(point(x1,y1), rect(w1,h1)),
          dog(point(x2,y2), circle(r))) =>
@@ -78,6 +71,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
                                        <= pow(r,2))
 
         )
+
       (* Flipped example *)
       | (dog(_,_), cat(_,_)) => collide(E2, E1)
       (* Dogs collide with circle collisions (for exhaustiveness) *)
