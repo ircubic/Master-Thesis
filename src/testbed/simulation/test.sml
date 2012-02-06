@@ -5,6 +5,9 @@ datatype entity = cat of point * rect
                 | dog of point * circle
 datatype entity_list = entity_nil
                      | entity_cons of entity * entity_list
+(* cat, dogs, goal, gameover, win *)
+datatype state = entity * entity_list * entity * bool * bool
+
 val pow = Math.pow
 (*val abs = Math.abs*)
 
