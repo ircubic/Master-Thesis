@@ -33,6 +33,16 @@ fun ensureInside ((E, F) : entity * rect) : entity =
       | dog(P, C as circle(R)) =>
         dog(clampRect(P, rect((R*2.0), (R*2.0)), F), C)
 
+fun hasLost ((Cat, Dogs) : entity * entity_list) : bool =
+    case Dogs
+     of entity_nil => false
+      | entity_cons(Dog, Rest) =>
+        case collide(Cat, Dog)
+         of true => true
+          | hasLost(Cat, Rest)
+
+fun hasWon ((Cat,Goal) : entity * entity) : bool =
+    collide(Cat, Goal)
 
 (* Check if two entities collide *)
 fun collide ((E1, E2) : entity * entity) : bool =
