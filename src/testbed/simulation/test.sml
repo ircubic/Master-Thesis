@@ -1,12 +1,12 @@
 datatype point = point of real * real
-datatype rect = rect of real * real
-datatype circle = circle of real
-datatype entity = cat of point * rect
-                | dog of point * circle
+datatype size = size of real * real
+datatype radius = radius of real
+datatype entity = rect of point * size
+                | circle of point * radius
 datatype entity_list = entity_nil
                      | entity_cons of entity * entity_list
 (* cat, dogs, goal, gameover, win *)
-datatype state = entity * entity_list * entity * bool * bool
+datatype state = state of entity * entity_list * entity * bool * bool
 
 val pow = Math.pow
 (*val abs = Math.abs*)
@@ -19,37 +19,24 @@ fun clamp ((Value, Lower, Upper) : real*real*real) : real =
          of true => Upper
           | false => Value
 
-fun clampRect((P as point(X,Y), S as rect(Width, Height),
-               F as rect(Field_width, Field_height)) :
-              point * rect * rect) : point =
-    point(clamp(X, (Width*0.5), Field_width-(Width*0.5)),
-          clamp(Y, (Height*0.5), Field_height-(Height*0.5)))
-
 (* Ensures that an entity's position is within the field *)
-fun ensureInside ((E, F) : entity * rect) : entity =
+fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size) : entity =
     case E
-     of cat(P,S) =>
-        cat(clampRect(P,S,F), S)
-      | dog(P, C as circle(R)) =>
-        dog(clampRect(P, rect((R*2.0), (R*2.0)), F), C)
-
-fun hasLost ((Cat, Dogs) : entity * entity_list) : bool =
-    case Dogs
-     of entity_nil => false
-      | entity_cons(Dog, Rest) =>
-        case collide(Cat, Dog)
-         of true => true
-          | hasLost(Cat, Rest)
-
-fun hasWon ((Cat,Goal) : entity * entity) : bool =
-    collide(Cat, Goal)
+     of rect(point(X,Y), S as size(Width, Height)) =>
+        rect(point(clamp(X, (Width*0.5), Field_width-(Width*0.5)),
+                   clamp(Y, (Height*0.5), Field_height-(Height*0.5))),
+             S)
+      | circle(point(X,Y), R as radius(R_)) =>
+        circle(point(clamp(X, R_, Field_width-R_),
+                     clamp(Y, R_, Field_height-R_)),
+               R)
 
 (* Check if two entities collide *)
 fun collide ((E1, E2) : entity * entity) : bool =
     case (E1, E2)
      (* Two cats collide using rectangle collisions *)
-     of (cat(point(X1,Y1), rect(W1,H1)),
-         cat(point(X2,Y2), rect(W2,H2))) =>
+     of (rect(point(X1,Y1), size(W1,H1)),
+         rect(point(X2,Y2), size(W2,H2))) =>
         (case (Y1+(H1*0.5)) < (Y2-(H2*0.5)) (* bottom1 < top2 *)
           of true => false
            | false =>
@@ -64,8 +51,8 @@ fun collide ((E1, E2) : entity * entity) : bool =
                        | false => true)
 
       (* Cat and dog collide with circrle-rect collision *)
-      | (cat(point(X1,Y1), rect(W1,H1)),
-         dog(point(X2,Y2), circle(R))) =>
+      | (rect(point(X1,Y1), size(W1,H1)),
+         circle(point(X2,Y2), radius(R))) =>
         (case (abs(X2 - X1), abs(Y2 - Y1), W1/2.0, H1/2.0)
           of (Dist_x, Dist_y, Coll_width, Coll_height) =>
              case (Dist_x > (Coll_width+R))
@@ -86,8 +73,19 @@ fun collide ((E1, E2) : entity * entity) : bool =
         )
 
       (* Flipped example *)
-      | (dog(point(X1,Y1),circle(R)), cat(point(X2,Y2),rect(W,H))) => collide(E2, E1)
+      | (circle(P1,R), rect(P2,S)) => collide(E2, E1)
       (* Dogs collide with circle collisions (for exhaustiveness) *)
-      | (dog(point(X1,Y1), circle(R1)),
-         dog(point(X2,Y2), circle(R2))) =>
+      | (circle(point(X1,Y1), radius(R1)),
+         circle(point(X2,Y2), radius(R2))) =>
         ((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)) <= pow((R1+R2),2.0))
+
+fun hasLost ((Cat, Dogs) : entity * entity_list) : bool =
+    case Dogs
+     of entity_nil => false
+      | entity_cons(Dog, Rest) =>
+        case collide(Cat, Dog)
+         of true => true
+          | false => hasLost(Cat, Rest)
+
+fun hasWon ((Cat,Goal) : entity * entity) : bool =
+    collide(Cat, Goal)
