@@ -9,7 +9,6 @@ datatype entity_list = entity_nil
 datatype state = state of entity * entity_list * entity * bool * bool
 
 val pow = Math.pow
-(*val abs = Math.abs*)
 
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
     case Value < Lower
