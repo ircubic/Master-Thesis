@@ -1,7 +1,5 @@
 import random
 from datetime import datetime
-from ctypes import cdll
-from ctypes import c_double, c_char_p
 
 import simulation.ai as ai
 from simulation.chars import Entity
@@ -61,13 +59,6 @@ class Simulation(object):
 
         self._cat_ai = cat_ai
         self._dog_ai = dog_ai
-
-        self.lib = cdll.LoadLibrary('./sim.so')
-        # Some hairy stuff for SML dynamic loading
-        argv_type = c_char_p * 2
-        argv = argv_type("test", None)
-        self.lib.sim_open(1, argv)
-
 
     def setCatMove(self, direction):
         """Set the cat's move if using ai.ControlAI.
@@ -206,15 +197,21 @@ class Simulation(object):
         - `rect2`: Rectangle 2
         """
 
-        return bool(self.lib.coll(
-                c_double(rect1[0]),
-                c_double(rect1[1]),
-                c_double(rect1[2]),
-                c_double(rect1[3]),
-                c_double(rect2[0]),
-                c_double(rect2[1]),
-                c_double(rect2[2]),
-                c_double(rect2[3])))
+        left1 = rect1[0]-(rect1[2]*0.5)
+        right1 = rect1[0]+(rect1[2]*0.5)
+        top1 = rect1[1]-(rect1[3]*0.5)
+        bottom1 = rect1[1]+(rect1[3]*0.5)
+
+        left2 = rect2[0]-(rect2[2]*0.5)
+        right2 = rect2[0]+(rect2[2]*0.5)
+        top2 = rect2[1]-(rect2[3]*0.5)
+        bottom2 = rect2[1]+(rect2[3]*0.5)
+
+        if (bottom1 < top2 or top1 > bottom2 or
+            right1 < left2 or left1 > right2):
+            return False
+        else:
+            return True
 
     def _collideCircleWithRect(self, circle, rect):
         """Check for collision between a circle and a rectongle.
