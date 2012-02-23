@@ -5,10 +5,55 @@ datatype entity = rect of point * size
                 | circle of point * radius
 datatype entity_list = entity_nil
                      | entity_cons of entity * entity_list
-(* cat, dogs, goal, gameover, win *)
-datatype state = state of entity * entity_list * entity * bool * bool
+(* cat, dogs, goal, fieldsize, gameover, win *)
+datatype state = state of entity * entity_list * entity * size * bool * bool
 
 val pow = Math.pow
+
+fun width((E) : entity) : real =
+    case E
+    of rect(point(X,Y), size(Width, Height)) => Width
+     | circle(point(X,Y), radius(Radius)) => Radius*2.0
+
+fun randReal() : real =
+    MLton.Real.fromWord(MLton.Random.rand())/pow(2.0,32.0)-1.0
+
+fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Radius), Dognumber) : size * radius * real) : entity_list =
+    let
+       fun nextDog((Rest):real) : entity_list =
+           entity_cons(
+             circle(
+               point(Radius + (randReal()*Fieldwidth),
+                     Radius + (randReal()*Fieldheight)),
+               Dogsize),
+             case Rest > 0.0
+             of true => nextDog(Rest-1.0)
+              | false => entity_nil
+           )
+    in
+        nextDog(Dognumber-1.0)
+    end
+
+fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogradius, Goalsize as size(Goalwidth, Goalheight), Dognumber) : size * size * real * size * real) : state =
+    state(
+      (*cat*)
+      rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
+           Catsize)
+      ,
+      (*dogs*)
+      randomDogs(size(Fieldwidth-(Dogradius*2.0), Fieldheight/2.0), radius(Dogradius), Dognumber)
+      ,
+      (*goal*)
+      rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize)
+      ,
+      (*fieldsize*)
+      Fieldsize
+      ,
+      (*gameover*)
+      false,
+      (*win*)
+      false
+      )
 
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
     case Value < Lower
