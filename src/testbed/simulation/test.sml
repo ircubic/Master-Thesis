@@ -16,8 +16,12 @@ fun width((E) : entity) : real =
      | circle(point(X,Y), radius(Radius)) => Radius*2.0
 
 fun randReal() : real =
+    (* Fairly unsure if this is correct actually (I'm assuming
+     * an MLton word is 32 bits)
+     *)
     MLton.Real.fromWord(MLton.Random.rand())/pow(2.0,32.0)-1.0
 
+(* Generate randomly placed dogs inside the given field *)
 fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Radius), Dognumber) : size * radius * real) : entity_list =
     let
        fun nextDog((Rest):real) : entity_list =
@@ -26,34 +30,38 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Rad
                point(Radius + (randReal()*Fieldwidth),
                      Radius + (randReal()*Fieldheight)),
                Dogsize),
+             (* If we are not on the last index, add another dog *)
              case Rest > 0.0
              of true => nextDog(Rest-1.0)
               | false => entity_nil
            )
     in
+        (* Start counting down the indexes *)
         nextDog(Dognumber-1.0)
     end
 
 fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogradius, Goalsize as size(Goalwidth, Goalheight), Dognumber) : size * size * real * size * real) : state =
     state(
-      (*cat*)
+      (* Cat is placed on the bottom center. *)
       rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
-           Catsize)
-      ,
-      (*dogs*)
-      randomDogs(size(Fieldwidth-(Dogradius*2.0), Fieldheight/2.0), radius(Dogradius), Dognumber)
-      ,
-      (*goal*)
-      rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize)
-      ,
+           Catsize),
+      (* Dogs will be placed within the upper half of the 
+       * simulation field, so we must make sure that the position
+       * field compensates for the width of the dogs.
+       *)
+      randomDogs(size(Fieldwidth-(Dogradius*2.0),
+                      Fieldheight/2.0),
+                 radius(Dogradius),
+                 Dognumber),
+      (* Goal is placed on the top center *)
+      rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
       (*fieldsize*)
-      Fieldsize
-      ,
+      Fieldsize,
       (*gameover*)
       false,
       (*win*)
       false
-      )
+    )
 
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
     case Value < Lower
