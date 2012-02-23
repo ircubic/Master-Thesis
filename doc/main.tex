@@ -60,8 +60,29 @@
 }
 \begin{document}
 
-    % FRONT MATTER
-    \input{format1} % DO NOT CHANGE, OR REMOVE IF CHANGING STYLE
+    % Fancy Header Style Options
+    %\pagestyle{fancy}                       % Sets fancy header and footer
+    %\fancyfoot{}                            % Delete current footer settings
+    \renewcommand{\chaptermark}[1]{         % Lower Case Chapter marker style
+    \markboth{\chaptername\ \thechapter.\ #1}{}}
+    \renewcommand{\sectionmark}[1]{         % Lower case Section marker style
+    \markright{\thesection.\ #1}}
+    \fancyhead[LE,RO]{\bfseries\thepage}    % Page number (boldface) in left on even
+                                            % pages and right on odd pages
+    \fancyhead[RE]{\bfseries\leftmark}      % Chapter in the right on even pages
+    \fancyhead[LO]{\bfseries\rightmark}     % Section in the left on odd pages
+    \renewcommand{\headrulewidth}{0.3pt}    % Width of head rule
+    %%% Clear Header %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    % Clear Header Style on the Last Empty Odd pages
+    \makeatletter
+    \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else%
+        \hbox{}%
+        \thispagestyle{empty}%              % Empty header styles
+        \newpage%
+        \if@twocolumn\hbox{}\newpage\fi\fi\fi}
+    \makeatother
+
+    \cleardoublepage
 
     % DO NOT CHANGE
     %-------------------------------------------------
@@ -78,7 +99,31 @@
     \addcontentsline{toc}{chapter}{Prerequisites}
     %-------------------------------------------------
 
-    \input{format2}     % DO NOT CHANGE, OR REMOVE IF CHANGING STYLE
+    \newpage % DO NOT CHANGE
+    \renewcommand{\contentsname}{Table of Contents}  % Original name = Contents
+    \tableofcontents
+
+    \cleardoublepage % DO NOT CHANGE
+    % Different font in captions
+    \newcommand{\captionfonts}{\small}
+    \makeatletter  % Allow the use of @ in command names
+    \long\def\@makecaption#1#2{%
+    \vskip\abovecaptionskip
+    \sbox\@tempboxa{{\captionfonts #1: #2}}%
+    \ifdim \wd\@tempboxa >\hsize
+        {\captionfonts #1: #2\par}
+    \else
+        \hbox to\hsize{\hfil\box\@tempboxa\hfil}%
+    \fi
+    \vskip\belowcaptionskip}
+    \makeatother   % Cancel the effect of \makeatletter
+
+    % format the "box" used for source code listings
+    \lstset{backgroundcolor=\color[rgb]{0.95,0.95,0.95},basicstyle=\footnotesize,xleftmargin=0.25cm,linewidth=150mm}
+    % input the chapters
+    %\setcounter{chapter}{3} %-> første kapittel er nummer 4...
+    \pagenumbering{arabic}
+    \setcounter{page}{1}
 
     % BODY
     %-------------------------------------------------
