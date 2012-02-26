@@ -2,6 +2,8 @@ datatype point = point of real * real
 datatype size = size of real * real
 datatype radius = radius of real
 datatype direction = left | right | up | down
+datatype direction_list = dir_nil
+                        | dir_cons of direction * direction_list
 datatype entity = rect of point * size
                 | circle of point * radius
 datatype entity_list = entity_nil
@@ -10,6 +12,9 @@ datatype entity_list = entity_nil
 datatype state = state of entity * entity_list * entity * size * bool * bool
 
 val pow = Math.pow
+
+fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
+    right
 
 fun width((E) : entity) : real =
     case E
@@ -143,8 +148,17 @@ fun hasLost ((Cat, Dogs) : entity * entity_list) : bool =
 fun hasWon ((Cat,Goal) : entity * entity) : bool =
     collide(Cat, Goal)
 
-fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
-    right
+fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
+    let
+      fun stepDogs((Dogrest) : entity_list) : direction_list =
+          case Dogs
+           of entity_nil => dir_nil
+            | entity_cons(Dog, Rest) =>
+              dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
+    in
+      dir_cons(f(Cat, Cat, Dogs, Goal), stepDogs(Dogs))
+    end
+
 
 (*fun main( (Dogs) : entity_list ) : bool =
     f(Self, Cat, Dogs, Goal)*)
