@@ -151,7 +151,7 @@ fun hasWon ((Cat,Goal) : entity * entity) : bool =
 fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
     let
       fun stepDogs((Dogrest) : entity_list) : direction_list =
-          case Dogs
+          case Dogrest
            of entity_nil => dir_nil
             | entity_cons(Dog, Rest) =>
               dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
@@ -159,6 +159,47 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
       dir_cons(f(Cat, Cat, Dogs, Goal), stepDogs(Dogs))
     end
 
+fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves) : state * direction_list) : state =
+    let
+      fun movePoint((Point as point(X,Y), Move, Speed) : point * direction * real) : point =
+          case Move
+           of left => point(X-Speed, Y)
+            | right => point(X+Speed, Y)
+            | down => point(X, Y+Speed)
+            | up => point(X, Y-Speed)
+
+      fun moveEntity((Entity, Move) : entity * direction) : entity =
+          case Entity
+           of rect(Point, Size as size(W,H)) => rect(movePoint(Point, Move, 1.5), Size)
+            | circle(Point, Radius) => circle(movePoint(Point, Move, 1.5*3.0/4.0), Radius)
+
+      fun moveEntities((Entities, Moves) : entity_list * direction_list) : entity_list =
+          case Entities
+           of entity_nil => entity_nil
+            | entity_cons(Entity, Rest) =>
+              (* Fetch the move corresponding to the entity. If there are no 
+                 more moves (Which really shouldn't happen), return an unmoved
+                 entity.
+               *)
+              case Moves
+               of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves))
+                | dir_cons(Move, Moverest) =>
+                  entity_cons(moveEntity(Entity, Move), moveEntities(Rest, Moverest))
+              
+    in
+      case Moves
+       of dir_nil => State
+        | dir_cons(Catmove, Rest) =>
+          state(
+            (* Move the cat separately *)
+            moveEntity(Cat, Catmove),
+            (* Move all the dogs *)
+            moveEntities(Dogs, Rest),
+            (* Rest stays the same *)
+            Goal, Fieldsize, Gameover, Win
+          )
+    end
+        
 
 (*fun main( (Dogs) : entity_list ) : bool =
     f(Self, Cat, Dogs, Goal)*)

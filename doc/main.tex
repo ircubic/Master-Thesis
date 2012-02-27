@@ -19,7 +19,8 @@
     linkcolor=red,          % color of internal links
     citecolor=black,        % color of links to bibliography
     filecolor=magenta,      % color of file links
-    urlcolor=cyan           % color of external links
+    urlcolor=cyan,          % color of external links
+    unicode=true
 }
 
 % listings settings
@@ -99,11 +100,12 @@
     \addcontentsline{toc}{chapter}{Prerequisites}
     %-------------------------------------------------
 
-    \newpage % DO NOT CHANGE
-    \renewcommand{\contentsname}{Table of Contents}  % Original name = Contents
+    \newpage
+    \renewcommand{\contentsname}{Table of Contents}
     \tableofcontents
 
-    \cleardoublepage % DO NOT CHANGE
+    \cleardoublepage
+
     % Different font in captions
     \newcommand{\captionfonts}{\small}
     \makeatletter  % Allow the use of @ in command names
@@ -120,8 +122,7 @@
 
     % format the "box" used for source code listings
     \lstset{backgroundcolor=\color[rgb]{0.95,0.95,0.95},basicstyle=\footnotesize,xleftmargin=0.25cm,linewidth=150mm}
-    % input the chapters
-    %\setcounter{chapter}{3} %-> første kapittel er nummer 4...
+
     \pagenumbering{arabic}
     \setcounter{page}{1}
 
@@ -137,16 +138,13 @@
 
     % END MATTER
 
-    % DO NOT CHANGE
-    %-------------------------------------------------
     \bibliographystyle{abbrvnat}
-    \renewcommand{\bibname}{References}  % Original name = Bibliography
+    \renewcommand{\bibname}{References}
     \bibliography{topics,thesis}
     \listoffigures
     \addcontentsline{toc}{chapter}{List of figures}
     \listoftables
     \addcontentsline{toc}{chapter}{List of tables}
-    %-------------------------------------------------
 
     % OPTIONAL
     %-------------------------------------------------
