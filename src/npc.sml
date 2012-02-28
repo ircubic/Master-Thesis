@@ -223,5 +223,11 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
            state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
     end
 
+fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : state =
+    case Gameover
+     of false => State
+      | true => checkWinCondition(applyMoves(State, aiStep(State)))
+      
+
 (*fun main( (Dogs) : entity_list ) : bool =
     f(Self, Cat, Dogs, Goal)*)
