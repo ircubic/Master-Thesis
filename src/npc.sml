@@ -137,17 +137,6 @@ fun collide ((E1, E2) : entity * entity) : bool =
          circle(point(X2,Y2), radius(R2))) =>
         ((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)) <= pow((R1+R2),2.0))
 
-fun hasLost ((Cat, Dogs) : entity * entity_list) : bool =
-    case Dogs
-     of entity_nil => false
-      | entity_cons(Dog, Rest) =>
-        case collide(Cat, Dog)
-         of true => true
-          | false => hasLost(Cat, Rest)
-
-fun hasWon ((Cat,Goal) : entity * entity) : bool =
-    collide(Cat, Goal)
-
 fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
     let
       fun stepDogs((Dogrest) : entity_list) : direction_list =
@@ -210,7 +199,29 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
             Goal, Fieldsize, Gameover, Win
           )
     end
-        
+
+fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : state =
+    let
+      fun hasLost((Cat, Dogs) : entity * entity_list) : bool =
+        case Dogs
+         of entity_nil => false
+          | entity_cons(Dog, Rest) =>
+            case collide(Cat, Dog)
+             of true => true
+              | false => hasLost(Cat, Rest)
+
+      fun hasWon() : bool =
+          collide(Cat, Goal)
+      
+      fun newWinState() : bool * bool = 
+          case hasWon()
+           of true => (true, true)
+            | false => (hasLost(Cat, Dogs), false)
+    in
+      case newWinState()
+       of (newGameover, newWin) =>
+           state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
+    end
 
 (*fun main( (Dogs) : entity_list ) : bool =
     f(Self, Cat, Dogs, Goal)*)
