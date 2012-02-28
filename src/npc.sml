@@ -171,13 +171,17 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
             | up => point(X, Y-Speed)
 
       (* Move a single entity the chosen direction *)
-      fun moveEntity((Entity, Move) : entity * direction) : entity =
-          case Entity
-           of rect(Point, Size as size(W,H)) => rect(movePoint(Point, Move, 1.5), Size)
-            | circle(Point, Radius) => circle(movePoint(Point, Move, 1.5*3.0/4.0), Radius)
+      fun moveEntity((Entity, Move, Fieldsize) : entity * direction * size) : entity =
+          ensureInside(
+            case Entity
+             of rect(Point, Size as size(W,H)) =>
+                rect(movePoint(Point, Move, 1.5), Size)
+              | circle(Point, Radius) =>
+                circle(movePoint(Point, Move, 1.5*3.0/4.0), Radius)
+          , Fieldsize)
 
       (* Move a list of entities with their corresponding list of moves *)
-      fun moveEntities((Entities, Moves) : entity_list * direction_list) : entity_list =
+      fun moveEntities((Entities, Moves, Fieldsize) : entity_list * direction_list * size) : entity_list =
           case Entities
            of entity_nil => entity_nil
             | entity_cons(Entity, Rest) =>
@@ -186,9 +190,12 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
                  entity.
                *)
               case Moves
-               of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves))
+               of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves, Fieldsize))
                 | dir_cons(Move, Moverest) =>
-                  entity_cons(moveEntity(Entity, Move), moveEntities(Rest, Moverest))
+                  entity_cons(
+                    moveEntity(Entity, Move, Fieldsize),
+                    moveEntities(Rest, Moverest, Fieldsize)
+                  )
               
     in
       case Moves
@@ -196,9 +203,9 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
         | dir_cons(Catmove, Rest) =>
           state(
             (* Move the cat separately *)
-            moveEntity(Cat, Catmove),
+            moveEntity(Cat, Catmove, Fieldsize),
             (* Move all the dogs *)
-            moveEntities(Dogs, Rest),
+            moveEntities(Dogs, Rest, Fieldsize),
             (* Rest stays the same *)
             Goal, Fieldsize, Gameover, Win
           )
