@@ -46,29 +46,6 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Rad
         nextDog(Dognumber-1.0)
     end
 
-fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogradius, Goalsize as size(Goalwidth, Goalheight), Dognumber) : size * size * real * size * real) : state =
-    state(
-      (* Cat is placed on the bottom center. *)
-      rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
-           Catsize),
-      (* Dogs will be placed within the upper half of the 
-       * simulation field, so we must make sure that the position
-       * field compensates for the width of the dogs.
-       *)
-      randomDogs(size(Fieldwidth-(Dogradius*2.0),
-                      Fieldheight/2.0),
-                 radius(Dogradius),
-                 Dognumber),
-      (* Goal is placed on the top center *)
-      rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
-      (*fieldsize*)
-      Fieldsize,
-      (*gameover*)
-      false,
-      (*win*)
-      false
-    )
-
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
     case Value < Lower
      of true => Lower
@@ -174,7 +151,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
           case Entities
            of entity_nil => entity_nil
             | entity_cons(Entity, Rest) =>
-              (* Fetch the move corresponding to the entity. If there are no 
+              (* Fetch the move corresponding to the entity. If there are no
                  more moves (Which really shouldn't happen), return an unmoved
                  entity.
                *)
@@ -185,7 +162,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
                     moveEntity(Entity, Move, Fieldsize),
                     moveEntities(Rest, Moverest, Fieldsize)
                   )
-              
+
     in
       case Moves
        of dir_nil => State
@@ -212,8 +189,8 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
 
       fun hasWon() : bool =
           collide(Cat, Goal)
-      
-      fun newWinState() : bool * bool = 
+
+      fun newWinState() : bool * bool =
           case hasWon()
            of true => (true, true)
             | false => (hasLost(Cat, Dogs), false)
@@ -227,7 +204,46 @@ fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
     case Gameover
      of false => State
       | true => checkWinCondition(applyMoves(State, aiStep(State)))
-      
 
-(*fun main( (Dogs) : entity_list ) : bool =
-    f(Self, Cat, Dogs, Goal)*)
+fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogradius, Goalsize as size(Goalwidth, Goalheight), Dognumber) : size * size * real * size * real) : state =
+    state(
+      (* Cat is placed on the bottom center. *)
+      rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
+           Catsize),
+      (* Dogs will be placed within the upper half of the
+       * simulation field, so we must make sure that the position
+       * field compensates for the width of the dogs.
+       *)
+      randomDogs(size(Fieldwidth-(Dogradius*2.0),
+                      Fieldheight/2.0),
+                 radius(Dogradius),
+                 Dognumber),
+      (* Goal is placed on the top center *)
+      rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
+      (*fieldsize*)
+      Fieldsize,
+      (*gameover*)
+      false,
+      (*win*)
+      false
+    )
+
+fun main( (Dogs) : entity_list ) : bool =
+    let
+      fun mainLoop((Tick, State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : int * state) : bool =
+          case Tick >= 50
+           of true => Win
+            | false =>
+              case Gameover
+               of true => Win
+                | false => mainLoop(Tick+1, simtick(State))
+    in
+      mainLoop(1,
+               initState(size(16.0,16.0),
+                         size(1.5,1.5),
+                         0.75,
+                         size(5.0, 2.0),
+                         4.0
+               )
+      )
+    end
