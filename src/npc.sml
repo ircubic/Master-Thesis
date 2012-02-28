@@ -159,8 +159,10 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
       dir_cons(f(Cat, Cat, Dogs, Goal), stepDogs(Dogs))
     end
 
+(* Apply the given moves to the game's entities *)
 fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves) : state * direction_list) : state =
     let
+      (* Move a point in the given direction, the given amount *)
       fun movePoint((Point as point(X,Y), Move, Speed) : point * direction * real) : point =
           case Move
            of left => point(X-Speed, Y)
@@ -168,11 +170,13 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
             | down => point(X, Y+Speed)
             | up => point(X, Y-Speed)
 
+      (* Move a single entity the chosen direction *)
       fun moveEntity((Entity, Move) : entity * direction) : entity =
           case Entity
            of rect(Point, Size as size(W,H)) => rect(movePoint(Point, Move, 1.5), Size)
             | circle(Point, Radius) => circle(movePoint(Point, Move, 1.5*3.0/4.0), Radius)
 
+      (* Move a list of entities with their corresponding list of moves *)
       fun moveEntities((Entities, Moves) : entity_list * direction_list) : entity_list =
           case Entities
            of entity_nil => entity_nil
