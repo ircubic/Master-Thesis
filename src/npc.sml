@@ -30,13 +30,19 @@ fun clamp ((Value, Lower, Upper) : real*real*real) : real =
 (* Ensures that an entity's position is within the field *)
 fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size) : entity =
     case E
+     (* Rects must be clamped to have their center within half their width and
+      * height of edges of the field.
+      *)
      of rect(point(X,Y), S as size(Width, Height)) =>
         rect(point(clamp(X, (Width*0.5), Field_width-(Width*0.5)),
                    clamp(Y, (Height*0.5), Field_height-(Height*0.5))),
              S)
-      | circle(point(X,Y), R as radius(R_)) =>
-        circle(point(clamp(X, R_, Field_width-R_),
-                     clamp(Y, R_, Field_height-R_)),
+     (* Circles must have their centers at least a radius away from the edges
+      * on both X and Y axes
+      *)
+      | circle(point(X,Y), R as radius(Radius)) =>
+        circle(point(clamp(X, Radius, Field_width-Radius),
+                     clamp(Y, Radius, Field_height-Radius)),
                R)
 
 
@@ -118,9 +124,9 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
           case Entities
            of entity_nil => entity_nil
             | entity_cons(Entity, Rest) =>
-              (* Fetch the move corresponding to the entity. If there are no
-                 more moves (Which really shouldn't happen), return an unmoved
-                 entity.
+              (* Fetch the move corresponding to the entity, then apply. If
+               * there are no more moves (Which really shouldn't happen),
+               * return an unmoved entity.
                *)
               case Moves
                of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves, Fieldsize))
@@ -132,7 +138,11 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
 
     in
       case Moves
+        (* In case there are no passed in moves (should not happen), we just
+         * return the same state
+         *)
        of dir_nil => State
+
         (* We have to separate the cat's move (always the first) from the dogs
          * moves, to be able to put it into the state properly
          *)
@@ -164,6 +174,10 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
       fun newWinState() : bool * bool =
           case hasWon()
            of true => (true, true)
+            (* If we haven't won, then the value of Win is irrelevant, and
+             * whether the game is over depends on if the game has been lost,
+             * so this is a small shortcut.
+             *)
             | false => (hasLost(Cat, Dogs), false)
     in
       case newWinState()
@@ -175,11 +189,14 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
 (*****
  * The function that will be induced and its dependencies
  *****)
-fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
-    right
 
+(* The induced function *)
+fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
+    right (* Placeholder, induction startpoint *)
+
+(* The AI of the cat *)
 fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
-    left
+    left (* Placeholder, for now *)
 
 (* Do the ai steps for all the entities and generate a list of moves *)
 fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
@@ -210,10 +227,7 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwi
       (* Cat is placed on the bottom center. *)
       rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
            Catsize),
-      (* Dogs will be placed within the upper half of the
-       * simulation field, so we must make sure that the position
-       * field compensates for the width of the dogs.
-       *)
+      (* Use the passed in dogs *)
       Dogs,
       (* Goal is placed on the top center *)
       rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
@@ -295,6 +309,10 @@ fun generateDogLists((Amount, Dognumber, Dogradius, Fieldsize as size(Fieldwidth
               nextDogs(Left-1, Dogfield)
             )
     in
+      (* Dogs will be placed within the upper half of the
+       * simulation field, so we must make sure that the position
+       * field compensates for the width of the dogs.
+       *)
       nextDogs(Amount, size(Fieldwidth-(Dogradius*2.0), Fieldheight/2.0))
     end
 val Inputs = generateDogLists(50, 4, 0.75, size(16.0,16.0))
