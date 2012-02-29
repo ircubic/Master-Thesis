@@ -204,6 +204,9 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
 fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
     right
 
+fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
+    left
+
 (* Do the ai steps for all the entities and generate a list of moves *)
 fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
     let
@@ -214,8 +217,8 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
               dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
     in
       dir_cons(
-          f(Cat, Cat, Dogs, Goal),
-          stepDogs(Dogs)
+        catAI(Cat, Cat, Dogs, Goal),
+        stepDogs(Dogs)
       )
     end
 
