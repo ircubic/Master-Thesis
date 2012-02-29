@@ -1,7 +1,7 @@
 default: compile
 
 spec:
-	cat npc.sml npc.specrest > npc.spec
+	sed '/(\*SPECSTART\|SPECEND\*)/d;s/(\*%%\*)/%%/' npc.sml > npc.spec
 
 compile:
 	mlton npc.sml

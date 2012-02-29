@@ -18,32 +18,6 @@ val pow = Math.pow
  * Helper methods
  *****)
 
-(* Generate a random real between 0.0 and 1.0 *)
-fun randReal() : real =
-    (* Fairly unsure if this is correct actually (I'm assuming
-     * an MLton word is 32 bits)
-     *)
-    MLton.Real.fromWord(MLton.Random.rand())/4294967295.0
-
-(* Generate randomly placed dogs inside the given field *)
-fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Radius), Dognumber) : size * radius * real) : entity_list =
-    let
-       fun nextDog((Rest):real) : entity_list =
-           entity_cons(
-             circle(
-               point(Radius + (randReal()*Fieldwidth),
-                     Radius + (randReal()*Fieldheight)),
-               Dogsize),
-             (* If we are not on the last index, add another dog *)
-             case Rest > 0.0
-             of true => nextDog(Rest-1.0)
-              | false => entity_nil
-           )
-    in
-        (* Start counting down the indexes *)
-        nextDog(Dognumber-1.0)
-    end
-
 (* Clamp the value of a number within the bounds *)
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
     case Value < Lower
@@ -230,8 +204,8 @@ fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
      of false => State
       | true => checkWinCondition(applyMoves(State, aiStep(State)))
 
-(* Initialize the state of the game based on the given sizes and amount of dogs *)
-fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogradius, Goalsize as size(Goalwidth, Goalheight), Dognumber) : size * size * real * size * real) : state =
+(* Initialize the state of the game based on the given sizes and passed in dogs *)
+fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogs, Goalsize as size(Goalwidth, Goalheight)) : size * size * entity_list * size) : state =
     state(
       (* Cat is placed on the bottom center. *)
       rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
@@ -240,10 +214,7 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwi
        * simulation field, so we must make sure that the position
        * field compensates for the width of the dogs.
        *)
-      randomDogs(size(Fieldwidth-(Dogradius*2.0),
-                      Fieldheight/2.0),
-                 radius(Dogradius),
-                 Dognumber),
+      Dogs,
       (* Goal is placed on the top center *)
       rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
       (*fieldsize*)
@@ -271,9 +242,106 @@ fun main( (Dogs) : entity_list ) : bool =
       mainLoop(1,
                initState(size(16.0,16.0),
                          size(1.5,1.5),
-                         0.75,
-                         size(5.0, 2.0),
-                         4.0
+                         Dogs,
+                         size(5.0, 2.0)
                )
       )
     end
+
+(*****
+ * Some stuff to be in the spec part in the spec
+ *****)
+
+(*%%*)
+
+(* Generate a random real between 0.0 and 1.0 *)
+fun randReal() : real =
+    (* Fairly unsure if this is correct actually (I'm assuming
+     * an MLton word is 32 bits)
+     *)
+    MLton.Real.fromWord(MLton.Random.rand())/4294967295.0
+
+(* Generate randomly placed dogs inside the given field *)
+fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Radius), Dognumber) : size * radius * int) : entity_list =
+    let
+       fun nextDog((Rest):int) : entity_list =
+           entity_cons(
+             circle(
+               point(Radius + (randReal()*Fieldwidth),
+                     Radius + (randReal()*Fieldheight)),
+               Dogsize),
+             (* If we are not on the last index, add another dog *)
+             case Rest > 0
+             of true => nextDog(Rest-1)
+              | false => entity_nil
+           )
+    in
+        (* Start counting down the indexes *)
+        nextDog(Dognumber-1)
+    end
+
+datatype entity_list_list = entity_list_nil
+                          | entity_list_cons of entity_list * entity_list_list
+
+fun generateDogLists((Amount, Dognumber, Dogradius, Fieldsize as size(Fieldwidth, Fieldheight)) : int * int * real * size) : entity_list_list =
+    let
+      fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight)) : int * size) : entity_list_list =
+        case Left <= 0
+         of true => entity_list_nil
+          | false => entity_list_cons(
+              randomDogs(Dogfield,
+                     radius(Dogradius),
+                     Dognumber),
+              nextDogs(Left-1, Dogfield)
+            )
+    in
+      nextDogs(Amount, size(Fieldwidth-(Dogradius*2.0), Fieldheight/2.0))
+    end
+val Inputs = generateDogLists(50, 4, 0.75, size(16.0,16.0))
+val Outputs = []
+
+(*SPECSTART
+val Validation_inputs = []
+val Validation_outputs = []
+
+val All_outputs =  Vector.fromList( Outputs @ Validation_outputs )
+
+val Funs_to_use = [
+  "false", "true",
+  "realLess", "realAdd", "realSubtract", "realMultiply",
+  "realDivide", "sigmoid"
+  ]
+
+val Reject_funs = []
+fun restore_transform D = D
+
+structure Grade : GRADE =
+struct
+
+type grade = unit
+val zero = ()
+val op+ = fn(_,_) => ()
+val comparisons = [ fn _ => EQUAL ]
+val toString = fn _ => ""
+val fromString = fn _ => SOME()
+
+val pack = fn _ => ""
+val unpack = fn _ =>()
+
+val post_process = fn _ => ()
+
+val toRealOpt = NONE
+
+end
+
+val Abstract_types = []
+
+fun output_eval_fun( I : int, _ , Y  ) =
+    { numCorrect = 0, numWrong = 1, grade = () }
+
+
+val Max_output_genus_card = 2
+
+val Max_time_limit = 1024
+val Time_limit_base = 1024.0
+SPECEND*)
