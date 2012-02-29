@@ -13,19 +13,17 @@ datatype state = state of entity * entity_list * entity * size * bool * bool
 
 val pow = Math.pow
 
-fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
-    right
 
-fun width((E) : entity) : real =
-    case E
-    of rect(point(X,Y), size(Width, Height)) => Width
-     | circle(point(X,Y), radius(Radius)) => Radius*2.0
+(*****
+ * Helper methods
+ *****)
 
+(* Generate a random real between 0.0 and 1.0 *)
 fun randReal() : real =
     (* Fairly unsure if this is correct actually (I'm assuming
      * an MLton word is 32 bits)
      *)
-    MLton.Real.fromWord(MLton.Random.rand())/pow(2.0,32.0)-1.0
+    MLton.Real.fromWord(MLton.Random.rand())/4294967295.0
 
 (* Generate randomly placed dogs inside the given field *)
 fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Radius), Dognumber) : size * radius * real) : entity_list =
@@ -46,6 +44,7 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Rad
         nextDog(Dognumber-1.0)
     end
 
+(* Clamp the value of a number within the bounds *)
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
     case Value < Lower
      of true => Lower
@@ -65,6 +64,11 @@ fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
         circle(point(clamp(X, R_, Field_width-R_),
                      clamp(Y, R_, Field_height-R_)),
                R)
+
+
+(*****
+ * Functions directly relevant to the game that do not depend on f()
+ *****)
 
 (* Check if two entities collide *)
 fun collide ((E1, E2) : entity * entity) : bool =
@@ -114,17 +118,6 @@ fun collide ((E1, E2) : entity * entity) : bool =
          circle(point(X2,Y2), radius(R2))) =>
         ((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)) <= pow((R1+R2),2.0))
 
-fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
-    let
-      fun stepDogs((Dogrest) : entity_list) : direction_list =
-          case Dogrest
-           of entity_nil => dir_nil
-            | entity_cons(Dog, Rest) =>
-              dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
-    in
-      dir_cons(f(Cat, Cat, Dogs, Goal), stepDogs(Dogs))
-    end
-
 (* Apply the given moves to the game's entities *)
 fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves) : state * direction_list) : state =
     let
@@ -166,6 +159,9 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
     in
       case Moves
        of dir_nil => State
+        (* We have to separate the cat's move (always the first) from the dogs
+         * moves, to be able to put it into the state properly
+         *)
         | dir_cons(Catmove, Rest) =>
           state(
             (* Move the cat separately *)
@@ -177,6 +173,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
           )
     end
 
+(* Check the win conditions of the game and update the game's state *)
 fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : state =
     let
       fun hasLost((Cat, Dogs) : entity * entity_list) : bool =
@@ -200,11 +197,37 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
            state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
     end
 
+
+(*****
+ * The function that will be induced and its dependencies
+ *****)
+fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
+    right
+
+(* Do the ai steps for all the entities and generate a list of moves *)
+fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
+    let
+      fun stepDogs((Dogrest) : entity_list) : direction_list =
+          case Dogrest
+           of entity_nil => dir_nil
+            | entity_cons(Dog, Rest) =>
+              dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
+    in
+      dir_cons(
+          f(Cat, Cat, Dogs, Goal),
+          stepDogs(Dogs)
+      )
+    end
+
+(* Do one tick of the simulation. This does one AI step, applies all the
+ * moves, then checks the if the game has been won or lost
+ *)
 fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : state =
     case Gameover
      of false => State
       | true => checkWinCondition(applyMoves(State, aiStep(State)))
 
+(* Initialize the state of the game based on the given sizes and amount of dogs *)
 fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogradius, Goalsize as size(Goalwidth, Goalheight), Dognumber) : size * size * real * size * real) : state =
     state(
       (* Cat is placed on the bottom center. *)
@@ -228,6 +251,10 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwi
       false
     )
 
+
+(*****
+ * The main driver function of the simulation
+ *****)
 fun main( (Dogs) : entity_list ) : bool =
     let
       fun mainLoop((Tick, State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : int * state) : bool =
