@@ -110,7 +110,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
             | up => point(X, Y-Speed)
 
       (* Move a single entity the chosen direction *)
-      fun moveEntity((Entity, Move, Fieldsize) : entity * direction * size) : entity =
+      and moveEntity((Entity, Move, Fieldsize) : entity * direction * size) : entity =
           ensureInside(
             case Entity
              of rect(Point, Size as size(W,H)) =>
@@ -120,7 +120,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
           , Fieldsize)
 
       (* Move a list of entities with their corresponding list of moves *)
-      fun moveEntities((Entities, Moves, Fieldsize) : entity_list * direction_list * size) : entity_list =
+      and moveEntities((Entities, Moves, Fieldsize) : entity_list * direction_list * size) : entity_list =
           case Entities
            of entity_nil => entity_nil
             | entity_cons(Entity, Rest) =>
@@ -168,10 +168,10 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
              of true => true
               | false => hasLost(Cat, Rest)
 
-      fun hasWon() : bool =
+      and hasWon() : bool =
           collide(Cat, Goal)
 
-      fun newWinState() : bool * bool =
+      and newWinState() : bool * bool =
           case hasWon()
            of true => (true, true)
             (* If we haven't won, then the value of Win is irrelevant, and
