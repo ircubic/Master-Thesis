@@ -29,7 +29,8 @@ fun clamp ((Value, Lower, Upper) : real*real*real) : real =
           | false => Value
 
 (* Ensures that an entity's position is within the field *)
-fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size) : entity =
+fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
+    : entity =
     case E
      (* Rects must be clamped to have their center within half their width and
       * height of edges of the field.
@@ -46,7 +47,9 @@ fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
                      clamp(Y, Radius, Field_height-Radius)),
                R)
 
-fun getPointDistance((Point1 as point(X1, Y1), Point2 as point(X2, Y2)) : point * point) : real * real =
+fun getPointDistance((Point1 as point(X1, Y1),
+                      Point2 as point(X2, Y2))
+                     : point * point) : real * real =
     (X1-X2, Y1-Y2)
 
 fun getDistance((Entity1, Entity2) : entity * entity) : real * real =
@@ -114,92 +117,97 @@ fun collide ((E1, E2) : entity * entity) : bool =
         ((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)) <= pow((R1+R2),2.0))
 
 (* Apply the given moves to the game's entities *)
-fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves) : state * direction_list) : state =
+fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
+                Moves)
+               : state * direction_list) : state =
     let
       (* Move a point in the given direction, the given amount *)
-      fun movePoint((Point as point(X,Y), Move, Speed) : point * direction * real) : point =
-          case Move
-           of left => point(X-Speed, Y)
-            | right => point(X+Speed, Y)
-            | down => point(X, Y+Speed)
-            | up => point(X, Y-Speed)
+        fun movePoint((Point as point(X,Y),
+                       Move,
+                       Speed)
+                      : point * direction * real) : point =
+            case Move
+             of left => point(X-Speed, Y)
+              | right => point(X+Speed, Y)
+              | down => point(X, Y+Speed)
+              | up => point(X, Y-Speed)
 
-      (* Move a single entity the chosen direction *)
-      and moveEntity((Entity, Move, Fieldsize) : entity * direction * size) : entity =
-          ensureInside(
-            case Entity
-             of rect(Point, Size as size(W,H)) =>
-                (* Dogs move 1.5 units per tick *)
-                rect(movePoint(Point, Move, 1.5), Size)
-              | circle(Point, Radius) =>
-                (* Cats move 2.0 units per tick *)
-                circle(movePoint(Point, Move, 2.0), Radius)
-          , Fieldsize)
+        (* Move a single entity the chosen direction *)
+        and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
+            : entity =
+            ensureInside((case Entity
+                           of rect(Point, Size as size(W,H)) =>
+                              (* Dogs move 1.5 units per tick *)
+                              rect(movePoint(Point, Move, 1.5), Size)
+                            | circle(Point, Radius) =>
+                              (* Cats move 2.0 units per tick *)
+                              circle(movePoint(Point, Move, 2.0), Radius)),
+                         Fieldsize)
 
-      (* Move a list of entities with their corresponding list of moves *)
-      and moveEntities((Entities, Moves, Fieldsize) : entity_list * direction_list * size) : entity_list =
-          case Entities
-           of entity_nil => entity_nil
-            | entity_cons(Entity, Rest) =>
-              (* Fetch the move corresponding to the entity, then apply. If
-               * there are no more moves (Which really shouldn't happen),
-               * return an unmoved entity.
-               *)
-              case Moves
-               of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves, Fieldsize))
-                | dir_cons(Move, Moverest) =>
-                  entity_cons(
-                    moveEntity(Entity, Move, Fieldsize),
-                    moveEntities(Rest, Moverest, Fieldsize)
-                  )
+        (* Move a list of entities with their corresponding list of moves *)
+        and moveEntities((Entities, Moves, Fieldsize)
+                         : entity_list * direction_list * size) : entity_list =
+            case Entities
+             of entity_nil => entity_nil
+              | entity_cons(Entity, Rest) => (
+                (* Fetch the move corresponding to the entity, then apply. If
+                 * there are no more moves (Which really shouldn't happen),
+                 * return an unmoved entity.
+                 *)
+                case Moves
+                 of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves, Fieldsize))
+                  | dir_cons(Move, Moverest) =>
+                    entity_cons(
+                      moveEntity(Entity, Move, Fieldsize),
+                      moveEntities(Rest, Moverest, Fieldsize)))
 
     in
-      case Moves
-        (* In case there are no passed in moves (should not happen), we just
-         * return the same state
-         *)
-       of dir_nil => State
+        case Moves
+         (* In case there are no passed in moves (should not happen), we just
+          * return the same state
+          *)
+         of dir_nil => State
 
-        (* We have to separate the cat's move (always the first) from the dogs
-         * moves, to be able to put it into the state properly
-         *)
-        | dir_cons(Catmove, Rest) =>
-          state(
-            (* Move the cat separately *)
-            moveEntity(Cat, Catmove, Fieldsize),
-            (* Move all the dogs *)
-            moveEntities(Dogs, Rest, Fieldsize),
-            (* Rest stays the same *)
-            Goal, Fieldsize, Gameover, Win
-          )
+          (* We have to separate the cat's move (always the first) from the dogs
+           * moves, to be able to put it into the state properly
+           *)
+          | dir_cons(Catmove, Rest) =>
+            state(
+              (* Move the cat separately *)
+              moveEntity(Cat, Catmove, Fieldsize),
+              (* Move all the dogs *)
+              moveEntities(Dogs, Rest, Fieldsize),
+              (* Rest stays the same *)
+              Goal, Fieldsize, Gameover, Win)
     end
 
 (* Check the win conditions of the game and update the game's state *)
-fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : state =
+fun checkWinCondition((State as state(Cat, Dogs, Goal,
+                                      Fieldsize, Gameover, Win))
+                      : state) : state =
     let
-      fun hasLost((Cat, Dogs) : entity * entity_list) : bool =
-        case Dogs
-         of entity_nil => false
-          | entity_cons(Dog, Rest) =>
-            case collide(Cat, Dog)
-             of true => true
-              | false => hasLost(Cat, Rest)
+        fun hasLost((Cat, Dogs) : entity * entity_list) : bool =
+            case Dogs
+             of entity_nil => false
+              | entity_cons(Dog, Rest) => (
+                case collide(Cat, Dog)
+                 of true => true
+                  | false => hasLost(Cat, Rest))
 
-      and hasWon() : bool =
-          collide(Cat, Goal)
+        and hasWon() : bool = collide(Cat, Goal)
 
-      and newWinState() : bool * bool =
-          case hasWon()
-           of true => (true, true)
-            (* If we haven't won, then the value of Win is irrelevant, and
-             * whether the game is over depends on if the game has been lost,
-             * so this is a small shortcut.
-             *)
-            | false => (hasLost(Cat, Dogs), false)
+        and newWinState() : bool * bool =
+            case hasWon()
+             of true => (true, true)
+              (* If we haven't won, then the value of Win is irrelevant, and
+               * whether the game is over depends on if the game has been lost,
+               * so this is a small shortcut.
+               *)
+              | false => (hasLost(Cat, Dogs), false)
     in
-      case newWinState()
-       of (newGameover, newWin) =>
-           state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
+        case newWinState()
+         of (newGameover, newWin) =>
+            state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
     end
 
 
@@ -215,127 +223,150 @@ datatype dir_cost = dir_cost of real * direction
 datatype cost_list = cost_nil | cost_cons of dir_cost * cost_list
 
 (* The potential field based cat *)
-fun potentialFieldCat( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
+fun potentialFieldCat( (Self, Cat, Dogs, Goal)
+                       : entity * entity * entity_list * entity) : direction =
     let
-
-      fun cost((X, Y) : real * real) : real =
-          let
-            fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
-                1000.0 / (abs(DogX-X) + abs(DogY-Y))
-            and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
-                case Dogs
-                 of entity_nil => 0.0
-                  | entity_cons(Entity, Rest) => (
-                      case Entity
-                       of rect(point(EntX, EntY), size(W,H)) => dogCost(X,Y,EntX,EntY)
-                        | circle(point(EntX, EntY), radius(R)) => dogCost(X,Y,EntX,EntY)
-                    ) + dogsCost(X,Y,Rest)
-            and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
-                Math.sqrt(pow(GoalX-X, 2.0) + pow(GoalY-Y, 2.0))
-          in
-            dogsCost(X,Y, Dogs) + (
-              case Goal
-               of rect(point(GoalX, GoalY), size(W,H)) => goalCost(X,Y,GoalX,GoalY)
-                | circle(point(GoalX, GoalY), radius(R)) => goalCost(X,Y,GoalX,GoalY)
+        fun cost((X, Y) : real * real) : real =
+            let
+                fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
+                    1000.0 / (abs(DogX-X) + abs(DogY-Y))
+                and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
+                    case Dogs
+                     of entity_nil => 0.0
+                      | entity_cons(Entity, Rest) => (
+                        case Entity
+                         of rect(point(EntX, EntY), size(W,H)) =>
+                            dogCost(X,Y,EntX,EntY)
+                          | circle(point(EntX, EntY), radius(R)) =>
+                            dogCost(X,Y,EntX,EntY)
+                        ) + dogsCost(X,Y,Rest)
+                and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
+                    Math.sqrt(pow(GoalX-X, 2.0) + pow(GoalY-Y, 2.0))
+            in
+                dogsCost(X,Y, Dogs) + (
+                case Goal
+                 of rect(point(GoalX, GoalY), size(W,H)) =>
+                    goalCost(X,Y,GoalX,GoalY)
+                  | circle(point(GoalX, GoalY), radius(R)) =>
+                    goalCost(X,Y,GoalX,GoalY)
             )
-          end
+            end
 
-      and directionCosts((X, Y, Distance) : real * real * real) : cost_list =
-          let
-            fun costDriver((CurrentX, CurrentY, DeltaX, DeltaY, Cost, Num) : real * real * real * real * real * real) : real =
-                case realEqual(CurrentX, X)
-                 of true => (
-                      case realEqual(CurrentY, Y)
-                       of true => Cost/Num
-                        | false => costDriver(CurrentX+DeltaX, CurrentY+DeltaY, DeltaX, DeltaY, Cost+cost(CurrentX, CurrentY), Num+1.0)
-                    )
-                  | false => costDriver(CurrentX+DeltaX, CurrentY+DeltaY, DeltaX, DeltaY, Cost+cost(CurrentX, CurrentY), Num+1.0)
-            and getEndPoint((Coord, DeltaCoord, Distance) : real * real * real) : real =
-                case realEqual(DeltaCoord, 0.0)
-                 of true => Coord
-                  | false => Coord + (DeltaCoord*Distance/abs(DeltaCoord))
-            and directionCost((DeltaX, DeltaY) : real * real) : real =
-                costDriver(
-                  getEndPoint(X,DeltaX,Distance),
-                  getEndPoint(Y,DeltaY,Distance),
-                  ~DeltaX, ~DeltaY, 0.0, 0.0
-                )
-          in
-            cost_cons(dir_cost(directionCost(0.5, 0.0), right),
-            cost_cons(dir_cost(directionCost(~0.5, 0.0), left),
-            cost_cons(dir_cost(directionCost(0.0, ~0.5), up),
-            cost_cons(dir_cost(directionCost(0.0, 0.5), down), cost_nil))))
-          end
+        and directionCosts((X, Y, Distance) : real * real * real) : cost_list =
+            let
+                fun costDriver((CurrentX, CurrentY, DeltaX, DeltaY, Cost, Num)
+                               : real * real * real * real * real * real) : real =
+                    case realEqual(CurrentX, X)
+                     of true => (
+                        case realEqual(CurrentY, Y)
+                         of true => Cost/Num
+                          | false => costDriver(CurrentX+DeltaX,
+                                                CurrentY+DeltaY,
+                                                DeltaX,
+                                                DeltaY,
+                                                Cost+cost(CurrentX, CurrentY),
+                                                Num+1.0)
+                        )
+                      | false => costDriver(CurrentX+DeltaX,
+                                            CurrentY+DeltaY,
+                                            DeltaX,
+                                            DeltaY,
+                                            Cost+cost(CurrentX, CurrentY),
+                                            Num+1.0)
+                and getEndPoint((Coord, DeltaCoord, Distance) : real * real * real) : real =
+                    case realEqual(DeltaCoord, 0.0)
+                     of true => Coord
+                      | false => Coord + (DeltaCoord*Distance/abs(DeltaCoord))
+                and directionCost((DeltaX, DeltaY) : real * real) : real =
+                    costDriver(
+                      getEndPoint(X,DeltaX,Distance),
+                      getEndPoint(Y,DeltaY,Distance),
+                      ~DeltaX, ~DeltaY, 0.0, 0.0)
+            in
+                cost_cons(dir_cost(directionCost(0.5, 0.0), right),
+                cost_cons(dir_cost(directionCost(~0.5, 0.0), left),
+                cost_cons(dir_cost(directionCost(0.0, ~0.5), up),
+                cost_cons(dir_cost(directionCost(0.0, 0.5), down), cost_nil))))
+            end
 
-      and chooseDirection((CostList) : cost_list) : direction =
-          let
-            fun findMax((CostRest, CurrMax as dir_cost(MaxCost, MaxDirection)) : cost_list * dir_cost) : dir_cost =
-                case CostRest
-                 of cost_nil => CurrMax
-                  | cost_cons(DirCost as dir_cost(Cost, Direction), Rest) => (
-                      case (Cost > MaxCost)
-                       of true => findMax(Rest, DirCost)
-                        | false => findMax(Rest, CurrMax)
-                    )
-          in
-            case findMax(CostList, dir_cost(0.0, up))
-             of (MaxDirCost as dir_cost(MaxCost, MaxDir)) => MaxDir
-          end
+        and chooseDirection((CostList) : cost_list) : direction =
+            let
+                fun findMax((CostRest,
+                             CurrMax as dir_cost(MaxCost, MaxDirection))
+                            : cost_list * dir_cost) : dir_cost =
+                    case CostRest
+                     of cost_nil => CurrMax
+                      | cost_cons(DirCost as dir_cost(Cost, Direction),
+                                  Rest) => (
+                        case (Cost > MaxCost)
+                         of true => findMax(Rest, DirCost)
+                          | false => findMax(Rest, CurrMax))
+            in
+                case findMax(CostList, dir_cost(0.0, up))
+                 of (MaxDirCost as dir_cost(MaxCost, MaxDir)) => MaxDir
+            end
     in
-      case Self
-       of rect(point(X,Y), size(W,H)) => chooseDirection(directionCosts(X,Y, 2.0))
-        | circle(point(X,Y), radius(R)) => chooseDirection(directionCosts(X,Y, 2.0))
+        case Self
+         of rect(point(X,Y), size(W,H)) =>
+            chooseDirection(directionCosts(X,Y, 2.0))
+          | circle(point(X,Y), radius(R)) =>
+            chooseDirection(directionCosts(X,Y, 2.0))
     end
 
 (* The exit-achieving cat *)
-fun exitAchiever( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
+fun exitAchiever( (Self, Cat, Dogs, Goal)
+                  : entity * entity * entity_list * entity) : direction =
     case getDistance(Self, Goal)
      of (Dist_x, Dist_y) =>
         case abs(Dist_x) > abs(Dist_y)
          of true => (
-              case Dist_x < 0.0
-               of true => left
-                | false => right
-            )
+            case Dist_x < 0.0
+             of true => left
+              | false => right)
           | false => (
-              case Dist_y > 0.0
-               of true => down
-                | false => up
-            )
+            case Dist_y > 0.0
+             of true => down
+              | false => up)
 
 (* The AI of the cat *)
-fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
+fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity)
+    : direction =
     exitAchiever(Self, Cat, Dogs, Goal)
 
 (* Do the ai steps for all the entities and generate a list of moves *)
-fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
+fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
+    : direction_list =
     let
-      fun stepDogs((Dogrest) : entity_list) : direction_list =
-          case Dogrest
-           of entity_nil => dir_nil
-            | entity_cons(Dog, Rest) =>
-              dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
+        fun stepDogs((Dogrest) : entity_list) : direction_list =
+            case Dogrest
+             of entity_nil => dir_nil
+              | entity_cons(Dog, Rest) =>
+                dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
     in
       dir_cons(
         catAI(Cat, Cat, Dogs, Goal),
-        stepDogs(Dogs)
-      )
+        stepDogs(Dogs))
     end
 
 (* Do one tick of the simulation. This does one AI step, applies all the
  * moves, then checks the if the game has been won or lost
  *)
-fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : state =
+fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
+    : state =
     case Gameover
      of false => State
       | true => checkWinCondition(applyMoves(State, aiStep(State)))
 
 (* Initialize the state of the game based on the given sizes and passed in dogs *)
-fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catradius as radius(Radius), Dogs, Goalsize as size(Goalwidth, Goalheight)) : size * radius * entity_list * size) : state =
+fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
+               Catradius as radius(Radius),
+               Dogs,
+               Goalsize as size(Goalwidth, Goalheight)
+              ) : size * radius * entity_list * size) : state =
     state(
       (* Cat is placed on the bottom center. *)
       circle(point(Fieldwidth/2.0, Fieldheight - Radius),
-           Catradius),
+             Catradius),
       (* Use the passed in dogs *)
       Dogs,
       (* Goal is placed on the top center *)
@@ -345,8 +376,7 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catradius as radius(R
       (*gameover*)
       false,
       (*win*)
-      false
-    )
+      false)
 
 
 (*****
@@ -354,21 +384,21 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catradius as radius(R
  *****)
 fun main( (Dogs) : entity_list ) : bool =
     let
-      fun mainLoop((Tick, State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : int * state) : bool =
-          case Tick >= 50
-           of true => Win
-            | false =>
-              case Gameover
-               of true => Win
-                | false => mainLoop(Tick+1, simtick(State))
+        fun mainLoop((Tick,
+                      State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
+                     ) : int * state) : bool =
+            case Tick >= 50
+             of true => Win
+              | false =>
+                case Gameover
+                 of true => Win
+                  | false => mainLoop(Tick+1, simtick(State))
     in
-      mainLoop(1,
-               initState(size(16.0,16.0),
-                         radius(0.75),
-                         Dogs,
-                         size(5.0, 2.0)
-               )
-      )
+        mainLoop(1,
+                 initState(size(16.0,16.0),
+                           radius(0.75),
+                           Dogs,
+                           size(5.0, 2.0)))
     end
 
 (*****
@@ -385,19 +415,22 @@ fun randReal() : real =
     MLton.Real.fromWord(MLton.Random.rand())/4294967295.0
 
 (* Generate randomly placed dogs inside the given field *)
-fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as size(Dogwidth, Dogheight), Dognumber) : size * size * int) : entity_list =
+fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
+                Dogsize as size(Dogwidth, Dogheight),
+                Dognumber
+               ) : size * size * int) : entity_list =
     let
-       fun nextDog((Rest):int) : entity_list =
-           entity_cons(
-             rect(
-               point(Dogwidth/2.0 + (randReal()*Fieldwidth),
-                     Dogheight/2.0 + (randReal()*Fieldheight)),
-               Dogsize),
-             (* If we are not on the last index, add another dog *)
-             case Rest > 0
-             of true => nextDog(Rest-1)
-              | false => entity_nil
-           )
+        fun nextDog((Rest):int) : entity_list =
+            entity_cons(
+              rect(
+                point(Dogwidth/2.0 + (randReal()*Fieldwidth),
+                      Dogheight/2.0 + (randReal()*Fieldheight)),
+                Dogsize),
+              (* If we are not on the last index, add another dog *)
+              case Rest > 0
+               of true => nextDog(Rest-1)
+                | false => entity_nil
+            )
     in
         (* Start counting down the indexes *)
         nextDog(Dognumber-1)
@@ -406,15 +439,21 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as size(Dogwi
 datatype entity_list_list = entity_list_nil
                           | entity_list_cons of entity_list * entity_list_list
 
-fun generateDogLists((Amount, Dognumber, Dogsize as size(Dogwidth, Dogheight), Fieldsize as size(Fieldwidth, Fieldheight)) : int * int * size * size) : entity_list_list =
+fun generateDogLists((Amount,
+                      Dognumber,
+                      Dogsize as size(Dogwidth, Dogheight),
+                      Fieldsize as size(Fieldwidth, Fieldheight)
+                     ) : int * int * size * size) : entity_list_list =
     let
-      fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight)) : int * size) : entity_list_list =
-        case Left <= 0
-         of true => entity_list_nil
-          | false => entity_list_cons(
-              randomDogs(Dogfield, Dogsize, Dognumber),
-              nextDogs(Left-1, Dogfield)
-            )
+      fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight))
+                   : int * size) : entity_list_list =
+          case Left <= 0
+           of true => entity_list_nil
+            | false =>
+              entity_list_cons(
+                randomDogs(Dogfield, Dogsize, Dognumber),
+                nextDogs(Left-1, Dogfield)
+              )
     in
       (* Dogs will be placed within the upper half of the
        * simulation field, so we must make sure that the position
