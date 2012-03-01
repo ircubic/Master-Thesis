@@ -45,6 +45,20 @@ fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
                      clamp(Y, Radius, Field_height-Radius)),
                R)
 
+fun getPointDistance((Point1 as point(X1, Y1), Point2 as point(X2, Y2)) : point * point) : real * real =
+    (X1-X2, Y1-Y2)
+
+fun getDistance((Entity1, Entity2) : entity * entity) : real * real =
+    case (Entity1, Entity2)
+     of (rect(Point1, Size1), rect(Point2, Size2)) =>
+        getPointDistance(Point1, Point2)
+      | (rect(Point1, Size1), circle(Point2, Radius)) =>
+        getPointDistance(Point1, Point2)
+      | (circle(Point1, Radius), rect(Point2, Size1)) =>
+        getPointDistance(Point1, Point2)
+      | (circle(Point1, Radius1), circle(Point2, Radius2)) =>
+        getPointDistance(Point1, Point2)
+
 
 (*****
  * Functions directly relevant to the game that do not depend on f()
@@ -194,9 +208,25 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
 fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
     right (* Placeholder, induction startpoint *)
 
+(* The exit-achieving cat *)
+fun exitAchiever( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
+    case getDistance(Self, Goal)
+     of (Dist_x, Dist_y) =>
+        case abs(Dist_x) > abs(Dist_y)
+         of true => (
+              case Dist_x < 0.0
+               of true => left
+                | false => right
+            )
+          | false => (
+              case Dist_y > 0.0
+               of true => down
+                | false => up
+            )
+
 (* The AI of the cat *)
 fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
-    left (* Placeholder, for now *)
+    exitAchiever(Self, Cat, Dogs, Goal)
 
 (* Do the ai steps for all the entities and generate a list of moves *)
 fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state) : direction_list =
