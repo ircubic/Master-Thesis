@@ -67,7 +67,7 @@ fun getDistance((Entity1, Entity2) : entity * entity) : real * real =
 (* Check if two entities collide *)
 fun collide ((E1, E2) : entity * entity) : bool =
     case (E1, E2)
-     (* Two cats collide using rectangle collisions *)
+     (* Two dogs collide using rectangle collisions *)
      of (rect(point(X1,Y1), size(W1,H1)),
          rect(point(X2,Y2), size(W2,H2))) =>
         (case (Y1+(H1*0.5)) < (Y2-(H2*0.5)) (* bottom1 < top2 *)
@@ -83,7 +83,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
                       of true => false
                        | false => true)
 
-      (* Cat and dog collide with circrle-rect collision *)
+      (* Dog and cat collide with circle-rect collision *)
       | (rect(point(X1,Y1), size(W1,H1)),
          circle(point(X2,Y2), radius(R))) =>
         (case (abs(X2 - X1), abs(Y2 - Y1), W1/2.0, H1/2.0)
@@ -107,7 +107,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
 
       (* Flipped example *)
       | (circle(P1,R), rect(P2,S)) => collide(E2, E1)
-      (* Dogs collide with circle collisions (for exhaustiveness) *)
+      (* Cats collide with circle collisions (for exhaustiveness) *)
       | (circle(point(X1,Y1), radius(R1)),
          circle(point(X2,Y2), radius(R2))) =>
         ((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)) <= pow((R1+R2),2.0))
@@ -128,9 +128,11 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Moves
           ensureInside(
             case Entity
              of rect(Point, Size as size(W,H)) =>
+                (* Dogs move 1.5 units per tick *)
                 rect(movePoint(Point, Move, 1.5), Size)
               | circle(Point, Radius) =>
-                circle(movePoint(Point, Move, 1.5*3.0/4.0), Radius)
+                (* Cats move 2.0 units per tick *)
+                circle(movePoint(Point, Move, 2.0), Radius)
           , Fieldsize)
 
       (* Move a list of entities with their corresponding list of moves *)
@@ -252,11 +254,11 @@ fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
       | true => checkWinCondition(applyMoves(State, aiStep(State)))
 
 (* Initialize the state of the game based on the given sizes and passed in dogs *)
-fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catsize as size(Catwidth, Catheight), Dogs, Goalsize as size(Goalwidth, Goalheight)) : size * size * entity_list * size) : state =
+fun initState((Fieldsize as size(Fieldwidth, Fieldheight), Catradius as radius(Radius), Dogs, Goalsize as size(Goalwidth, Goalheight)) : size * radius * entity_list * size) : state =
     state(
       (* Cat is placed on the bottom center. *)
-      rect(point(Fieldwidth/2.0, Fieldheight - Catheight/2.0),
-           Catsize),
+      circle(point(Fieldwidth/2.0, Fieldheight - Radius),
+           Catradius),
       (* Use the passed in dogs *)
       Dogs,
       (* Goal is placed on the top center *)
@@ -285,7 +287,7 @@ fun main( (Dogs) : entity_list ) : bool =
     in
       mainLoop(1,
                initState(size(16.0,16.0),
-                         size(1.5,1.5),
+                         radius(0.75),
                          Dogs,
                          size(5.0, 2.0)
                )
@@ -306,13 +308,13 @@ fun randReal() : real =
     MLton.Real.fromWord(MLton.Random.rand())/4294967295.0
 
 (* Generate randomly placed dogs inside the given field *)
-fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Radius), Dognumber) : size * radius * int) : entity_list =
+fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as size(Dogwidth, Dogheight), Dognumber) : size * size * int) : entity_list =
     let
        fun nextDog((Rest):int) : entity_list =
            entity_cons(
-             circle(
-               point(Radius + (randReal()*Fieldwidth),
-                     Radius + (randReal()*Fieldheight)),
+             rect(
+               point(Dogwidth/2.0 + (randReal()*Fieldwidth),
+                     Dogheight/2.0 + (randReal()*Fieldheight)),
                Dogsize),
              (* If we are not on the last index, add another dog *)
              case Rest > 0
@@ -327,15 +329,13 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight), Dogsize as radius(Rad
 datatype entity_list_list = entity_list_nil
                           | entity_list_cons of entity_list * entity_list_list
 
-fun generateDogLists((Amount, Dognumber, Dogradius, Fieldsize as size(Fieldwidth, Fieldheight)) : int * int * real * size) : entity_list_list =
+fun generateDogLists((Amount, Dognumber, Dogsize as size(Dogwidth, Dogheight), Fieldsize as size(Fieldwidth, Fieldheight)) : int * int * size * size) : entity_list_list =
     let
       fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight)) : int * size) : entity_list_list =
         case Left <= 0
          of true => entity_list_nil
           | false => entity_list_cons(
-              randomDogs(Dogfield,
-                     radius(Dogradius),
-                     Dognumber),
+              randomDogs(Dogfield, Dogsize, Dognumber),
               nextDogs(Left-1, Dogfield)
             )
     in
@@ -343,9 +343,10 @@ fun generateDogLists((Amount, Dognumber, Dogradius, Fieldsize as size(Fieldwidth
        * simulation field, so we must make sure that the position
        * field compensates for the width of the dogs.
        *)
-      nextDogs(Amount, size(Fieldwidth-(Dogradius*2.0), Fieldheight/2.0))
+      nextDogs(Amount, size(Fieldwidth-Dogwidth, Fieldheight/2.0))
     end
-val Inputs = generateDogLists(50, 4, 0.75, size(16.0,16.0))
+
+val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
 val Outputs = []
 
 (*SPECSTART
