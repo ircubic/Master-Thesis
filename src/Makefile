@@ -1,7 +1,7 @@
 default: compile
 
 spec:
-	sed '/(\*SPECSTART\|SPECEND\*)/d;s/(\*%%\*)/%%/' npc.sml > npc.spec
+	sed -f specscrubber.sed npc.sml > npc.spec
 
 compile:
 	mlton npc.sml
