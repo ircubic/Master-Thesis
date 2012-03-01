@@ -12,6 +12,7 @@ datatype entity_list = entity_nil
 datatype state = state of entity * entity_list * entity * size * bool * bool
 
 val pow = Math.pow
+val realEqual = Real.==
 
 
 (*****
@@ -209,6 +210,82 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
 (* The induced function *)
 fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
     right (* Placeholder, induction startpoint *)
+
+datatype dir_cost = dir_cost of real * direction
+datatype cost_list = cost_nil | cost_cons of dir_cost * cost_list
+
+(* The potential field based cat *)
+fun potentialFieldCat( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
+    let
+
+      fun cost((X, Y) : real * real) : real =
+          let
+            fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
+                1000.0 / (abs(DogX-X) + abs(DogY-Y))
+            and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
+                case Dogs
+                 of entity_nil => 0.0
+                  | entity_cons(Entity, Rest) => (
+                      case Entity
+                       of rect(point(EntX, EntY), size(W,H)) => dogCost(X,Y,EntX,EntY)
+                        | circle(point(EntX, EntY), radius(R)) => dogCost(X,Y,EntX,EntY)
+                    ) + dogsCost(X,Y,Rest)
+            and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
+                Math.sqrt(pow(GoalX-X, 2.0) + pow(GoalY-Y, 2.0))
+          in
+            dogsCost(X,Y, Dogs) + (
+              case Goal
+               of rect(point(GoalX, GoalY), size(W,H)) => goalCost(X,Y,GoalX,GoalY)
+                | circle(point(GoalX, GoalY), radius(R)) => goalCost(X,Y,GoalX,GoalY)
+            )
+          end
+
+      and directionCosts((X, Y, Distance) : real * real * real) : cost_list =
+          let
+            fun costDriver((CurrentX, CurrentY, DeltaX, DeltaY, Cost, Num) : real * real * real * real * real * real) : real =
+                case realEqual(CurrentX, X)
+                 of true => (
+                      case realEqual(CurrentY, Y)
+                       of true => Cost/Num
+                        | false => costDriver(CurrentX+DeltaX, CurrentY+DeltaY, DeltaX, DeltaY, Cost+cost(CurrentX, CurrentY), Num+1.0)
+                    )
+                  | false => costDriver(CurrentX+DeltaX, CurrentY+DeltaY, DeltaX, DeltaY, Cost+cost(CurrentX, CurrentY), Num+1.0)
+            and getEndPoint((Coord, DeltaCoord, Distance) : real * real * real) : real =
+                case realEqual(DeltaCoord, 0.0)
+                 of true => Coord
+                  | false => Coord + (DeltaCoord*Distance/abs(DeltaCoord))
+            and directionCost((DeltaX, DeltaY) : real * real) : real =
+                costDriver(
+                  getEndPoint(X,DeltaX,Distance),
+                  getEndPoint(Y,DeltaY,Distance),
+                  ~DeltaX, ~DeltaY, 0.0, 0.0
+                )
+          in
+            cost_cons(dir_cost(directionCost(0.5, 0.0), right),
+            cost_cons(dir_cost(directionCost(~0.5, 0.0), left),
+            cost_cons(dir_cost(directionCost(0.0, ~0.5), up),
+            cost_cons(dir_cost(directionCost(0.0, 0.5), down), cost_nil))))
+          end
+
+      and chooseDirection((CostList) : cost_list) : direction =
+          let
+            fun findMax((CostRest, CurrMax as dir_cost(MaxCost, MaxDirection)) : cost_list * dir_cost) : dir_cost =
+                case CostRest
+                 of cost_nil => CurrMax
+                  | cost_cons(DirCost as dir_cost(Cost, Direction), Rest) => (
+                      case (Cost > MaxCost)
+                       of true => findMax(Rest, DirCost)
+                        | false => findMax(Rest, CurrMax)
+                    )
+          in
+            case findMax(CostList, dir_cost(0.0, up))
+             of (MaxDirCost as dir_cost(MaxCost, MaxDir)) => MaxDir
+          end
+    in
+      case Self
+       of rect(point(X,Y), size(W,H)) => chooseDirection(directionCosts(X,Y, 2.0))
+        | circle(point(X,Y), radius(R)) => chooseDirection(directionCosts(X,Y, 2.0))
+    end
 
 (* The exit-achieving cat *)
 fun exitAchiever( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity) : direction =
