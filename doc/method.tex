@@ -1,6 +1,202 @@
 \cleardoublepage
-\chapter{Method}
-\label{method}
+\chapter{Methodology}
+\label{methodology}
+
+This chapter presents the methodology used to complete the aims of the thesis,
+primarily the use of inductive programming, via ADATE, to evolve interesting
+game opponents. With that in mind, we describe a prototype game to be used for
+simulation and the learning method in detail. In addition, we will briefly cover
+the simulation platform (ADATE).
+
+\section{The Dead End Game}
+\label{sec:game}
+
+The simulation environment we will be using is an adapted version of the Dead
+End computer game used in \citet{yannakakis2005ai}, a predator-prey game where
+the player (the prey) has to reach the goal before being captured by a group of
+opponents (the predators). This game environment is sufficiently simple that
+it's easy to model, but also sufficiently complex and dynamic to provide a good
+basis for using evolutionary techniques to create interesting AI strategies. The
+game will be considered from the viewpoint of the opponents (the predators) in
+an attempt to evolve characters that exhibit the ability to cooperate based on
+partial information, with the capability to play effectively against a player
+following a fixed strategy.
+
+\subsection{Game Description}
+\label{sec:game-description}
+
+In this section we will describe our implementation of the Dead End game in
+sufficient detail to give a good understanding for how it works, as well as in
+which ways it differs from the reference implementation.
+\citep[see][Chap.~5]{yannakakis2005ai}
+
+The game is played on a two-dimensional field of size 16cm x 16cm (while we use
+the unit cm to refer to the units within the game, this is purely for
+convenience and is a completely virtual unit with no physical correspondence),
+with a rectangular area at the top representing the goal \marginpar{Insert size
+  of goal here?}. The characters in the game are the player character, named
+\emph{'Cat'}, represented as a circle of radius 0.75 cm, and an arbitrary number
+of enemy characters, named \emph{'Dogs'}, represented as squares of dimension
+1.5 cm.
+
+The aim for the Cat is to reach the exit from its starting position, situated
+randomly at the bottom of the map, by avoiding the Dogs or to survive until the
+end of the simulation, i.e. after a certain amount of simulation steps. On the
+other hand, the aim of the Dogs is to capture the Cat before it reaches the exit
+or the simulation ends.
+
+Since there are more Dogs than there are Cats on the playing field, they are
+given a handicap to even the playing field. In our implementation, the Cat moves
+at a fixed rate of 2 cm per simulation tick, while the dogs move at $3/4$ that
+speed (1.5 cm per simulation tick). In addition, it is important to note that
+the Dogs have the property of permeability, i.e. they can occupy the same space
+as other Dogs. Given the speed handicap the Dogs have, it is impossible for a
+single Dog to catch the Cat, so the Dogs must cooperate to trap and catch the
+Cat. This is where the opportunity arises for emerging interesting AI behaviour.
+
+At the beginning of the game the characters are positioned so they are
+sufficiently spaced out. As mentioned, the Cat starts at a random position flush
+with the bottom of the field, whereas the Dogs start at a random position in the
+upper half of the playing field.
+
+Then, for each simulation tick, the following happens:
+
+\begin{enumerate}
+\item All entities (Cat and Dogs) in the game gather information from the
+  playing field, run their AI routine, and produces a movement decision: up,
+  down, left, or right.
+\item All entities are moved according to their movement decisions.
+\item The field is checked for any collisions. If there are any, the game is
+  marked as over, and the win condition is checked. If the Cat has collided with
+  the goal, the game is considered won, if any of the Dogs collided with the
+  Cat, the game is considered lost, and if both occurs the tie is broken by
+  considering the game won. (The Cat narrowly escapes, with a suspiciously
+  teeth-shaped mark)
+\item If the game is not over yet, but the amount of simulation ticks is greater
+  than 50, the game is considered over and won.
+\item If the game is over, a new game is started with a new random cat position,
+  but the same dog positions. \marginpar{Should we do this?}
+\end{enumerate}
+
+\subsection{The Cat}
+\label{sec:cat}
+
+To be able to evolve good behaviour for our characters (the Dogs), it is
+necessary to have a competent player character, as the behaviour of the Dogs is
+strongly related to the behaviour of the player character. As it isn't feasible
+to provide the player character with human input during the simulation process,
+it is necessary to provide one or more strategies for the player to execute in
+an attempt to reach its goal. For the Dogs to be capable of diverse behaviour it
+is preferred to have several behaviour for the player, so in our case we have
+implemented two fixed strategy behaviours for the Cat.
+
+These strategies are implement as AI functions which take as input a complete
+state of the field containing the following:
+\marginpar{Maybe a list like this is overkill?}
+\begin{description}
+\item[Self] The \((x,y)\) coordinates of the current Dog.
+\item[Cat position] The \((x,y)\) coordinates of the Cat.
+\item[All Dogs] A list of the \((x,y)\) coordinates of all the Dogs.
+\item[Goal position] The \((x,y)\) coordinates of the Goal.
+\end{description}
+
+and produce as its output a movement direction: left, right, up, or down.
+
+
+
+\subsubsection{Exit-Achieving Cat}
+\label{sec:exit-achieving-cat}
+
+This is a very simple Cat behaviour. It simply chooses the movement direction
+that reduces the coordinate which has the greatest relative direction from the
+Goal. (If the Goal has position \((8,1)\) and the cat has position \((7,10)\),
+the Cat would choose to move up, as the Y direction has the biggest difference)
+
+\subsubsection{Potential Field-Based Cat}
+\label{sec:potent-field-based}
+
+This is a more complex and efficient Cat behaviour based on a Artificial
+Potential Field (APF), where the cat is attracted or repelled by objects in the
+playing field, and moves along the path of least resistance towards the Goal.
+The implementation is heavily based on the one in
+\citet[Chap.~5.1.1.3]{yannakakis2005ai} and considers points along the path to
+the Goal as attractive, and the Dogs as strongly repulsive.
+
+The overall effect of the forces on the field gives the cat a map of movement
+costs by plotting the function $C(x,y)$:
+
+\begin{equation}
+  \label{eq:1}
+  C(x,y) = \Delta_E(x,y) + D(x,y)
+\end{equation}
+\begin{equation}
+  \label{eq:2}
+  \Delta_E(x,y) = \sqrt{(x_e - x)^2 + (y_e - y)^2}
+\end{equation}
+\begin{equation}
+  \label{eq:3}
+  D(x,y) = \sum^N_{i=1} \frac{\rho}{|x_{d,i} - x| + |y_{d,i}-y|}
+\end{equation}
+
+where \(N\) is the number of Dogs, \((x_e,y_e)\) is the center of the Goal,
+\((x_{d,i},y_{d,i})\) is the center of the \(i^th\) dog, \(\rho\) is the cost of
+a dog in the APF (which in our implementation is 1000, as it is in the reference
+implementation).
+
+This field allows the Cat to select the direction that will incur the lowest
+costs by plotting $C(x,y)$ at 0.5 cm intervals for 2 cm in each movement
+direction from the Cat's center coordinate, computing the average cost of moving
+in that direction, and selecting the direction with the lowest movement cost.
+
+This strategy is intended to represent a very good strategy for the Cat, on
+level with the performance of a Human player, and as such is well suited as a
+surrogate for a human player in the simulation.
+
+\subsection{Inducted Dogs}
+\label{sec:inducted-dogs}
+
+This point marks the biggest deviation from the reference implementation, which
+utilized Dogs controlled by Feed-forward Neural Networks.
+\citep[Chap.~5.1.2]{yannakakis2005ai} Our dogs will instead be controlled by a
+Standard ML function synthesized via ADATE. This function will accept input
+similar to the input given to the the neural network described in the reference
+implementation, and produce similar output.
+
+\subsubsection{Input}
+\label{sec:input}
+
+The input to the Dogs AI function is a snapshot of the state of the field with
+the following values:
+
+\begin{description}
+\item[Self] The \((x,y)\) coordinates of the current Dog.
+\item[Cat position] The \((x,y)\) coordinates of the Cat.
+\item[Nearest k dogs] A list of the \((x,y)\) coordinates of the \(k\) closest
+  dogs.
+\item[Goal position] The \((x,y)\) coordinates of the Goal.
+\end{description}
+
+Take notice that the Dogs do not have access to the position of all the dogs in
+the field, but only the nearest \(k\) dogs, this places limitations on how
+closely they can cooperate.
+
+\subsubsection{Output}
+\label{sec:output}
+
+The output is the Dog's chosen movement direction: left, right, up, or down.
+
+\section{Experiment}
+\label{sec:experiment}
+
+
+\subsection{Specification}
+\label{sec:specification}
+
+\subsection{Testbed}
+\label{sec:testbed}
+
+
+
 %%% Local Variables:
 %%% TeX-master: "main"
 %%% End:
