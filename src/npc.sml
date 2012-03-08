@@ -359,19 +359,69 @@ fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity)
     : direction =
     exitAchiever(Self, Cat, Dogs, Goal)
 
+(* Choose the k nearest dogs to a given dog *)
+fun kNearest((Self, Dogs, k, SelfIndex) : entity * entity_list * real * real) : entity_list =
+    let
+        (* Trim the remainder of the Nearest list to k length *)
+        fun trimNearest((Nearest, i) : entity_list * real) : entity_list =
+            case realEqual(i, k)
+             of true => entity_nil
+              | false =>
+                case Nearest
+                 of entity_nil => entity_nil
+                  | entity_cons(Head, Tail) => entity_cons(Head, trimNearest(Tail, i+1.0))
+
+        (* Attempt to insert this dog into the list of nearest dogs *)
+        and attemptInsertion((InsDog, Nearest, i) : entity * entity_list * real) : entity_list =
+            (* If we're past the k amount of dogs in the nearest list, this dog is gone *)
+            case realEqual(i, k)
+             of true => entity_nil
+              | false =>
+                (* If we're not past k yet, but we're at the end of the Nearest list, this dog is added by default *)
+                case Nearest
+                 of entity_nil => entity_cons(InsDog, entity_nil)
+                  (* If we're not past k, and there are still dogs in the Nearest list, compare *)
+                  | entity_cons(Head, Tail) =>
+                    case realLess(getQuadDistance(Self, InsDog), getQuadDistance(Self, Head))
+                    (* If this dog is nearer than the current dog in the nearest
+                     * list, then insert before and trim the remainder of the
+                     * Nearest list
+                     *)
+                     of true => entity_cons(InsDog, trimNearest(Nearest, i))
+                     (* If not, then keep going! *)
+                      | false => entity_cons(Head, attemptInsertion(InsDog, Tail, i+1.0))
+
+        (* Start checking the given dog and return the new Nearest list *)
+        and checkDog((CheckDog, Nearest) : entity * entity_list) : entity_list =
+            attemptInsertion(CheckDog, Nearest, 0.0)
+
+        (* Iterate over the dogs and check them for insertion into the Nearest list *)
+        and checkDogs((DogRest, Nearest, i): entity_list * entity_list * real) : entity_list =
+            case DogRest
+             of entity_nil => entity_nil
+              | entity_cons(Current, Rest) =>
+                case realEqual(i, SelfIndex)
+                 of true => checkDogs(Rest, Nearest, i+1.0)
+                  | false => checkDogs(Rest, checkDog(Current, Nearest), i+1.0)
+
+    in
+      checkDogs(Dogs, entity_nil, 0.0)
+    end
+
 (* Do the ai steps for all the entities and generate a list of moves *)
 fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
     : direction_list =
     let
-        fun stepDogs((Dogrest) : entity_list) : direction_list =
+        fun stepDogs((Dogrest, i) : entity_list * real) : direction_list =
             case Dogrest
              of entity_nil => dir_nil
               | entity_cons(Dog, Rest) =>
-                dir_cons(f(Dog, Cat, Dogs, Goal), stepDogs(Rest))
+                dir_cons(f(Dog, Cat, kNearest(Dog, Dogs, 2.0, i), Goal),
+                         stepDogs(Rest, i+1.0))
     in
       dir_cons(
         catAI(Cat, Cat, Dogs, Goal),
-        stepDogs(Dogs))
+        stepDogs(Dogs, 0.0))
     end
 
 (* Do one tick of the simulation. This does one AI step, applies all the
