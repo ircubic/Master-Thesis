@@ -217,10 +217,10 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal,
                  of true => true
                   | false => hasLost(Cat, Rest))
 
-        and hasWon() : bool = collide(Cat, Goal)
+        and hasWon((Cat, Goal) : entity * entity) : bool = collide(Cat, Goal)
 
-        and newWinState() : bool * bool =
-            case hasWon()
+        and newWinState((Cat, Dogs, Goal) : entity * entity_list * entity) : bool * bool =
+            case hasWon(Cat, Goal)
              of true => (true, true)
               (* If we haven't won, then the value of Win is irrelevant, and
                * whether the game is over depends on if the game has been lost,
@@ -228,7 +228,7 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal,
                *)
               | false => (hasLost(Cat, Dogs), false)
     in
-        case newWinState()
+        case newWinState(Cat, Dogs, Goal)
          of (newGameover, newWin) =>
             state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
     end
