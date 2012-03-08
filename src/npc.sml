@@ -86,6 +86,9 @@ fun getDistance((Entity1, Entity2) : entity * entity) : real * real =
       | (circle(Point1, Radius1), circle(Point2, Radius2)) =>
         getPointDistance(Point1, Point2)
 
+fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
+    case getDistance(Entity1, Entity2)
+     of (Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
 
 (*****
  * Functions directly relevant to the game that do not depend on f()
