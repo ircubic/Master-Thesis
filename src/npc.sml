@@ -1,3 +1,10 @@
+(* This defines functions available in ADATE-ML to be available to MLton proper,
+ * must be removed before turning into a spec.
+ *)
+val pow = Math.pow
+val realEqual = Real.==
+val realLess = Real.<
+(*CUT BEFORE*)
 datatype point = point of real * real
 datatype size = size of real * real
 datatype radius = radius of real
@@ -11,20 +18,35 @@ datatype entity_list = entity_nil
 (* cat, dogs, goal, fieldsize, gameover, win *)
 datatype state = state of entity * entity_list * entity * size * bool * bool
 
-val pow = Math.pow
-val realEqual = Real.==
-
 
 (*****
  * Helper methods
  *****)
 
+fun realGreaterOrEqual((Num1, Num2) : real * real) : bool =
+    case realLess(Num2, Num1)
+     of true => false
+      | false => true
+
+fun realLessOrEqual((Num1, Num2) : real * real) : bool =
+    case realLess(Num1, Num2)
+     of true => true
+      | false => realEqual(Num1, Num2)
+
+fun realGreater((Num1, Num2) : real * real) : bool =
+    case realLess(Num2, Num1)
+     of true => false
+      | false =>
+        case realEqual(Num2, Num1)
+         of true => false
+          | false => true
+
 (* Clamp the value of a number within the bounds *)
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
-    case Value < Lower
+    case realLess(Value, Lower)
      of true => Lower
       | false =>
-        case Value > Upper
+        case realGreater(Value, Upper)
          of true => Upper
           | false => Value
 
@@ -74,16 +96,16 @@ fun collide ((E1, E2) : entity * entity) : bool =
      (* Two dogs collide using rectangle collisions *)
      of (rect(point(X1,Y1), size(W1,H1)),
          rect(point(X2,Y2), size(W2,H2))) =>
-        (case (Y1+(H1*0.5)) < (Y2-(H2*0.5)) (* bottom1 < top2 *)
+        (case realLess((Y1+(H1*0.5)), (Y2-(H2*0.5))) (* bottom1 < top2 *)
           of true => false
            | false =>
-             case (Y1-(H1*0.5)) > (Y2+(H2*0.5)) (* top1 > bottom2 *)
+             case realGreater((Y1-(H1*0.5)), (Y2+(H2*0.5))) (* top1 > bottom2 *)
               of true => false
                | false =>
-                 case (X1+(W1*0.5)) < (X2-(W2*0.5)) (* right1 < left2 *)
+                 case realLess((X1+(W1*0.5)), (X2-(W2*0.5))) (* right1 < left2 *)
                   of true => false
                    | false =>
-                     case (X1-(W1*0.5)) > (X2+(W2*0.5)) (* left1 > right2 *)
+                     case realGreater((X1-(W1*0.5)), (X2+(W2*0.5))) (* left1 > right2 *)
                       of true => false
                        | false => true)
 
@@ -92,20 +114,20 @@ fun collide ((E1, E2) : entity * entity) : bool =
          circle(point(X2,Y2), radius(R))) =>
         (case (abs(X2 - X1), abs(Y2 - Y1), W1/2.0, H1/2.0)
           of (Dist_x, Dist_y, Coll_width, Coll_height) =>
-             case (Dist_x > (Coll_width+R))
+             case realGreater(Dist_x, (Coll_width+R))
               of true => false
                | false =>
-                 case (Dist_y > (Coll_height+R))
+                 case realGreater(Dist_y, (Coll_height+R))
                   of true => false
                    | false =>
-                     case (Dist_x < Coll_width)
+                     case realLess(Dist_x, Coll_width)
                       of true => true
                        | false =>
-                         case (Dist_y < Coll_height)
+                         case realLess(Dist_y, Coll_height)
                           of true => true
-                           | false => (pow((Dist_x - Coll_width), 2.0) +
-                                       pow((Dist_y - Coll_height), 2.0)
-                                       <= pow(R,2.0))
+                           | false => realLessOrEqual(pow((Dist_x - Coll_width), 2.0) +
+                                                      pow((Dist_y - Coll_height), 2.0),
+                                                      pow(R,2.0))
 
         )
 
@@ -114,7 +136,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
       (* Cats collide with circle collisions (for exhaustiveness) *)
       | (circle(point(X1,Y1), radius(R1)),
          circle(point(X2,Y2), radius(R2))) =>
-        ((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)) <= pow((R1+R2),2.0))
+        realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)), pow((R1+R2),2.0))
 
 (* Apply the given moves to the game's entities *)
 fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
@@ -298,7 +320,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
                      of cost_nil => CurrMax
                       | cost_cons(DirCost as dir_cost(Cost, Direction),
                                   Rest) => (
-                        case (Cost > MaxCost)
+                        case realGreater(Cost, MaxCost)
                          of true => findMax(Rest, DirCost)
                           | false => findMax(Rest, CurrMax))
             in
@@ -318,13 +340,13 @@ fun exitAchiever( (Self, Cat, Dogs, Goal)
                   : entity * entity * entity_list * entity) : direction =
     case getDistance(Self, Goal)
      of (Dist_x, Dist_y) =>
-        case abs(Dist_x) > abs(Dist_y)
+        case realGreater(abs(Dist_x), abs(Dist_y))
          of true => (
-            case Dist_x < 0.0
+            case realLess(Dist_x, 0.0)
              of true => left
               | false => right)
           | false => (
-            case Dist_y > 0.0
+            case realGreater(Dist_y, 0.0)
              of true => down
               | false => up)
 
@@ -386,15 +408,15 @@ fun main( (Dogs) : entity_list ) : bool =
     let
         fun mainLoop((Tick,
                       State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
-                     ) : int * state) : bool =
-            case Tick >= 50
+                     ) : real * state) : bool =
+            case realGreater(Tick, 50.0)
              of true => Win
               | false =>
                 case Gameover
                  of true => Win
-                  | false => mainLoop(Tick+1, simtick(State))
+                  | false => mainLoop(Tick+1.0, simtick(State))
     in
-        mainLoop(1,
+        mainLoop(1.0,
                  initState(size(16.0,16.0),
                            radius(0.75),
                            Dogs,
