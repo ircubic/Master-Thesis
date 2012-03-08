@@ -4,6 +4,7 @@
 val pow = Math.pow
 val realEqual = Real.==
 val realLess = Real.<
+val sqrt = Math.sqrt
 (*CUT BEFORE*)
 datatype point = point of real * real
 datatype size = size of real * real
@@ -263,7 +264,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
                             dogCost(X,Y,EntX,EntY)
                         ) + dogsCost(X,Y,Rest)
                 and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
-                    Math.sqrt(pow(GoalX-X, 2.0) + pow(GoalY-Y, 2.0))
+                    sqrt(pow(GoalX-X, 2.0) + pow(GoalY-Y, 2.0))
             in
                 dogsCost(X,Y, Dogs) + (
                 case Goal
