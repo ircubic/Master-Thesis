@@ -26,7 +26,7 @@ datatype state = state of entity * entity_list * entity * size * bool * bool
  *****)
 
 fun realGreaterOrEqual((Num1, Num2) : real * real) : bool =
-    case realLess(Num2, Num1)
+    case realLess(Num1, Num2)
      of true => false
       | false => true
 
@@ -36,21 +36,24 @@ fun realLessOrEqual((Num1, Num2) : real * real) : bool =
       | false => realEqual(Num1, Num2)
 
 fun realGreater((Num1, Num2) : real * real) : bool =
-    case realLess(Num2, Num1)
+    case realLess(Num1, Num2)
      of true => false
       | false =>
-        case realEqual(Num2, Num1)
+        case realEqual(Num1, Num2)
          of true => false
           | false => true
 
 (* Clamp the value of a number within the bounds *)
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
-    case realLess(Value, Lower)
-     of true => Lower
+    case realLess(Upper, Lower)
+     of true => clamp(Value, Upper, Lower)
       | false =>
-        case realGreater(Value, Upper)
-         of true => Upper
-          | false => Value
+        case realLess(Value, Lower)
+         of true => Lower
+          | false =>
+            case realGreater(Value, Upper)
+             of true => Upper
+              | false => Value
 
 (* Ensures that an entity's position is within the field *)
 fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
@@ -73,10 +76,10 @@ fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
 
 fun getPointDistance((Point1 as point(X1, Y1),
                       Point2 as point(X2, Y2))
-                     : point * point) : real * real =
-    (X1-X2, Y1-Y2)
+                     : point * point) : point =
+    point(X2-X1, Y2-Y1)
 
-fun getDistance((Entity1, Entity2) : entity * entity) : real * real =
+fun getDistance((Entity1, Entity2) : entity * entity) : point =
     case (Entity1, Entity2)
      of (rect(Point1, Size1), rect(Point2, Size2)) =>
         getPointDistance(Point1, Point2)
@@ -89,7 +92,7 @@ fun getDistance((Entity1, Entity2) : entity * entity) : real * real =
 
 fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
     case getDistance(Entity1, Entity2)
-     of (Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
+     of point(Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
 
 (*****
  * Functions directly relevant to the game that do not depend on f()
@@ -344,7 +347,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
 fun exitAchiever( (Self, Cat, Dogs, Goal)
                   : entity * entity * entity_list * entity) : direction =
     case getDistance(Self, Goal)
-     of (Dist_x, Dist_y) =>
+     of point(Dist_x, Dist_y) =>
         case realGreater(abs(Dist_x), abs(Dist_y))
          of true => (
             case realLess(Dist_x, 0.0)
