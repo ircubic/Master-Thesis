@@ -8,3 +8,6 @@ auto/
 *.out
 *.lot
 *.lof
+test.sml
+npc.spec
+npc.spec.sml
