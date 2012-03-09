@@ -55,6 +55,28 @@ assertEntitiesEqual (circle(point(1.0, 1.0), radius(5.0))) (circle(point(1.0, 1.
 assertFalse(compareEntities(rect(point(1.0, 1.0), size(5.0, 5.0)), circle(point(1.0, 1.0), radius(5.0)))) "Rect is equal to circle";
 assertFalse(compareEntities(circle(point(1.0, 1.0), radius(5.0)), rect(point(1.0, 1.0), size(5.0, 5.0)))) "Rect is equal to circle";
 
+fun compareStates (state1 as state(cat1, dogs1, goal1, size1, g1, w1),
+                   state2 as state(cat2, dogs2, goal2, size2, g2, w2)) =
+    let
+      fun compareDogs(doglist1 as entity_cons(dog1, rest1), doglist2 as entity_cons(dog2, rest2)) =
+          if compareEntities(dog1, dog2) then
+            compareDogs(rest1, rest2)
+          else
+            false
+
+        | compareDogs(doglist1 as entity_nil, doglist2 as entity_nil) = true
+        | compareDogs(doglist1 as entity_cons(_,_), doglist2 as entity_nil) = false
+        | compareDogs(doglist1 as entity_nil, doglist2 as entity_cons(_,_)) = false
+    in
+      (compareEntities(cat1, cat2) andalso compareDogs(dogs1, dogs2) andalso
+       compareEntities(goal1, goal2) andalso compareSizes(size1, size2) andalso
+       (g1 = g2) andalso (w1 = w2))
+    end
+fun assertStatesEqual (s1:state) (s2:state) (desc:string) = assertTrue(compareStates(s1, s2)) desc;
+
+fun assertWon (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string) = assertTrue(gameover = true andalso won = true) desc;
+fun assertLost (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string) = assertTrue(gameover = true andalso won = false) desc;
+fun assertNotOver (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string) = assertTrue(gameover = false) desc;
 
 (*****
  * Unittests for helper methods
@@ -104,6 +126,7 @@ val point4 = point(5.0, 5.0);
 val point5 = point(0.9, 0.9)
 val dogsize = size(1.0, 1.0);
 val catradius = radius(0.5);
+val goalsize = size(5.0, 2.0);
 
 val dog1 = rect(point1, dogsize);
 val dog2 = rect(point2, dogsize);
@@ -115,6 +138,7 @@ val cat2 = circle(point2, catradius);
 val cat3 = circle(point3, catradius);
 val cat4 = circle(point4, catradius);
 val cat5 = circle(point5, catradius);
+val goal = rect(point1, goalsize);
 
 (* ensureInside *)
 assertEntitiesEqual (ensureInside(dog1, size(10.0, 10.0))) dog1 "Dog was moved";
@@ -157,3 +181,38 @@ assertFalse (collide(cat2, cat5)) "Wrong cat-cat corner collision";
 assertFalse (collide(dog2, cat5)) "Wrong dog-cat corner collision";
 assertTrue (collide(cat2, dog3)) "No cat-dog edge collision";
 assertTrue (collide(cat2, cat3)) "No cat-cat edge collision";
+
+(* applyMoves *)
+val dogs = entity_cons(dog4, entity_cons(dog4, entity_cons(dog4, entity_nil)));
+val state1 = state(cat4, dogs, goal, size(16.0, 16.0), false, false);
+val movedcat = circle(point(5.0, 3.0), catradius);
+val moveddog = rect(point(5.0, 3.5), dogsize);
+val moveddogs = entity_cons(moveddog, entity_cons(moveddog, entity_cons(moveddog, entity_nil)));
+val incompletemoveddogs = entity_cons(moveddog, entity_cons(moveddog, entity_cons(dog4, entity_nil)));
+
+val moves = dir_cons(up, dir_cons(up, dir_cons(up, dir_cons(up, dir_nil))));
+val incompletemoves = dir_cons(up, dir_cons(up, dir_cons(up, dir_nil)));
+
+val movedstate = state(movedcat, moveddogs, goal, size(16.0, 16.0), false, false);
+val incompletemovedstate = state(movedcat, incompletemoveddogs, goal, size(16.0, 16.0), false, false);
+val justcatmovedstate = state(movedcat, dogs, goal, size(16.0, 16.0), false, false);
+
+assertStatesEqual (applyMoves(state1, moves)) movedstate "Did not move correctly";
+assertStatesEqual (applyMoves(state1, incompletemoves)) incompletemovedstate "Did not move correctly with incomplete moves";
+assertStatesEqual (applyMoves(state1, dir_cons(up, dir_nil))) justcatmovedstate "Did not move correctly with just cat moves";
+assertStatesEqual (applyMoves(state1, dir_nil)) state1 "Moved with no moves";
+
+(* checkWinCondition *)
+val topdogs = entity_cons(dog2, entity_cons(dog2, entity_cons(dog2, entity_nil)));
+val centerdogs = dogs;
+val topcat = cat2;
+val centercat = cat4;
+val cornercat = cat1;
+val winstate = state(centercat, topdogs, centercat, size(16.0, 16.0), false, false);
+assertWon (checkWinCondition(winstate)) "Did not win";
+val losestate = state(topcat, topdogs, centercat, size(16.0, 16.0), false, false);
+assertLost (checkWinCondition(losestate)) "Did not lose";
+val winlosestate = state(centercat, centerdogs, centercat, size(16.0, 16.0), false, false);
+assertWon (checkWinCondition(winlosestate)) "Did not tiebreak to win";
+val neutralstate = state(cornercat, topdogs, centercat, size(16.0, 16.0), false, false);
+assertNotOver (checkWinCondition(neutralstate)) "Game was over";
