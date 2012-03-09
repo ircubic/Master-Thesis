@@ -5,6 +5,7 @@ val pow = Math.pow
 val realEqual = Real.==
 val realLess = Real.<
 val sqrt = Math.sqrt
+val realUnaryMinus = Real.~
 (*CUT BEFORE*)
 datatype point = point of real * real
 datatype size = size of real * real
@@ -307,7 +308,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
                     costDriver(
                       getEndPoint(X,DeltaX,Distance),
                       getEndPoint(Y,DeltaY,Distance),
-                      ~DeltaX, ~DeltaY, 0.0, 0.0)
+                      realUnaryMinus(DeltaX), realUnaryMinus(DeltaY), 0.0, 0.0)
             in
                 cost_cons(dir_cost(directionCost(0.5, 0.0), right),
                 cost_cons(dir_cost(directionCost(~0.5, 0.0), left),
