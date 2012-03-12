@@ -479,13 +479,17 @@ fun main( (Dogs) : entity_list ) : bool =
                            radius(0.75),
                            Dogs,
                            size(5.0, 2.0)))
-    end
+    end;
 
 (*****
  * Some stuff to be in the spec part in the spec
  *****)
 
 (*%%*)
+
+case MLton.Random.useed()
+ of NONE => ()
+  | SOME(seed) => MLton.Random.srand(seed);
 
 (* Generate a random real between 0.0 and 1.0 *)
 fun randReal() : real =
