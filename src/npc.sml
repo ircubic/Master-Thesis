@@ -386,19 +386,19 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
 
         and chooseDirection((CostList) : cost_list) : direction =
             let
-                fun findMax((CostRest,
-                             CurrMax as dir_cost(MaxCost, MaxDirection))
+                fun findMin((CostRest,
+                             CurrMin as dir_cost(MinCost, MinDirection))
                             : cost_list * dir_cost) : dir_cost =
                     case CostRest
-                     of cost_nil => CurrMax
+                     of cost_nil => CurrMin
                       | cost_cons(DirCost as dir_cost(Cost, Direction),
                                   Rest) => (
-                        case realGreater(Cost, MaxCost)
-                         of true => findMax(Rest, DirCost)
-                          | false => findMax(Rest, CurrMax))
+                        case realLess(Cost, MinCost)
+                         of true => findMin(Rest, DirCost)
+                          | false => findMin(Rest, CurrMin))
             in
-                case findMax(CostList, dir_cost(0.0, up))
-                 of (MaxDirCost as dir_cost(MaxCost, MaxDir)) => MaxDir
+                case findMin(CostList, dir_cost(10000.0, up))
+                 of (MinDirCost as dir_cost(MinCost, MinDir)) => MinDir
             end
     in
         case Self
