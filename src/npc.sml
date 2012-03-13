@@ -20,6 +20,10 @@ val pack : grade -> string
 val unpack : string -> grade
 
 end
+exception D0
+exception D1
+exception D2
+exception D3
 (*CUT BEFORE*)
 datatype point = point of real * real
 datatype size = size of real * real
@@ -116,6 +120,28 @@ fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
     case getDistance(Entity1, Entity2)
      of point(Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
 
+fun increaseCell((Cells, Point as point(X, Y)) : cells * point) : cells =
+    let
+        fun delve((Cells, GoalI, I) : cells * real * real) : cells =
+            case Cells
+             of cell_nil => cell_nil
+              | cell_cons(Cell, CellRest) =>
+                case realEqual(GoalI, I)
+                 of true => cell_cons(Cell+1.0, CellRest)
+                  | false => cell_cons(Cell, delve(CellRest, GoalI, I+1.0))
+    in
+        delve(Cells, (Real.realFloor(X) * Real.realFloor(Y)), 0.0)
+    end
+
+fun initCells((W, H) : real * real) : cells =
+    let
+        fun driver((Goal, I) : real * real) : cells =
+            case realEqual(Goal, I)
+             of true => cell_nil
+              | false => cell_cons(0.0, driver(Goal, I+1.0))
+    in
+        initCells((W*H), 0.0)
+    end
 
 
 (*****
@@ -172,8 +198,8 @@ fun collide ((E1, E2) : entity * entity) : bool =
 
 (* Apply the given moves to the game's entities *)
 fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
-                Moves)
-               : state * direction_list) : state =
+                Moves, Cells)
+               : state * direction_list * cells) : state * cells =
     let
       (* Move a point in the given direction, the given amount *)
         fun movePoint((Point as point(X,Y),
@@ -185,6 +211,17 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
               | right => point(X+Speed, Y)
               | down => point(X, Y+Speed)
               | up => point(X, Y-Speed)
+
+        (* Count these entities cell visits, but only if they're dogs *)
+        and countCellVisits((Entities, Cells) : entity_list * cells) : cells =
+            case Entities
+             of entity_nil => Cells
+              | entity_cons(Entity, Rest) =>
+                case Entity
+                 of rect(Point, Size as size(W,H)) =>
+                    countCellVisits(Rest, increaseCell(Cells, Point))
+                  | circle(Point, Radius as radius(R)) =>
+                    countCellVisits(Rest, Cells)
 
         (* Move a single entity the chosen direction *)
         and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
@@ -209,7 +246,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
                  * return an unmoved entity.
                  *)
                 case Moves
-                 of dir_nil => entity_cons(Entity, moveEntities(Rest, Moves, Fieldsize))
+                 of dir_nil => entity_cons(Entity, Rest)
                   | dir_cons(Move, Moverest) =>
                     entity_cons(
                       moveEntity(Entity, Move, Fieldsize),
@@ -220,19 +257,22 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
          (* In case there are no passed in moves (should not happen), we just
           * return the same state
           *)
-         of dir_nil => State
+         of dir_nil => (State, Cells)
 
           (* We have to separate the cat's move (always the first) from the dogs
            * moves, to be able to put it into the state properly
            *)
           | dir_cons(Catmove, Rest) =>
-            state(
-              (* Move the cat separately *)
-              moveEntity(Cat, Catmove, Fieldsize),
-              (* Move all the dogs *)
-              moveEntities(Dogs, Rest, Fieldsize),
-              (* Rest stays the same *)
-              Goal, Fieldsize, Gameover, Win)
+            case moveEntities(Dogs, Rest, Fieldsize)
+             of NewDogs =>
+                (state(
+                  (* Move the cat separately *)
+                  moveEntity(Cat, Catmove, Fieldsize),
+                  (* Move all the dogs *)
+                  NewDogs,
+                  (* Rest stays the same *)
+                  Goal, Fieldsize, Gameover, Win),
+                 countCellVisits(NewDogs, Cells))
     end
 
 (* Check the win conditions of the game and update the game's state *)
@@ -455,11 +495,13 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
 (* Do one tick of the simulation. This does one AI step, applies all the
  * moves, then checks the if the game has been won or lost
  *)
-fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
-    : state =
+fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Cells) : state * cells)
+    : state * cells =
     case Gameover
-     of false => State
-      | true => checkWinCondition(applyMoves(State, aiStep(State)))
+     of false => (State, Cells)
+      | true =>
+        case applyMoves(State, aiStep(State), Cells)
+         of (NewState, NewCells) => (checkWinCondition(NewState), NewCells)
 
 (* Initialize the state of the game based on the given sizes and passed in dogs *)
 fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
@@ -489,24 +531,28 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
 fun main( (Dogs) : entity_list ) : result  =
     let
         fun mainLoop((Tick,
-                      State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
-                     ) : real * state) : real =
+                      State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
+                      Cells
+                     ) : real * state * cells) : real * cells =
             case realGreater(Tick, 50.0)
-             of true => Tick
+             of true => (Tick-1.0, Cells)
               | false =>
                 case Gameover
-                 of true => Tick
-                  | false => mainLoop(Tick+1.0, simtick(State))
+                 of true => (Tick-1.0, Cells)
+                  | false =>
+                    case simtick(State, Cells)
+                     of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells)
         and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
             case realEqual(N,I)
              of true => result(N, Ticks, Visits)
               | false =>
                 case mainLoop(1.0,
-                       initState(size(16.0,16.0),
-                                 radius(0.75),
-                                 Dogs,
-                                 size(5.0, 2.0)))
-                 of Tick => runSims(N, I+1.0, tick_cons(Tick, Ticks), Visits)
+                             initState(size(16.0,16.0),
+                                       radius(0.75),
+                                       Dogs,
+                                       size(5.0, 2.0)),
+                             initCells(16.0, 16.0))
+                 of (Tick, Cells) => runSims(N, I+1.0, tick_cons(Tick, Ticks), visit_cons(Cells, Visits))
     in
         runSims(50.0, 0.0, tick_nil, visit_nil)
     end;
