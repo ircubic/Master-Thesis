@@ -78,6 +78,28 @@ fun assertWon (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string)
 fun assertLost (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string) = assertTrue(gameover = true andalso won = false) desc;
 fun assertNotOver (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string) = assertTrue(gameover = false) desc;
 
+fun compareDirections (dir1 as left, dir2 as left) = true
+  | compareDirections (dir1 as up, dir2 as up) = true
+  | compareDirections (dir1 as down, dir2 as down) = true
+  | compareDirections (dir1 as right, dir2 as right) = true
+  | compareDirections (dir1, dir2) = false
+
+fun printDirection (dir1 as left) = print "left"
+  | printDirection (dir1 as up) = print "up"
+  | printDirection (dir1 as down) = print "down"
+  | printDirection (dir1 as right) = print "right"
+
+fun compareDirectionLists (dirlist1 as dir_cons(dir1, rest1), dirlist2 as dir_cons(dir2, rest2)) =
+    if compareDirections(dir1, dir2) then
+      compareDirectionLists(rest1, rest2)
+    else
+      false
+  | compareDirectionLists(dirlist1 as dir_nil, dirlist2 as dir_nil) = true
+  | compareDirectionLists(dirlist1 as dir_nil, dirlist2 as dir_cons(d2,_)) = false
+  | compareDirectionLists(dirlist1 as dir_cons(d1,_), dirlist2 as dir_nil) = false;
+
+fun assertDirectionListsEqual (dl1:direction_list) (dl2:direction_list) (desc:string) = assertTrue(compareDirectionLists(dl1,dl2)) desc;
+
 fun checkCell(Cells as cell_nil, Goal, I, Value) = false
   | checkCell(Cells as cell_cons(Cell, Rest), Goal, I, Value) =
     if I = Goal then realSigmaEqual(Cell, Value)
@@ -264,3 +286,7 @@ val expectedcat = circle(point(8.0, 15.5), catradius); (* Cat on bottom center *
 val expectedgoal = rect(point(8.0, 1.0), goalsize);
 val expectedstate = state(expectedcat, dogs, expectedgoal, size(16.0, 16.0), false, false);
 assertStatesEqual (initState(size(16.0, 16.0), catradius, dogs, goalsize)) expectedstate "Init wrong state";
+
+(* aiStep *)
+val expecteddirections = dir_cons(up, dir_cons(right, dir_cons(right, dir_cons(right, dir_nil))));
+assertDirectionListsEqual (aiStep(state1)) expecteddirections "Directions were wrong";
