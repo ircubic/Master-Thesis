@@ -169,6 +169,35 @@ assertRealSigmaEqual (getQuadDistance(cat1, dog2)) quadDistance "Cat-Dog distanc
 assertRealSigmaEqual (getQuadDistance(dog1, cat2)) quadDistance "Dog-Cat distance wrong";
 assertRealSigmaEqual (getQuadDistance(cat1, cat2)) quadDistance "Cat-Cat distance wrong";
 
+(* initCells *)
+fun countCell(Cells as cell_cons(Cell, Rest), I) = countCell(Rest, I+1.0)
+  | countCell(Cells as cell_nil, I) = I;
+
+val testcells1 = initCells(16.0, 16.0);
+val testcells2 = initCells(3.0, 3.0);
+assertRealSigmaEqual (countCell(testcells1, 0.0)) (16.0*16.0) "Cell count wrong for 16x16";
+assertRealSigmaEqual (countCell(testcells2, 0.0)) (3.0*3.0) "Cell count wrong for 3x3";
+
+fun checkCell(Cells as cell_nil, Goal, I, Value) = false
+  | checkCell(Cells as cell_cons(Cell, Rest), Goal, I, Value) =
+    if I = Goal then realSigmaEqual(Cell, Value)
+    else checkCell(Rest, Goal, I+1, Value);
+
+fun printCells(Cells as cell_nil, W, I) : unit = (print "\n")
+  | printCells(Cells as cell_cons(Cell, Rest), W, I) : unit = (
+      (if (I mod W) = 0 then (print("\n" ^ (Real.toString(Cell)) ^ " "))
+      else (print((Real.toString(Cell)) ^ " ")));
+      printCells(Rest, W, I+1)
+    );
+
+val checkcell = increaseCell(testcells1, point(1.0, 1.0), 16.0);
+assertTrue (checkCell(checkcell, 17, 0, 1.0)) "Did not increase correct cell";
+val checkcell = increaseCell(testcells1, point(15.0, 2.0), 16.0);
+assertTrue (checkCell(checkcell, 47, 0, 1.0)) "Did not increase correct cell";
+
+(*****
+ * Unit tests for game methods
+ *****)
 (* collide *)
 assertTrue (collide(dog1, dog1)) "No dog self-collision";
 assertTrue (collide(cat1, cat1)) "No cat self-collision";
@@ -197,10 +226,14 @@ val movedstate = state(movedcat, moveddogs, goal, size(16.0, 16.0), false, false
 val incompletemovedstate = state(movedcat, incompletemoveddogs, goal, size(16.0, 16.0), false, false);
 val justcatmovedstate = state(movedcat, dogs, goal, size(16.0, 16.0), false, false);
 
-assertStatesEqual (applyMoves(state1, moves)) movedstate "Did not move correctly";
-assertStatesEqual (applyMoves(state1, incompletemoves)) incompletemovedstate "Did not move correctly with incomplete moves";
-assertStatesEqual (applyMoves(state1, dir_cons(up, dir_nil))) justcatmovedstate "Did not move correctly with just cat moves";
-assertStatesEqual (applyMoves(state1, dir_nil)) state1 "Moved with no moves";
+val (teststate, _) = applyMoves(state1, moves, testcells1);
+assertStatesEqual teststate movedstate "Did not move correctly";
+val (teststate, _) = applyMoves(state1, incompletemoves, testcells1);
+assertStatesEqual teststate incompletemovedstate "Did not move correctly with incomplete moves";
+val (teststate, _) = applyMoves(state1, dir_cons(up, dir_nil), testcells1);
+assertStatesEqual teststate justcatmovedstate "Did not move correctly with just cat moves";
+val (teststate, _) = applyMoves(state1, dir_nil, testcells1);
+assertStatesEqual teststate state1 "Moved with no moves";
 
 (* checkWinCondition *)
 val topdogs = entity_cons(dog2, entity_cons(dog2, entity_cons(dog2, entity_nil)));

@@ -120,7 +120,7 @@ fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
     case getDistance(Entity1, Entity2)
      of point(Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
 
-fun increaseCell((Cells, Point as point(X, Y)) : cells * point) : cells =
+fun increaseCell((Cells, Point as point(X, Y), Width) : cells * point * real) : cells =
     let
         fun delve((Cells, GoalI, I) : cells * real * real) : cells =
             case Cells
@@ -130,7 +130,7 @@ fun increaseCell((Cells, Point as point(X, Y)) : cells * point) : cells =
                  of true => cell_cons(Cell+1.0, CellRest)
                   | false => cell_cons(Cell, delve(CellRest, GoalI, I+1.0))
     in
-        delve(Cells, (Real.realFloor(X) * Real.realFloor(Y)), 0.0)
+        delve(Cells, (Real.realFloor(X) + Real.realFloor(Y) * Width), 0.0)
     end
 
 fun initCells((W, H) : real * real) : cells =
@@ -140,7 +140,7 @@ fun initCells((W, H) : real * real) : cells =
              of true => cell_nil
               | false => cell_cons(0.0, driver(Goal, I+1.0))
     in
-        initCells((W*H), 0.0)
+        driver((W*H), 0.0)
     end
 
 
@@ -197,7 +197,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
         realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)), pow((R1+R2),2.0))
 
 (* Apply the given moves to the game's entities *)
-fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
+fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(W,H), Gameover, Win),
                 Moves, Cells)
                : state * direction_list * cells) : state * cells =
     let
@@ -219,7 +219,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
               | entity_cons(Entity, Rest) =>
                 case Entity
                  of rect(Point, Size as size(W,H)) =>
-                    countCellVisits(Rest, increaseCell(Cells, Point))
+                    countCellVisits(Rest, increaseCell(Cells, Point, W))
                   | circle(Point, Radius as radius(R)) =>
                     countCellVisits(Rest, Cells)
 
