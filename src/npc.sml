@@ -6,6 +6,7 @@ val realEqual = Real.==
 val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
+val log10 = Math.log10
 signature GRADE =
 sig
 
@@ -620,6 +621,48 @@ fun generateDogLists((Amount,
        * field compensates for the width of the dogs.
        *)
       nextDogs(Amount, size(Fieldwidth-Dogwidth, Fieldheight/2.0))
+    end
+
+fun interest((Result as result(N, Ticks, Visits)) : result) : real =
+    let
+      fun tickMax((Ticks, Max): ticks * real)  : real =
+          case Ticks
+           of tick_nil => Max
+            | tick_cons(Tick, TickRest) =>
+              case realLess(Max, Tick)
+               of true => tickMax(TickRest, Tick)
+                | false => tickMax(TickRest, Max)
+      and tickSum((Ticks, Sum) : ticks * real) : real =
+          case Ticks
+           of tick_nil => Sum
+            | tick_cons(Tick, TickRest) => tickSum(TickRest, Sum + Tick)
+      and tickStd((Ticks, Avg, Acc) : ticks * real * real) : real =
+          case Ticks
+           of tick_nil => sqrt(Acc/N)
+            | tick_cons(Tick, TickRest) => tickStd(TickRest, Avg, Acc + pow(Tick - Avg, 2.0))
+      and T((Weight) : real) : real =
+        pow((1.0 - ((tickSum(Ticks, 0.0)/N)/tickMax(Ticks, 0.0))), Weight)
+      and S((Weight, TMax, TMin) : real * real * real) : real =
+        case (tickSum(Ticks, 0.0)/N)
+         of Avg => pow(tickStd(Ticks, Avg, 0.0)/(0.5*sqrt(N/(N-1.0))*(TMax-TMin)), Weight)
+      and cellSum((Cells, Sum) : cells * real) : real =
+          case Cells
+           of cell_nil => Sum
+            | cell_cons(Cell, CellRest) => cellSum(CellRest, Sum + Cell)
+      and Hn((Weight, Cells, VisitSum, Acc) : real * cells * real * real) : real =
+          case Cells
+           of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
+            | cell_cons(Cell, CellRest) =>
+              Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
+      and H((Weight, Visits, Sum) : real * visits * real) : real =
+          case Visits
+           of visit_nil => (Sum/N)
+            | visit_cons(Cells, VisitRest) =>
+              H(Weight, VisitRest, Sum + Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0))
+    in
+      case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0)
+       of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+          ((Gamma*T(P1) + Delta*S(P2, 50.0, 3.0) + Epsilon*H(P3, Visits, 0.0))/(Gamma+Delta+Epsilon))
     end
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
