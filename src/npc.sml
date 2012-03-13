@@ -34,6 +34,14 @@ datatype entity_list = entity_nil
 (* cat, dogs, goal, fieldsize, gameover, win *)
 datatype state = state of entity * entity_list * entity * size * bool * bool
 
+datatype ticks = tick_nil
+               | tick_cons of real * ticks
+datatype cells = cell_nil
+               | cell_cons of real * cells
+datatype visits = visit_nil
+                | visit_cons of cells * visits
+datatype result = result of real * ticks * visits
+
 
 (*****
  * Helper methods
@@ -107,6 +115,8 @@ fun getDistance((Entity1, Entity2) : entity * entity) : point =
 fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
     case getDistance(Entity1, Entity2)
      of point(Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
+
+
 
 (*****
  * Functions directly relevant to the game that do not depend on f()
@@ -476,23 +486,29 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
 (*****
  * The main driver function of the simulation
  *****)
-fun main( (Dogs) : entity_list ) : bool =
+fun main( (Dogs) : entity_list ) : result  =
     let
         fun mainLoop((Tick,
                       State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)
-                     ) : real * state) : bool =
+                     ) : real * state) : real =
             case realGreater(Tick, 50.0)
-             of true => Win
+             of true => Tick
               | false =>
                 case Gameover
-                 of true => Win
+                 of true => Tick
                   | false => mainLoop(Tick+1.0, simtick(State))
+        and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
+            case realEqual(N,I)
+             of true => result(N, Ticks, Visits)
+              | false =>
+                case mainLoop(1.0,
+                       initState(size(16.0,16.0),
+                                 radius(0.75),
+                                 Dogs,
+                                 size(5.0, 2.0)))
+                 of Tick => runSims(N, I+1.0, tick_cons(Tick, Ticks), Visits)
     in
-        mainLoop(1.0,
-                 initState(size(16.0,16.0),
-                           radius(0.75),
-                           Dogs,
-                           size(5.0, 2.0)))
+        runSims(50.0, 0.0, tick_nil, visit_nil)
     end;
 
 (*****
@@ -566,7 +582,7 @@ val Outputs = []
 val Validation_inputs = []
 val Validation_outputs = []
 
-val All_outputs =  Vector.fromList( Outputs @ Validation_outputs )
+(*val All_outputs =  Vector.fromList( Outputs @ Validation_outputs )*)
 
 val Funs_to_use = [
   "false", "true",
