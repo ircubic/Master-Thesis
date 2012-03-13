@@ -198,7 +198,7 @@ fun collide ((E1, E2) : entity * entity) : bool =
         realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)), pow((R1+R2),2.0))
 
 (* Apply the given moves to the game's entities *)
-fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(W,H), Gameover, Win),
+fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameover, Win),
                 Moves, Cells)
                : state * direction_list * cells) : state * cells =
     let
@@ -220,7 +220,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(W,H), Gameover
               | entity_cons(Entity, Rest) =>
                 case Entity
                  of rect(Point, Size as size(W,H)) =>
-                    countCellVisits(Rest, increaseCell(Cells, Point, W))
+                    countCellVisits(Rest, increaseCell(Cells, Point, FW))
                   | circle(Point, Radius as radius(R)) =>
                     countCellVisits(Rest, Cells)
 
