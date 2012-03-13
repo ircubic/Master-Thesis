@@ -223,5 +223,3 @@ val expectedcat = circle(point(8.0, 15.5), catradius); (* Cat on bottom center *
 val expectedgoal = rect(point(8.0, 1.0), goalsize);
 val expectedstate = state(expectedcat, dogs, expectedgoal, size(16.0, 16.0), false, false);
 assertStatesEqual (initState(size(16.0, 16.0), catradius, dogs, goalsize)) expectedstate "Init wrong state";
-
-print (Real.toString(randReal()));

@@ -6,6 +6,20 @@ val realEqual = Real.==
 val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
+signature GRADE =
+sig
+
+type grade
+val zero : grade
+val + : grade * grade -> grade
+val toRealOpt : ( grade -> real )option
+val post_process : grade -> grade
+val comparisons : ( grade * grade -> order ) list
+val toString : grade -> string
+val pack : grade -> string
+val unpack : string -> grade
+
+end
 (*CUT BEFORE*)
 datatype point = point of real * real
 datatype size = size of real * real
@@ -549,7 +563,6 @@ fun generateDogLists((Amount,
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
 val Outputs = []
 
-(*SPECSTART
 val Validation_inputs = []
 val Validation_outputs = []
 
@@ -593,4 +606,3 @@ val Max_output_genus_card = 2
 
 val Max_time_limit = 1024
 val Time_limit_base = 1024.0
-SPECEND*)
