@@ -671,6 +671,8 @@ val Outputs = []
 val Validation_inputs = []
 val Validation_outputs = []
 
+val Test_inputs = Validation_inputs
+
 (*val All_outputs =  Vector.fromList( Outputs @ Validation_outputs )*)
 
 val Funs_to_use = [
@@ -680,22 +682,27 @@ val Funs_to_use = [
   ]
 
 val Reject_funs = []
+
 fun restore_transform D = D
 
 structure Grade : GRADE =
 struct
 
-type grade = unit
-val zero = ()
-val op+ = fn(_,_) => ()
-val comparisons = [ fn _ => EQUAL ]
-val toString = fn _ => ""
-val fromString = fn _ => SOME()
+type grade = LargeInt.int
+val NONE = LargeInt.maxInt (* To check that LargeInt has infinite precision. *)
+val zero = LargeInt.fromInt 0
+val op+ = LargeInt.+
+val comparisons = [ LargeInt.compare ]
 
-val pack = fn _ => ""
-val unpack = fn _ =>()
+fun toString( G : grade ) : string =
+  Real.toString( Real.fromLargeInt G / 1.0E14 )
 
-val post_process = fn _ => ()
+val pack = LargeInt.toString
+
+fun unpack( S : string ) : grade =
+  case LargeInt.fromString S of SOME G => G
+
+val post_process = fn X => X
 
 val toRealOpt = NONE
 
@@ -703,11 +710,16 @@ end
 
 val Abstract_types = []
 
-fun output_eval_fun( I : int, _ , Y  ) =
-    { numCorrect = 0, numWrong = 1, grade = () }
+fun sqr( X : real ) = X * X
+
+fun to( G : real ) : LargeInt.int =
+  Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e14 )
+
+fun output_eval_fun( I : int, _ , Y : real  ) =
+  { numCorrect = 1, numWrong = 0, grade = to( interest Y ) }
 
 
-val Max_output_genus_card = 2
+val Max_output_genus_card = 8
 
 val Max_time_limit = 1024
 val Time_limit_base = 1024.0
