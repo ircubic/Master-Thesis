@@ -7,6 +7,8 @@ val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
 val log10 = Math.log10
+val realFloor = Real.realFloor
+
 signature GRADE =
 sig
 
@@ -131,7 +133,7 @@ fun increaseCell((Cells, Point as point(X, Y), Width) : cells * point * real) : 
                  of true => cell_cons(Cell+1.0, CellRest)
                   | false => cell_cons(Cell, delve(CellRest, GoalI, I+1.0))
     in
-        delve(Cells, (Real.realFloor(X) + Real.realFloor(Y) * Width), 0.0)
+        delve(Cells, (realFloor(X) + realFloor(Y) * Width), 0.0)
     end
 
 fun initCells((W, H) : real * real) : cells =
