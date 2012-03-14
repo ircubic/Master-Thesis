@@ -599,24 +599,18 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
         nextDog(Dognumber-1)
     end
 
-datatype entity_list_list = entity_list_nil
-                          | entity_list_cons of entity_list * entity_list_list
-
 fun generateDogLists((Amount,
                       Dognumber,
                       Dogsize as size(Dogwidth, Dogheight),
                       Fieldsize as size(Fieldwidth, Fieldheight)
-                     ) : int * int * size * size) : entity_list_list =
+                     ) : int * int * size * size)  =
     let
       fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight))
-                   : int * size) : entity_list_list =
+                   : int * size) =
           case Left <= 0
-           of true => entity_list_nil
+           of true => nil
             | false =>
-              entity_list_cons(
-                randomDogs(Dogfield, Dogsize, Dognumber),
-                nextDogs(Left-1, Dogfield)
-              )
+                randomDogs(Dogfield, Dogsize, Dognumber) :: nextDogs(Left-1, Dogfield)
     in
       (* Dogs will be placed within the upper half of the
        * simulation field, so we must make sure that the position
