@@ -715,7 +715,7 @@ fun sqr( X : real ) = X * X
 fun to( G : real ) : LargeInt.int =
   Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e14 )
 
-fun output_eval_fun( I : int, _ , Y : real  ) =
+fun output_eval_fun( I : int, _ , Y : result  ) =
   { numCorrect = 1, numWrong = 0, grade = to( interest Y ) }
 
 
