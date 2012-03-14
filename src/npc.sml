@@ -456,7 +456,7 @@ fun kNearest((Self, Dogs, k, SelfIndex) : entity * entity_list * real * real) : 
                      * list, then insert before and trim the remainder of the
                      * Nearest list
                      *)
-                     of true => entity_cons(InsDog, trimNearest(Nearest, i))
+                     of true => entity_cons(InsDog, trimNearest(Nearest, i+1.0))
                      (* If not, then keep going! *)
                       | false => entity_cons(Head, attemptInsertion(InsDog, Tail, i+1.0))
 
@@ -467,7 +467,7 @@ fun kNearest((Self, Dogs, k, SelfIndex) : entity * entity_list * real * real) : 
         (* Iterate over the dogs and check them for insertion into the Nearest list *)
         and checkDogs((DogRest, Nearest, i): entity_list * entity_list * real) : entity_list =
             case DogRest
-             of entity_nil => entity_nil
+             of entity_nil => Nearest
               | entity_cons(Current, Rest) =>
                 case realEqual(i, SelfIndex)
                  of true => checkDogs(Rest, Nearest, i+1.0)

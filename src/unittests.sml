@@ -55,23 +55,22 @@ assertEntitiesEqual (circle(point(1.0, 1.0), radius(5.0))) (circle(point(1.0, 1.
 assertFalse(compareEntities(rect(point(1.0, 1.0), size(5.0, 5.0)), circle(point(1.0, 1.0), radius(5.0)))) "Rect is equal to circle";
 assertFalse(compareEntities(circle(point(1.0, 1.0), radius(5.0)), rect(point(1.0, 1.0), size(5.0, 5.0)))) "Rect is equal to circle";
 
+fun compareDogs(doglist1 as entity_cons(dog1, rest1), doglist2 as entity_cons(dog2, rest2)) =
+    if compareEntities(dog1, dog2) then
+      compareDogs(rest1, rest2)
+    else
+      false
+
+  | compareDogs(doglist1 as entity_nil, doglist2 as entity_nil) = true
+  | compareDogs(doglist1 as entity_cons(_,_), doglist2 as entity_nil) = false
+  | compareDogs(doglist1 as entity_nil, doglist2 as entity_cons(_,_)) = false
+fun assertDogsEqual (el1:entity_list) (el2:entity_list) (desc:string) = assertTrue(compareDogs(el1, el2)) desc;
+
 fun compareStates (state1 as state(cat1, dogs1, goal1, size1, g1, w1),
                    state2 as state(cat2, dogs2, goal2, size2, g2, w2)) =
-    let
-      fun compareDogs(doglist1 as entity_cons(dog1, rest1), doglist2 as entity_cons(dog2, rest2)) =
-          if compareEntities(dog1, dog2) then
-            compareDogs(rest1, rest2)
-          else
-            false
-
-        | compareDogs(doglist1 as entity_nil, doglist2 as entity_nil) = true
-        | compareDogs(doglist1 as entity_cons(_,_), doglist2 as entity_nil) = false
-        | compareDogs(doglist1 as entity_nil, doglist2 as entity_cons(_,_)) = false
-    in
-      (compareEntities(cat1, cat2) andalso compareDogs(dogs1, dogs2) andalso
-       compareEntities(goal1, goal2) andalso compareSizes(size1, size2) andalso
-       (g1 = g2) andalso (w1 = w2))
-    end
+    (compareEntities(cat1, cat2) andalso compareDogs(dogs1, dogs2) andalso
+     compareEntities(goal1, goal2) andalso compareSizes(size1, size2) andalso
+     (g1 = g2) andalso (w1 = w2))
 fun assertStatesEqual (s1:state) (s2:state) (desc:string) = assertTrue(compareStates(s1, s2)) desc;
 
 fun assertWon (s1 as state(cat, dogs, goal, field, gameover, won)) (desc:string) = assertTrue(gameover = true andalso won = true) desc;
@@ -305,3 +304,18 @@ assertDirectionsEqual (exitAchiever(eacat3, eacat3, dogs, eagoal)) left "Did not
 (* aiStep *)
 val expecteddirections = dir_cons(up, dir_cons(right, dir_cons(right, dir_cons(right, dir_nil))));
 assertDirectionListsEqual (aiStep(state1)) expecteddirections "Directions were wrong";
+
+(* kNearest *)
+val knearest_dogs = entity_cons(dog4, entity_cons(dog1, entity_cons(dog2, entity_cons(dog3, entity_nil))));
+val expected_nearest_1 = entity_cons(dog3, entity_nil);
+val found = kNearest(dog2, knearest_dogs, 1.0, 2.0);
+assertDogsEqual (found) expected_nearest_1 "Not the right nearest dogs; k=1";
+
+val expected_nearest_2 = entity_cons(dog3, entity_cons(dog1, entity_nil));
+val found = kNearest(dog2, knearest_dogs, 2.0, 2.0);
+assertDogsEqual (found) expected_nearest_2 "Not the right nearest dogs; k=2";
+
+val knearest_with_dup = entity_cons(dog2, knearest_dogs);
+val found = kNearest(dog2, knearest_with_dup, 2.0, 3.0);
+val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
+assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
