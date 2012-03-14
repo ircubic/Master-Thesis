@@ -319,3 +319,17 @@ val knearest_with_dup = entity_cons(dog2, knearest_dogs);
 val found = kNearest(dog2, knearest_with_dup, 2.0, 3.0);
 val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
 assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
+
+(* randReal *)
+case MLton.Random.useed()
+ of NONE => ()
+  | SOME(seed) => MLton.Random.srand(seed);
+
+fun testRands (N:int) =
+  if N > 0 then
+    let val rand = randReal() in (
+      assertTrue (rand >= 0.0 andalso rand <= 1.0) "Rand not within bounds";
+      testRands(N-1))
+    end
+  else ();
+testRands(10000);

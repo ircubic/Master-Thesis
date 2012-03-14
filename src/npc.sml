@@ -566,16 +566,14 @@ fun main( (Dogs) : entity_list ) : result  =
 
 (*%%*)
 
-case MLton.Random.useed()
- of NONE => ()
-  | SOME(seed) => MLton.Random.srand(seed);
+
 
 (* Generate a random real between 0.0 and 1.0 *)
 fun randReal() : real =
     (* Fairly unsure if this is correct actually (I'm assuming
      * an MLton word is 32 bits)
      *)
-    MLton.Real.fromWord(MLton.Random.rand())/4294967295.0
+    (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
 
 (* Generate randomly placed dogs inside the given field *)
 fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
@@ -596,6 +594,9 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
             )
     in
         (* Start counting down the indexes *)
+        case MLton.Random.useed()
+         of NONE => ()
+          | SOME(seed) => MLton.Random.srand(seed);
         nextDog(Dognumber-1)
     end
 
