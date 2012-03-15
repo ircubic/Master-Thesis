@@ -558,7 +558,7 @@ fun main( (Dogs) : entity_list ) : result  =
                  of (Tick, Cells) => runSims(N, I+1.0, tick_cons(Tick, Ticks), visit_cons(Cells, Visits))
     in
         runSims(50.0, 0.0, tick_nil, visit_nil)
-    end;
+    end
 
 (*****
  * Some stuff to be in the spec part in the spec
