@@ -28,6 +28,10 @@ exception D1
 exception D2
 exception D3
 (*CUT BEFORE*)
+fun abs((X) : real) : real =
+    case realLess(X, 0.0)
+     of true => realUnaryMinus(X)
+      | false => X
 datatype point = point of real * real
 datatype size = size of real * real
 datatype radius = radius of real
