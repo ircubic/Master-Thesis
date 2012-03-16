@@ -64,17 +64,14 @@ fun realGreaterOrEqual((Num1, Num2) : real * real) : bool =
       | false => true
 
 fun realLessOrEqual((Num1, Num2) : real * real) : bool =
-    case realLess(Num1, Num2)
-     of true => true
-      | false => realEqual(Num1, Num2)
+    case realLess(Num2, Num1)
+     of true => false
+      | false => true
 
 fun realGreater((Num1, Num2) : real * real) : bool =
-    case realLess(Num1, Num2)
-     of true => false
-      | false =>
-        case realEqual(Num1, Num2)
-         of true => false
-          | false => true
+    case realLess(Num2, Num1)
+     of true => true
+      | false => false
 
 (* Clamp the value of a number within the bounds *)
 fun clamp ((Value, Lower, Upper) : real*real*real) : real =
