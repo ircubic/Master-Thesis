@@ -110,15 +110,15 @@ fun getPointDistance((Point1 as point(X1, Y1),
     point(X2-X1, Y2-Y1)
 
 fun getDistance((Entity1, Entity2) : entity * entity) : point =
-    case (Entity1, Entity2)
-     of (rect(Point1, Size1), rect(Point2, Size2)) =>
-        getPointDistance(Point1, Point2)
-      | (rect(Point1, Size1), circle(Point2, Radius)) =>
-        getPointDistance(Point1, Point2)
-      | (circle(Point1, Radius), rect(Point2, Size1)) =>
-        getPointDistance(Point1, Point2)
-      | (circle(Point1, Radius1), circle(Point2, Radius2)) =>
-        getPointDistance(Point1, Point2)
+    case Entity1
+     of rect(Point1, Size1) => (
+        case Entity2
+         of rect(Point2, Size2) => getPointDistance(Point1, Point2)
+          | circle(Point2, Radius2) => getPointDistance(Point1, Point2))
+      | circle(Point1, Radius1) => (
+        case Entity2
+         of rect(Point2, Size2) => getPointDistance(Point1, Point2)
+          | circle(Point2, Radius2) => getPointDistance(Point1, Point2))
 
 fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
     case getDistance(Entity1, Entity2)
@@ -154,51 +154,47 @@ fun initCells((W, H) : real * real) : cells =
 
 (* Check if two entities collide *)
 fun collide ((E1, E2) : entity * entity) : bool =
-    case (E1, E2)
-     (* Two dogs collide using rectangle collisions *)
-     of (rect(point(X1,Y1), size(W1,H1)),
-         rect(point(X2,Y2), size(W2,H2))) =>
-        (case realLess((Y1+(H1*0.5)), (Y2-(H2*0.5))) (* bottom1 < top2 *)
-          of true => false
-           | false =>
-             case realGreater((Y1-(H1*0.5)), (Y2+(H2*0.5))) (* top1 > bottom2 *)
-              of true => false
-               | false =>
-                 case realLess((X1+(W1*0.5)), (X2-(W2*0.5))) (* right1 < left2 *)
-                  of true => false
-                   | false =>
-                     case realGreater((X1-(W1*0.5)), (X2+(W2*0.5))) (* left1 > right2 *)
-                      of true => false
-                       | false => true)
-
-      (* Dog and cat collide with circle-rect collision *)
-      | (rect(point(X1,Y1), size(W1,H1)),
-         circle(point(X2,Y2), radius(R))) =>
-        (case (abs(X2 - X1), abs(Y2 - Y1), W1/2.0, H1/2.0)
-          of (Dist_x, Dist_y, Coll_width, Coll_height) =>
-             case realGreater(Dist_x, (Coll_width+R))
-              of true => false
-               | false =>
-                 case realGreater(Dist_y, (Coll_height+R))
-                  of true => false
-                   | false =>
-                     case realLess(Dist_x, Coll_width)
-                      of true => true
-                       | false =>
-                         case realLess(Dist_y, Coll_height)
-                          of true => true
-                           | false => realLessOrEqual(pow((Dist_x - Coll_width), 2.0) +
-                                                      pow((Dist_y - Coll_height), 2.0),
-                                                      pow(R,2.0))
-
-        )
-
-      (* Flipped example *)
-      | (circle(P1,R), rect(P2,S)) => collide(E2, E1)
-      (* Cats collide with circle collisions (for exhaustiveness) *)
-      | (circle(point(X1,Y1), radius(R1)),
-         circle(point(X2,Y2), radius(R2))) =>
-        realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)), pow((R1+R2),2.0))
+    case E1
+     of rect(point(X1, Y1), size(W1, H1)) =>
+       (case E2
+         of rect(point(X2, Y2), size(W2, H2)) =>
+            (* Two dogs collide using rectangle collisions *)
+           (case realLess((Y1+(H1*0.5)), (Y2-(H2*0.5))) (* bottom1 < top2 *)
+             of true => false
+              | false =>
+                case realGreater((Y1-(H1*0.5)), (Y2+(H2*0.5))) (* top1 > bottom2 *)
+                 of true => false
+                  | false =>
+                    case realLess((X1+(W1*0.5)), (X2-(W2*0.5))) (* right1 < left2 *)
+                     of true => false
+                      | false =>
+                        case realGreater((X1-(W1*0.5)), (X2+(W2*0.5))) (* left1 > right2 *)
+                         of true => false
+                          | false => true)
+           | circle(point(X2, Y2), radius R2) =>
+            (* Dog and cat collide with circle-rect collision *)
+           (case (abs(X2 - X1), abs(Y2 - Y1), W1/2.0, H1/2.0)
+             of (Dist_x, Dist_y, Coll_width, Coll_height) =>
+                case realGreater(Dist_x, (Coll_width+R2))
+                 of true => false
+                  | false =>
+                    case realGreater(Dist_y, (Coll_height+R2))
+                     of true => false
+                      | false =>
+                        case realLess(Dist_x, Coll_width)
+                         of true => true
+                          | false =>
+                            case realLess(Dist_y, Coll_height)
+                             of true => true
+                              | false => realLessOrEqual(pow((Dist_x - Coll_width), 2.0) +
+                                                         pow((Dist_y - Coll_height), 2.0),
+                                                         pow(R2, 2.0))))
+      | circle(point(X1, Y1), radius R1) =>
+       (case E2
+         of rect(P2, S2) => collide(E2, E1) (* Flipped example *)
+          | circle(point(X2, Y2), radius R2) =>
+            (* Cats collide with circle collisions (for exhaustiveness) *)
+            realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2), 2.0)), pow((R1+R2),2.0)))
 
 (* Apply the given moves to the game's entities *)
 fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameover, Win),
@@ -222,7 +218,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
              of entity_nil => Cells
               | entity_cons(Entity, Rest) =>
                 case Entity
-                 of rect(Point, Size as size(W,H)) =>
+                 of rect(Point, Size' as size(W,H)) =>
                     countCellVisits(Rest, increaseCell(Cells, Point, FW))
                   | circle(Point, Radius as radius(R)) =>
                     countCellVisits(Rest, Cells)
@@ -231,9 +227,9 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
         and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
             : entity =
             ensureInside((case Entity
-                           of rect(Point, Size as size(W,H)) =>
+                           of rect(Point, Size' as size(W,H)) =>
                               (* Dogs move 1.5 units per tick *)
-                              rect(movePoint(Point, Move, 1.5), Size)
+                              rect(movePoint(Point, Move, 1.5), Size')
                             | circle(Point, Radius) =>
                               (* Cats move 2.0 units per tick *)
                               circle(movePoint(Point, Move, 2.0), Radius)),
