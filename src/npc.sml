@@ -86,30 +86,28 @@ fun clamp ((Value, Lower, Upper) : real*real*real) : real =
               | false => Value
 
 (* Ensures that an entity's position is within the field *)
-fun ensureInside ((E, Field) : entity * size)
+fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
     : entity =
-    case Field
-     of size(Field_width, Field_height) =>
-        case E
-         (* Rects must be clamped to have their center within half their width and
-          * height of edges of the field.
-          *)
-         of rect(point(X,Y), S as size(Width, Height)) =>
-            rect(point(clamp(X, (Width*0.5), Field_width-(Width*0.5)),
-                       clamp(Y, (Height*0.5), Field_height-(Height*0.5))),
-                 S)
-          (* Circles must have their centers at least a radius away from the edges
-           * on both X and Y axes
-           *)
-          | circle(point(X,Y), R as radius(Radius)) =>
-            circle(point(clamp(X, Radius, Field_width-Radius),
-                         clamp(Y, Radius, Field_height-Radius)),
-                   R)
+    case E
+     (* Rects must be clamped to have their center within half their width and
+      * height of edges of the field.
+      *)
+     of rect(point(X,Y), S as size(Width, Height)) =>
+        rect(point(clamp(X, (Width*0.5), Field_width-(Width*0.5)),
+                   clamp(Y, (Height*0.5), Field_height-(Height*0.5))),
+             S)
+     (* Circles must have their centers at least a radius away from the edges
+      * on both X and Y axes
+      *)
+      | circle(point(X,Y), R as radius(Radius)) =>
+        circle(point(clamp(X, Radius, Field_width-Radius),
+                     clamp(Y, Radius, Field_height-Radius)),
+               R)
 
-fun getPointDistance((Point1, Point2) : point * point) : point =
-    case (Point1, Point2)
-     of (point(X1, Y1), point(X2, Y2)) =>
-        point(X2-X1, Y2-Y1)
+fun getPointDistance((Point1 as point(X1, Y1),
+                      Point2 as point(X2, Y2))
+                     : point * point) : point =
+    point(X2-X1, Y2-Y1)
 
 fun getDistance((Entity1, Entity2) : entity * entity) : point =
     case (Entity1, Entity2)
@@ -126,7 +124,7 @@ fun getQuadDistance((Entity1, Entity2) : entity * entity) : real =
     case getDistance(Entity1, Entity2)
      of point(Xd, Yd) => sqrt(pow(Xd,2.0) + pow(Yd, 2.0))
 
-fun increaseCell((Cells, Point, Width) : cells * point * real) : cells =
+fun increaseCell((Cells, Point as point(X, Y), Width) : cells * point * real) : cells =
     let
         fun delve((Cells, GoalI, I) : cells * real * real) : cells =
             case Cells
@@ -136,9 +134,7 @@ fun increaseCell((Cells, Point, Width) : cells * point * real) : cells =
                  of true => cell_cons(Cell+1.0, CellRest)
                   | false => cell_cons(Cell, delve(CellRest, GoalI, I+1.0))
     in
-        case Point
-         of point(X,Y) =>
-            delve(Cells, (realFloor(X) + realFloor(Y) * Width), 0.0)
+        delve(Cells, (realFloor(X) + realFloor(Y) * Width), 0.0)
     end
 
 fun initCells((W, H) : real * real) : cells =
@@ -205,114 +201,112 @@ fun collide ((E1, E2) : entity * entity) : bool =
         realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2),2.0)), pow((R1+R2),2.0))
 
 (* Apply the given moves to the game's entities *)
-fun applyMoves((State,
+fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameover, Win),
                 Moves, Cells)
                : state * direction_list * cells) : state * cells =
-    case State
-     of state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameover, Win) =>
-        let
-            (* Move a point in the given direction, the given amount *)
-            fun movePoint((Point, Move, Speed)
-                          : point * direction * real) : point =
-                case Point
-                 of point(X,Y) =>
-                    case Move
-                     of left => point(X-Speed, Y)
-                      | right => point(X+Speed, Y)
-                      | down => point(X, Y+Speed)
-                      | up => point(X, Y-Speed)
+    let
+      (* Move a point in the given direction, the given amount *)
+        fun movePoint((Point as point(X,Y),
+                       Move,
+                       Speed)
+                      : point * direction * real) : point =
+            case Move
+             of left => point(X-Speed, Y)
+              | right => point(X+Speed, Y)
+              | down => point(X, Y+Speed)
+              | up => point(X, Y-Speed)
 
-            (* Count these entities cell visits, but only if they're dogs *)
-            and countCellVisits((Entities, Cells) : entity_list * cells) : cells =
-                case Entities
-                 of entity_nil => Cells
-                  | entity_cons(Entity, Rest) =>
-                    case Entity
-                     of rect(Point, Size as size(W,H)) =>
-                        countCellVisits(Rest, increaseCell(Cells, Point, FW))
-                      | circle(Point, Radius as radius(R)) =>
-                        countCellVisits(Rest, Cells)
+        (* Count these entities cell visits, but only if they're dogs *)
+        and countCellVisits((Entities, Cells) : entity_list * cells) : cells =
+            case Entities
+             of entity_nil => Cells
+              | entity_cons(Entity, Rest) =>
+                case Entity
+                 of rect(Point, Size as size(W,H)) =>
+                    countCellVisits(Rest, increaseCell(Cells, Point, FW))
+                  | circle(Point, Radius as radius(R)) =>
+                    countCellVisits(Rest, Cells)
 
-            (* Move a single entity the chosen direction *)
-            and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
-                : entity =
-                ensureInside((case Entity
-                               of rect(Point, Size as size(W,H)) =>
-                                  (* Dogs move 1.5 units per tick *)
-                                  rect(movePoint(Point, Move, 1.5), Size)
-                                | circle(Point, Radius) =>
-                                  (* Cats move 2.0 units per tick *)
-                                  circle(movePoint(Point, Move, 2.0), Radius)),
-                             Fieldsize)
+        (* Move a single entity the chosen direction *)
+        and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
+            : entity =
+            ensureInside((case Entity
+                           of rect(Point, Size as size(W,H)) =>
+                              (* Dogs move 1.5 units per tick *)
+                              rect(movePoint(Point, Move, 1.5), Size)
+                            | circle(Point, Radius) =>
+                              (* Cats move 2.0 units per tick *)
+                              circle(movePoint(Point, Move, 2.0), Radius)),
+                         Fieldsize)
 
-            (* Move a list of entities with their corresponding list of moves *)
-            and moveEntities((Entities, Moves, Fieldsize)
-                             : entity_list * direction_list * size) : entity_list =
-                case Entities
-                 of entity_nil => entity_nil
-                  | entity_cons(Entity, Rest) => (
-                    (* Fetch the move corresponding to the entity, then apply. If
-                     * there are no more moves (Which really shouldn't happen),
-                     * return an unmoved entity.
-                     *)
-                    case Moves
-                     of dir_nil => entity_cons(Entity, Rest)
-                      | dir_cons(Move, Moverest) =>
-                        entity_cons(
-                        moveEntity(Entity, Move, Fieldsize),
-                        moveEntities(Rest, Moverest, Fieldsize)))
+        (* Move a list of entities with their corresponding list of moves *)
+        and moveEntities((Entities, Moves, Fieldsize)
+                         : entity_list * direction_list * size) : entity_list =
+            case Entities
+             of entity_nil => entity_nil
+              | entity_cons(Entity, Rest) => (
+                (* Fetch the move corresponding to the entity, then apply. If
+                 * there are no more moves (Which really shouldn't happen),
+                 * return an unmoved entity.
+                 *)
+                case Moves
+                 of dir_nil => entity_cons(Entity, Rest)
+                  | dir_cons(Move, Moverest) =>
+                    entity_cons(
+                      moveEntity(Entity, Move, Fieldsize),
+                      moveEntities(Rest, Moverest, Fieldsize)))
 
-        in
-            case Moves
-             (* In case there are no passed in moves (should not happen), we just
-              * return the same state
-              *)
-             of dir_nil => (State, Cells)
+    in
+        case Moves
+         (* In case there are no passed in moves (should not happen), we just
+          * return the same state
+          *)
+         of dir_nil => (State, Cells)
 
-              (* We have to separate the cat's move (always the first) from the dogs
-               * moves, to be able to put it into the state properly
-               *)
-              | dir_cons(Catmove, Rest) =>
-                case moveEntities(Dogs, Rest, Fieldsize)
-                 of NewDogs =>
-                    (state(
-                     (* Move the cat separately *)
-                     moveEntity(Cat, Catmove, Fieldsize),
-                     (* Move all the dogs *)
-                     NewDogs,
-                     (* Rest stays the same *)
-                     Goal, Fieldsize, Gameover, Win),
-                     countCellVisits(NewDogs, Cells))
-        end
+          (* We have to separate the cat's move (always the first) from the dogs
+           * moves, to be able to put it into the state properly
+           *)
+          | dir_cons(Catmove, Rest) =>
+            case moveEntities(Dogs, Rest, Fieldsize)
+             of NewDogs =>
+                (state(
+                  (* Move the cat separately *)
+                  moveEntity(Cat, Catmove, Fieldsize),
+                  (* Move all the dogs *)
+                  NewDogs,
+                  (* Rest stays the same *)
+                  Goal, Fieldsize, Gameover, Win),
+                 countCellVisits(NewDogs, Cells))
+    end
 
 (* Check the win conditions of the game and update the game's state *)
-fun checkWinCondition((State) : state) : state =
-    case State
-     of state(Cat, Dogs, Goal, Fieldsize, Gameover, Win) =>
-        let
-            fun hasLost((Cat, Dogs) : entity * entity_list) : bool =
-                case Dogs
-                 of entity_nil => false
-                  | entity_cons(Dog, Rest) => (
-                    case collide(Cat, Dog)
-                     of true => true
-                      | false => hasLost(Cat, Rest))
+fun checkWinCondition((State as state(Cat, Dogs, Goal,
+                                      Fieldsize, Gameover, Win))
+                      : state) : state =
+    let
+        fun hasLost((Cat, Dogs) : entity * entity_list) : bool =
+            case Dogs
+             of entity_nil => false
+              | entity_cons(Dog, Rest) => (
+                case collide(Cat, Dog)
+                 of true => true
+                  | false => hasLost(Cat, Rest))
 
-            and hasWon((Cat, Goal) : entity * entity) : bool = collide(Cat, Goal)
+        and hasWon((Cat, Goal) : entity * entity) : bool = collide(Cat, Goal)
 
-            and newWinState((Cat, Dogs, Goal) : entity * entity_list * entity) : bool * bool =
-                case hasWon(Cat, Goal)
-                 of true => (true, true)
-                  (* If we haven't won, then the value of Win is irrelevant, and
-                   * whether the game is over depends on if the game has been lost,
-                   * so this is a small shortcut.
-                   *)
-                  | false => (hasLost(Cat, Dogs), false)
-        in
-            case newWinState(Cat, Dogs, Goal)
-             of (newGameover, newWin) =>
-                state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
-        end
+        and newWinState((Cat, Dogs, Goal) : entity * entity_list * entity) : bool * bool =
+            case hasWon(Cat, Goal)
+             of true => (true, true)
+              (* If we haven't won, then the value of Win is irrelevant, and
+               * whether the game is over depends on if the game has been lost,
+               * so this is a small shortcut.
+               *)
+              | false => (hasLost(Cat, Dogs), false)
+    in
+        case newWinState(Cat, Dogs, Goal)
+         of (newGameover, newWin) =>
+            state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
+    end
 
 
 (*****
@@ -395,8 +389,9 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
 
         and chooseDirection((CostList) : cost_list) : direction =
             let
-                fun findMin((CostRest, CurrMin) : cost_list * dir_cost) : dir_cost =
-                    case CurrMin of dir_cost(MinCost, MinDirection) =>
+                fun findMin((CostRest,
+                             CurrMin as dir_cost(MinCost, MinDirection))
+                            : cost_list * dir_cost) : dir_cost =
                     case CostRest
                      of cost_nil => CurrMin
                       | cost_cons(DirCost as dir_cost(Cost, Direction),
@@ -486,53 +481,52 @@ fun kNearest((Self, Dogs, K, SelfIndex) : entity * entity_list * real * real) : 
     end
 
 (* Do the ai steps for all the entities and generate a list of moves *)
-fun aiStep ((State) : state) : direction_list =
-    case State
-     of state(Cat, Dogs, Goal, Fieldsize, Gameover, Win) =>
-        let
-            fun stepDogs((Dogrest, I) : entity_list * real) : direction_list =
-                case Dogrest
-                 of entity_nil => dir_nil
-                  | entity_cons(Dog, Rest) =>
-                    dir_cons(f(Dog, Cat, kNearest(Dog, Dogs, 2.0, I), Goal),
-                             stepDogs(Rest, I+1.0))
-        in
-            dir_cons(
-            catAI(Cat, Cat, Dogs, Goal),
-            stepDogs(Dogs, 0.0))
-        end
+fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
+    : direction_list =
+    let
+        fun stepDogs((Dogrest, I) : entity_list * real) : direction_list =
+            case Dogrest
+             of entity_nil => dir_nil
+              | entity_cons(Dog, Rest) =>
+                dir_cons(f(Dog, Cat, kNearest(Dog, Dogs, 2.0, I), Goal),
+                         stepDogs(Rest, I+1.0))
+    in
+      dir_cons(
+        catAI(Cat, Cat, Dogs, Goal),
+        stepDogs(Dogs, 0.0))
+    end
 
 (* Do one tick of the simulation. This does one AI step, applies all the
  * moves, then checks the if the game has been won or lost
  *)
-fun simtick((State , Cells) : state * cells)
+fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Cells) : state * cells)
     : state * cells =
-    case State
-     of state(Cat, Dogs, Goal, Fieldsize, Gameover, Win) =>
-        case Gameover
-         of false => (State, Cells)
-          | true =>
-            case applyMoves(State, aiStep(State), Cells)
-             of (NewState, NewCells) => (checkWinCondition(NewState), NewCells)
+    case Gameover
+     of false => (State, Cells)
+      | true =>
+        case applyMoves(State, aiStep(State), Cells)
+         of (NewState, NewCells) => (checkWinCondition(NewState), NewCells)
 
 (* Initialize the state of the game based on the given sizes and passed in dogs *)
-fun initState((Fieldsize, Catradius, Dogs, Goalsize) : size * radius * entity_list * size) : state =
-    case (Fieldsize, Catradius, Goalsize)
-     of (size(Fieldwidth, Fieldheight), radius(Radius),size(Goalwidth, Goalheight)) =>
-        state(
-        (* Cat is placed on the bottom center. *)
-        circle(point(Fieldwidth/2.0, Fieldheight - Radius),
-               Catradius),
-        (* Use the passed in dogs *)
-        Dogs,
-        (* Goal is placed on the top center *)
-        rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
-        (*fieldsize*)
-        Fieldsize,
-        (*gameover*)
-        false,
-        (*win*)
-        false)
+fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
+               Catradius as radius(Radius),
+               Dogs,
+               Goalsize as size(Goalwidth, Goalheight)
+              ) : size * radius * entity_list * size) : state =
+    state(
+      (* Cat is placed on the bottom center. *)
+      circle(point(Fieldwidth/2.0, Fieldheight - Radius),
+             Catradius),
+      (* Use the passed in dogs *)
+      Dogs,
+      (* Goal is placed on the top center *)
+      rect(point(Fieldwidth/2.0, Goalheight/2.0), Goalsize),
+      (*fieldsize*)
+      Fieldsize,
+      (*gameover*)
+      false,
+      (*win*)
+      false)
 
 
 (*****
@@ -540,27 +534,28 @@ fun initState((Fieldsize, Catradius, Dogs, Goalsize) : size * radius * entity_li
  *****)
 fun main( (Dogs) : entity_list ) : result  =
     let
-        fun mainLoop((Tick, State , Cells) : real * state * cells) : real * cells =
-            case State
-             of state(Cat, Dogs, Goal, Fieldsize, Gameover, Win) =>
-                case realGreater(Tick, 50.0)
+        fun mainLoop((Tick,
+                      State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
+                      Cells
+                     ) : real * state * cells) : real * cells =
+            case realGreater(Tick, 50.0)
+             of true => (Tick-1.0, Cells)
+              | false =>
+                case Gameover
                  of true => (Tick-1.0, Cells)
                   | false =>
-                    case Gameover
-                     of true => (Tick-1.0, Cells)
-                      | false =>
-                        case simtick(State, Cells)
-                         of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells)
+                    case simtick(State, Cells)
+                     of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells)
         and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
             case realEqual(N,I)
              of true => result(N, Ticks, Visits)
               | false =>
                 case mainLoop(1.0,
-                              initState(size(16.0,16.0),
-                                        radius(0.75),
-                                        Dogs,
-                                        size(5.0, 2.0)),
-                              initCells(16.0, 16.0))
+                             initState(size(16.0,16.0),
+                                       radius(0.75),
+                                       Dogs,
+                                       size(5.0, 2.0)),
+                             initCells(16.0, 16.0))
                  of (Tick, Cells) => runSims(N, I+1.0, tick_cons(Tick, Ticks), visit_cons(Cells, Visits))
     in
         runSims(50.0, 0.0, tick_nil, visit_nil)
@@ -582,92 +577,91 @@ fun randReal() : real =
     (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
 
 (* Generate randomly placed dogs inside the given field *)
-fun randomDogs((Dogfield, Dogsize, Dognumber) : size * size * int) : entity_list =
-    case (Dogfield, Dogsize)
-     of (size(Fieldwidth, Fieldheight), size(Dogwidth, Dogheight)) =>
-        let
-            fun nextDog((Rest):int) : entity_list =
-                entity_cons(
-                rect(
+fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
+                Dogsize as size(Dogwidth, Dogheight),
+                Dognumber
+               ) : size * size * int) : entity_list =
+    let
+        fun nextDog((Rest):int) : entity_list =
+            entity_cons(
+              rect(
                 point(Dogwidth/2.0 + (randReal()*Fieldwidth),
                       Dogheight/2.0 + (randReal()*Fieldheight)),
                 Dogsize),
-                (* If we are not on the last index, add another dog *)
-                case Rest > 0
-                 of true => nextDog(Rest-1)
-                  | false => entity_nil
-                )
-        in
-            (* Start counting down the indexes *)
-            case MLton.Random.useed()
-             of NONE => ()
-              | SOME(seed) => MLton.Random.srand(seed);
-            nextDog(Dognumber-1)
-        end
+              (* If we are not on the last index, add another dog *)
+              case Rest > 0
+               of true => nextDog(Rest-1)
+                | false => entity_nil
+            )
+    in
+        (* Start counting down the indexes *)
+        case MLton.Random.useed()
+         of NONE => ()
+          | SOME(seed) => MLton.Random.srand(seed);
+        nextDog(Dognumber-1)
+    end
 
-fun generateDogLists((Amount, Dognumber, Dogsize, Fieldsize) : int * int * size * size)  =
+fun generateDogLists((Amount,
+                      Dognumber,
+                      Dogsize as size(Dogwidth, Dogheight),
+                      Fieldsize as size(Fieldwidth, Fieldheight)
+                     ) : int * int * size * size)  =
     let
-      fun nextDogs((Left, Dogfield )
+      fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight))
                    : int * size) =
-          case Dogfield of size(Dogfieldwidth, Dogfieldheight) =>
           case Left <= 0
            of true => nil
             | false =>
                 randomDogs(Dogfield, Dogsize, Dognumber) :: nextDogs(Left-1, Dogfield)
     in
-      case (Dogsize, Fieldsize)
-       of (size(Dogwidth, Dogheight), size(Fieldwidth,
-                                           Fieldheight)) =>
-          (* Dogs will be placed within the upper half of the
-           * simulation field, so we must make sure that the position
-           * field compensates for the width of the dogs.
-           *)
-          nextDogs(Amount, size(Fieldwidth-Dogwidth, Fieldheight/2.0))
+      (* Dogs will be placed within the upper half of the
+       * simulation field, so we must make sure that the position
+       * field compensates for the width of the dogs.
+       *)
+      nextDogs(Amount, size(Fieldwidth-Dogwidth, Fieldheight/2.0))
     end
 
-fun interest((Result) : result) : real =
-    case Result
-     of result(N, Ticks, Visits) =>
-        let
-            fun tickMax((Ticks, Max): ticks * real)  : real =
-                case Ticks
-                 of tick_nil => Max
-                  | tick_cons(Tick, TickRest) =>
-                    case realLess(Max, Tick)
-                     of true => tickMax(TickRest, Tick)
-                      | false => tickMax(TickRest, Max)
-            and tickSum((Ticks, Sum) : ticks * real) : real =
-                case Ticks
-                 of tick_nil => Sum
-                  | tick_cons(Tick, TickRest) => tickSum(TickRest, Sum + Tick)
-            and tickStd((Ticks, Avg, Acc) : ticks * real * real) : real =
-                case Ticks
-                 of tick_nil => sqrt(Acc/N)
-                  | tick_cons(Tick, TickRest) => tickStd(TickRest, Avg, Acc + pow(Tick - Avg, 2.0))
-            and T((Weight) : real) : real =
-                pow((1.0 - ((tickSum(Ticks, 0.0)/N)/tickMax(Ticks, 0.0))), Weight)
-            and S((Weight, TMax, TMin) : real * real * real) : real =
-                case (tickSum(Ticks, 0.0)/N)
-                 of Avg => pow(tickStd(Ticks, Avg, 0.0)/(0.5*sqrt(N/(N-1.0))*(TMax-TMin)), Weight)
-            and cellSum((Cells, Sum) : cells * real) : real =
-                case Cells
-                 of cell_nil => Sum
-                  | cell_cons(Cell, CellRest) => cellSum(CellRest, Sum + Cell)
-            and Hn((Weight, Cells, VisitSum, Acc) : real * cells * real * real) : real =
-                case Cells
-                 of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
-                  | cell_cons(Cell, CellRest) =>
-                    Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
-            and H((Weight, Visits, Sum) : real * visits * real) : real =
-                case Visits
-                 of visit_nil => (Sum/N)
-                  | visit_cons(Cells, VisitRest) =>
-                    H(Weight, VisitRest, Sum + Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0))
-        in
-            case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0)
-             of (Gamma, Delta, Epsilon, P1, P2, P3) =>
-                ((Gamma*T(P1) + Delta*S(P2, 50.0, 3.0) + Epsilon*H(P3, Visits, 0.0))/(Gamma+Delta+Epsilon))
-        end
+fun interest((Result as result(N, Ticks, Visits)) : result) : real =
+    let
+      fun tickMax((Ticks, Max): ticks * real)  : real =
+          case Ticks
+           of tick_nil => Max
+            | tick_cons(Tick, TickRest) =>
+              case realLess(Max, Tick)
+               of true => tickMax(TickRest, Tick)
+                | false => tickMax(TickRest, Max)
+      and tickSum((Ticks, Sum) : ticks * real) : real =
+          case Ticks
+           of tick_nil => Sum
+            | tick_cons(Tick, TickRest) => tickSum(TickRest, Sum + Tick)
+      and tickStd((Ticks, Avg, Acc) : ticks * real * real) : real =
+          case Ticks
+           of tick_nil => sqrt(Acc/N)
+            | tick_cons(Tick, TickRest) => tickStd(TickRest, Avg, Acc + pow(Tick - Avg, 2.0))
+      and T((Weight) : real) : real =
+        pow((1.0 - ((tickSum(Ticks, 0.0)/N)/tickMax(Ticks, 0.0))), Weight)
+      and S((Weight, TMax, TMin) : real * real * real) : real =
+        case (tickSum(Ticks, 0.0)/N)
+         of Avg => pow(tickStd(Ticks, Avg, 0.0)/(0.5*sqrt(N/(N-1.0))*(TMax-TMin)), Weight)
+      and cellSum((Cells, Sum) : cells * real) : real =
+          case Cells
+           of cell_nil => Sum
+            | cell_cons(Cell, CellRest) => cellSum(CellRest, Sum + Cell)
+      and Hn((Weight, Cells, VisitSum, Acc) : real * cells * real * real) : real =
+          case Cells
+           of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
+            | cell_cons(Cell, CellRest) =>
+              Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
+      and H((Weight, Visits, Sum) : real * visits * real) : real =
+          case Visits
+           of visit_nil => (Sum/N)
+            | visit_cons(Cells, VisitRest) =>
+              H(Weight, VisitRest, Sum + Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0))
+    in
+      case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0)
+       of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+          ((Gamma*T(P1) + Delta*S(P2, 50.0, 3.0) + Epsilon*H(P3, Visits, 0.0))/(Gamma+Delta+Epsilon))
+    end
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
 val Outputs = []
