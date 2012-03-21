@@ -39,14 +39,14 @@ a good understanding for how it works, as well the ways in which our version
 differs from the reference implementation.
 \citep[see][Chap.~5]{yannakakis2005ai}
 
-The game is played on a two-dimensional field of size 16cm x 16cm (while we use
-the unit cm to refer to the units within the game, this is purely for
-convenience and is a completely virtual unit with no physical correspondence),
-with a rectangular area at the top representing the goal \marginpar{Insert size
-  of goal here?}. The characters in the game are the player character, named
-\emph{'Cat'}, represented as a circle of radius 0.75 cm, and an arbitrary number
-of enemy characters, named \emph{'Dogs'}, represented as squares of dimension
-1.5 cm.
+The game is played on a two-dimensional field of size 16cm x 16cm
+\footnote{While we use the unit cm to refer to the units within the game, this
+  is purely for convenience and is a completely virtual unit with no physical
+  correspondence.} with a rectangular area at the top representing the goal
+\marginpar{Insert size of goal here?}. The characters in the game are the player
+character, named \emph{'Cat'}, represented as a circle of radius 0.75 cm, and an
+arbitrary number of enemy characters, named \emph{'Dogs'}, represented as
+squares of dimension 1.5 cm.
 
 The aim for the Cat is to reach the exit from its starting position, situated
 randomly at the bottom of the map, by avoiding the Dogs or to survive until the
@@ -57,7 +57,7 @@ or the simulation ends.
 Since there are more Dogs than there are Cats on the playing field, they are
 given a handicap to even the playing field. In our implementation, the Cat moves
 at a fixed rate of 2 cm per simulation tick, while the dogs move at $3/4$ that
-speed (1.5 cm per simulation tick). In addition, it is important to note that
+speed, 1.5 cm per simulation tick. In addition, it is important to note that
 the Dogs have the property of permeability, i.e. they can occupy the same space
 as other Dogs. Given the speed handicap the Dogs have, it is impossible for a
 single Dog to catch the Cat, so the Dogs must cooperate to trap and catch the
@@ -116,8 +116,8 @@ and produce as its output a movement direction: left, right, up, or down.
 
 This is a very simple Cat behaviour. It simply chooses the movement direction
 that reduces the coordinate which has the greatest relative direction from the
-Goal. (If the Goal has position \((8,1)\) and the cat has position \((7,10)\),
-the Cat would choose to move up, as the Y direction has the biggest difference)
+Goal. If the Goal has position \((8,1)\) and the cat has position \((7,10)\),
+the Cat would choose to move up, as the Y direction has the biggest difference.
 
 \subsubsection{Potential Field-Based Cat}
 \label{sec:potent-field-based}
@@ -191,6 +191,107 @@ closely they can cooperate.
 \label{sec:output}
 
 The output is the Dog's chosen movement direction: left, right, up, or down.
+
+\section{Interest Metrics}
+\label{sec:interest-metrics}
+
+As given in \citet{yannakakis2005ai}, there are three criteria that define an
+interesting --- and as such entertaining --- game, from which our fitness
+function will be derived:
+
+\begin{enumerate}
+\item \emph{The game must not be too hard, nor too easy.} The game is
+  interesting when the opponents strike a balance between ``Hard Fun'' and
+  ``Easy Fun'' \citep{lazzaro2004we}, in that they are not too hard to dodge,
+  but also provide some level of challenge.
+\item \emph{The behaviour of the opponents must be diverse over games.} This
+  requires the opponents to change their tactics or behaviour over subsequent
+  games, which make them less predictable, and thus more entertaining.
+\item \emph{The opponents must be dynamic and exhibit spatial diversity.} The
+  opponents should move around and try to cover the entire field, instead of
+  staying in a certain area of the field. This gives the impression that they're
+  actually intelligent entities, and thus making them more entertaining.
+\end{enumerate}
+
+From these criteria, a fitness function is derived
+\citep[Chap.~2.2.2]{yannakakis2005ai} that combines three metrics, each
+quantifying a specific criterion. The game is played \(N\) times (for a maximum
+of \(t_{max}\) ticks each time), and we record the amount of ticks \(t_k\) taken
+to finish the game in addition to the amount of times \(\nu_{ik}\) each 1cm x
+1cm cell \(i\) of the field is visited for each game \(k\).
+
+\subsubsection{Appropriate level of challenge}
+\label{sec:appr-level-chall}
+
+Following the first criterion, quantifying the level of challenge in the
+opponents, we get \eqref{eq:4}:
+
+\begin{equation}
+  \label{eq:4}
+  T = [ 1- (avg(t_k)/max(t_k))]^{p_1}
+\end{equation}
+
+where \(avg(t_k)\) is the average number of ticks taken to finish the game over
+the \(N\) trials; \(max(t_k)\) is the maximum number of ticks \(t_k\) taken over
+the \(N\) trials, bounded by \(t_{max}\); \(p_1\) is a weighting parameter.
+
+This metric increases as the diversity in the amount of ticks taken to finish
+the game increases, ensuring that it is not too easy or too hard.
+
+\subsubsection{Diversity over games}
+\label{sec:diversity-over-games}
+
+Quantifying the second criterion, diversity across games, gives us \eqref{eq:6}:
+
+\begin{subequations}
+  \begin{align}
+    \label{eq:6}
+    S &= (\sigma_{t_k} / \sigma_{max})^{p_2}\\
+    \sigma_{max} &= \frac{1}{2} \sqrt{\frac{N}{N-1}} (t_{max} - t_{min})
+  \end{align}
+\end{subequations}
+
+where \(\sigma_{t_k}\) is the standard deviation of \(t_k\) across the \(N\)
+trials; \(\sigma_{max}\) is an estimate of the maximum value for the standard
+deviation of \(t_k\); \(t_{min}\) is the estimated minimum amount of ticks
+required for the game to be over (3.0 in our implementation); \(p_2\) is a
+weighting parameter.
+
+This metric increases as the amount of ticks taken to finish each game diverges
+over the \(N\) trial, promoting opponents that have high diversity in their behaviour.
+
+\subsubsection{Spatial Diversity}
+\label{sec:spatial-diversity}
+
+The third, and final, criterion, quantifying the spatial diversity of the
+opponents, gives us \eqref{eq:7}:
+
+\begin{equation}
+  \label{eq:7}
+  H_n = \left[ -\frac{1}{log V_n} \sum_i \frac{\nu_{in}}{V_n}
+    log\left(\frac{\nu_{in}}{V_n}\right) \right]^{p_3}
+\end{equation}
+
+for each game in the \(N\) trials, where \(V_n\) is the total number of visits
+for all cells, and \(p_3\) is a weighting parameter.
+
+Here, \(H_n\) is a measure of the entropy of cell visits for a single game, and
+given this, the metric for spatial diversity is the average value \(avg(H_n)\)
+over the \(N\) trials. So the higher the average entropy of cell visits, the
+more interesting the opponents.
+
+\subsubsection{Metrics combined}
+\label{sec:metrics-combined}
+
+Combining these three criteria gives us \eqref{eq:8}
+
+\begin{equation}
+  \label{eq:8}
+  I =\frac{\gamma T + \delta S + \varepsilon * avg(H_n)}{\gamma + \delta + \varepsilon}
+\end{equation}
+
+where \(\gamma\), \(\delta\), \(\varepsilon\) are weighting parameters for each
+criterion.
 
 
 \section{Experiment}
