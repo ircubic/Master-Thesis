@@ -644,27 +644,39 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
            of tick_nil => sqrt(Acc/N)
             | tick_cons(Tick, TickRest) => tickStd(TickRest, Avg, Acc + pow(Tick - Avg, 2.0))
       and T((Weight) : real) : real =
-        pow((1.0 - ((tickSum(Ticks, 0.0)/N)/tickMax(Ticks, 0.0))), Weight)
+          pow((1.0 - ((tickSum(Ticks, 0.0) / N) / tickMax(Ticks, 0.0))), Weight)
       and S((Weight, TMax, TMin) : real * real * real) : real =
         case (tickSum(Ticks, 0.0)/N)
-         of Avg => pow(tickStd(Ticks, Avg, 0.0)/(0.5*sqrt(N/(N-1.0))*(TMax-TMin)), Weight)
+         of Avg =>
+            pow((tickStd(Ticks, Avg, 0.0) / (0.5 * sqrt(N / (N - 1.0))) * (TMax - TMin)),
+                Weight)
       and cellSum((Cells, Sum) : cells * real) : real =
           case Cells
            of cell_nil => Sum
             | cell_cons(Cell, CellRest) => cellSum(CellRest, Sum + Cell)
       and Hn((Weight, Cells, VisitSum, Acc) : real * cells * real * real) : real =
-          case Cells
-           of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
-            | cell_cons(Cell, CellRest) =>
-              Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
+          case realLess(VisitSum, 2.0)
+           of true => 0.0
+            | false =>
+              case Cells
+               of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
+                | cell_cons(Cell, CellRest) =>
+                  case realEqual(Cell, 0.0)
+                   of true => Hn(Weight, CellRest, VisitSum, Acc)
+                    | false => Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
       and H((Weight, Visits, Sum) : real * visits * real) : real =
           case Visits
            of visit_nil => (Sum/N)
             | visit_cons(Cells, VisitRest) =>
-              H(Weight, VisitRest, Sum + Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0))
+              case Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0) of NewHn =>
+                H(Weight, VisitRest, Sum + NewHn)
     in
-      case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
-      case ((Gamma*T(P1) + Delta*S(P2, 50.0, 3.0) + Epsilon*H(P3, Visits, 0.0))/(Gamma+Delta+Epsilon)) of Interest => Interest
+      if N > 0.0 then
+        case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+        case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0)) of (M1, M2, M3) =>
+            case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon)) of Interest => Interest
+      else
+        0.0
     end
 
 (* Used to compare two results in new version of ADATE *)
@@ -672,37 +684,37 @@ fun resultEqual( Result1 : result, Result2 : result ) : bool =
 let
   val result( N1, Ts1, Vs1 ) = Result1
   val result( N2, Ts2, Vs2 ) = Result1
-  
+
   fun ticksEqual( Ticks1 : ticks, Ticks2 : ticks ) : bool =
-    case ( Ticks1, Ticks2 ) of 
+    case ( Ticks1, Ticks2 ) of
       ( tick_nil, tick_nil ) => true
     | ( tick_cons( Tick1, RTicks1 ), tick_cons( Tick2, RTicks2 ) ) => (
-        case realEqual( Tick1, Tick2 ) of 
-          true => ticksEqual( RTicks1, RTicks2 ) 
+        case realEqual( Tick1, Tick2 ) of
+          true => ticksEqual( RTicks1, RTicks2 )
         | false => false )
     | _ => false
 
   fun cellsEqual( Cells1 : cells, Cells2 : cells ) : bool =
-    case ( Cells1, Cells2 ) of 
+    case ( Cells1, Cells2 ) of
       ( cell_nil, cell_nil ) => true
     | ( cell_cons( Cell1, RCells1 ), cell_cons( Cell2, RCells2 ) ) => (
-        case realEqual( Cell1, Cell2 ) of 
-          true => cellsEqual( RCells1, RCells2 ) 
+        case realEqual( Cell1, Cell2 ) of
+          true => cellsEqual( RCells1, RCells2 )
         | false => false )
     | _ => false
 
   fun visitsEqual( Visits1 : visits, Visits2 : visits ) : bool =
-    case ( Visits1, Visits2 ) of 
+    case ( Visits1, Visits2 ) of
       ( visit_nil, visit_nil ) => true
     | ( visit_cons( Cells1, RVisits1 ), visit_cons( Cells2, RVisits2 ) ) => (
-        case cellsEqual( Cells1, Cells2 ) of 
-          true => visitsEqual( RVisits1, RVisits2 ) 
+        case cellsEqual( Cells1, Cells2 ) of
+          true => visitsEqual( RVisits1, RVisits2 )
         | false => false )
     | _ => false
 
-in 
+in
   realEqual(N1, N2) andalso ticksEqual( Ts1, Ts2 ) andalso visitsEqual( Vs1, Vs2 )
-end 
+end
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
 val Outputs = []
@@ -763,12 +775,12 @@ val Max_output_genus_card = 8
 val Max_time_limit = 1024
 val Time_limit_base = 1024.0
 
-(* New ADATE 
+(* New ADATE
 val AllAtOnce = false
 fun compile_transform D = D
 val print_synted_program  = Print.print_dec'
 
-fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) ) 
+fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) )
     : { grade: Grade.grade, numCorrect : int, numWrong : int } list  =
   [{ numCorrect = 1, numWrong = 0, grade = to( interest Y ) }]
 
@@ -782,7 +794,7 @@ fun max_syntactic_complexity() = 500.0
 fun min_syntactic_complexity() = 0.0
 val Use_test_data_for_max_syntactic_complexity = false
 
-val main_range_eq = resultEqual 
+val main_range_eq = resultEqual
 val File_name_extension = ""
 val Resolution = NONE
 val StochasticMode = false
