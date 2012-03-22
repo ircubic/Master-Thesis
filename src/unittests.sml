@@ -333,3 +333,33 @@ fun testRands (N:int) =
     end
   else ();
 testRands(10000);
+
+(* interest *)
+fun sanityTestResults(N:int) =
+  let
+    fun genGame (N, I, Ticks, Visits) =
+      if I < N then
+        genGame(N, I+1.0, tick_cons(realFloor(randReal()*49.0+1.0), Ticks), visit_cons(genRandCells(), Visits))
+      else
+        result(N, Ticks, Visits)
+    and genRandCells () =
+      genRandCell(realFloor(randReal()*16.0*16.0+1.0), 0.0, cell_nil)
+    and genRandCell(N, I, Cells) =
+      if N < I then
+        Cells
+      else
+        genRandCell(N, I+1.0, cell_cons(realFloor(randReal() * 50.0), Cells))
+    and genResult () =
+      genGame(realFloor((randReal() * 99.0) + 1.0), 0.0, tick_nil, visit_nil)
+  in
+    if 0 < N then
+      let val I = interest(genResult()) in
+        (
+          assertTrue (I >= 0.0 andalso Real.isFinite(I)) ("Interest value " ^ (Real.toString(I)) ^ " not within bounds");
+          sanityTestResults(N-1)
+        )
+      end
+    else ()
+  end;
+
+sanityTestResults(10000);
