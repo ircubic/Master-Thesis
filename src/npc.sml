@@ -7,7 +7,11 @@ val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
 val log10 = Math.log10
-val realFloor = Real.realFloor
+val realAdd = Real.+
+val realSubtract = Real.-
+val fromInt = Real.fromInt
+val trunc = Real.trunc
+val realDivide = Real./
 
 signature GRADE =
 sig
@@ -32,6 +36,9 @@ fun abs((X) : real) : real =
     case realLess(X, 0.0)
      of true => realUnaryMinus(X)
       | false => X
+
+fun realFloor((X) : real) : real = fromInt(trunc X)
+
 datatype point = point of real * real
 datatype size = size of real * real
 datatype radius = radius of real
@@ -92,14 +99,14 @@ fun ensureInside ((E, Field as size(Field_width, Field_height)) : entity * size)
      (* Rects must be clamped to have their center within half their width and
       * height of edges of the field.
       *)
-     of rect(point(X,Y), S as size(Width, Height)) =>
+     of rect(P as point(X,Y), S as size(Width, Height)) =>
         rect(point(clamp(X, (Width*0.5), Field_width-(Width*0.5)),
                    clamp(Y, (Height*0.5), Field_height-(Height*0.5))),
              S)
      (* Circles must have their centers at least a radius away from the edges
       * on both X and Y axes
       *)
-      | circle(point(X,Y), R as radius(Radius)) =>
+      | circle(P as point(X,Y), R as radius(Radius)) =>
         circle(point(clamp(X, Radius, Field_width-Radius),
                      clamp(Y, Radius, Field_height-Radius)),
                R)
@@ -134,7 +141,7 @@ fun increaseCell((Cells, Point as point(X, Y), Width) : cells * point * real) : 
                  of true => cell_cons(Cell+1.0, CellRest)
                   | false => cell_cons(Cell, delve(CellRest, GoalI, I+1.0))
     in
-        delve(Cells, (realFloor(X) + realFloor(Y) * Width), 0.0)
+        delve(Cells, (realFloor X + realFloor Y * Width), 0.0)
     end
 
 fun initCells((W, H) : real * real) : cells =
@@ -155,9 +162,9 @@ fun initCells((W, H) : real * real) : cells =
 (* Check if two entities collide *)
 fun collide ((E1, E2) : entity * entity) : bool =
     case E1
-     of rect(point(X1, Y1), size(W1, H1)) =>
+     of rect(P1 as point(X1, Y1), S1 as size(W1, H1)) =>
        (case E2
-         of rect(point(X2, Y2), size(W2, H2)) =>
+         of rect(P2 as point(X2, Y2), S2 as size(W2, H2)) =>
             (* Two dogs collide using rectangle collisions *)
            (case realLess((Y1+(H1*0.5)), (Y2-(H2*0.5))) (* bottom1 < top2 *)
              of true => false
@@ -171,10 +178,12 @@ fun collide ((E1, E2) : entity * entity) : bool =
                         case realGreater((X1-(W1*0.5)), (X2+(W2*0.5))) (* left1 > right2 *)
                          of true => false
                           | false => true)
-           | circle(point(X2, Y2), radius R2) =>
+          | circle(P2 as point(X2, Y2), Ra2 as radius R2) =>
             (* Dog and cat collide with circle-rect collision *)
-           (case (abs(X2 - X1), abs(Y2 - Y1), W1/2.0, H1/2.0)
-             of (Dist_x, Dist_y, Coll_width, Coll_height) =>
+           (case abs(realSubtract(X2, X1)) of Dist_x =>
+            case abs(realSubtract(Y2, Y1)) of Dist_y =>
+            case W1/2.0 of Coll_width =>
+            case H1/2.0 of Coll_height =>
                 case realGreater(Dist_x, (Coll_width+R2))
                  of true => false
                   | false =>
@@ -189,10 +198,10 @@ fun collide ((E1, E2) : entity * entity) : bool =
                               | false => realLessOrEqual(pow((Dist_x - Coll_width), 2.0) +
                                                          pow((Dist_y - Coll_height), 2.0),
                                                          pow(R2, 2.0))))
-      | circle(point(X1, Y1), radius R1) =>
+      | circle(P1 as point(X1, Y1), Ra1 as radius R1) =>
        (case E2
          of rect(P2, S2) => collide(E2, E1) (* Flipped example *)
-          | circle(point(X2, Y2), radius R2) =>
+          | circle(P2 as point(X2, Y2), Ra2 as radius R2) =>
             (* Cats collide with circle collisions (for exhaustiveness) *)
             realLessOrEqual((pow((X1-X2), 2.0) + pow((Y1-Y2), 2.0)), pow((R1+R2),2.0)))
 
@@ -218,7 +227,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
              of entity_nil => Cells
               | entity_cons(Entity, Rest) =>
                 case Entity
-                 of rect(Point, Size' as size(W,H)) =>
+                 of rect(Point, S as size(W,H)) =>
                     countCellVisits(Rest, increaseCell(Cells, Point, FW))
                   | circle(Point, Radius as radius(R)) =>
                     countCellVisits(Rest, Cells)
@@ -227,9 +236,9 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
         and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
             : entity =
             ensureInside((case Entity
-                           of rect(Point, Size' as size(W,H)) =>
+                           of rect(Point, S as size(W,H)) =>
                               (* Dogs move 1.5 units per tick *)
-                              rect(movePoint(Point, Move, 1.5), Size')
+                              rect(movePoint(Point, Move, 1.5), S)
                             | circle(Point, Radius) =>
                               (* Cats move 2.0 units per tick *)
                               circle(movePoint(Point, Move, 2.0), Radius)),
@@ -300,8 +309,8 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal,
               | false => (hasLost(Cat, Dogs), false)
     in
         case newWinState(Cat, Dogs, Goal)
-         of (newGameover, newWin) =>
-            state(Cat, Dogs, Goal, Fieldsize, newGameover, newWin)
+         of (NewGameover, NewWin) =>
+            state(Cat, Dogs, Goal, Fieldsize, NewGameover, NewWin)
     end
 
 
@@ -323,25 +332,25 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
         fun cost((X, Y) : real * real) : real =
             let
                 fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
-                    1000.0 / (abs(DogX-X) + abs(DogY-Y))
+                    1000.0 / (abs(realSubtract(DogX, X)) + abs(realSubtract(DogY, Y)))
                 and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
                     case Dogs
                      of entity_nil => 0.0
-                      | entity_cons(Entity, Rest) => (
+                      | entity_cons(Entity, Rest) => realAdd(
                         case Entity
-                         of rect(point(EntX, EntY), size(W,H)) =>
+                         of rect(P as point(EntX, EntY), S as size(W,H)) =>
                             dogCost(X,Y,EntX,EntY)
-                          | circle(point(EntX, EntY), radius(R)) =>
-                            dogCost(X,Y,EntX,EntY)
-                        ) + dogsCost(X,Y,Rest)
+                          | circle(P as point(EntX, EntY), Ra as radius(R)) =>
+                            dogCost(X,Y,EntX,EntY),
+                        dogsCost(X,Y,Rest))
                 and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
-                    sqrt(pow(GoalX-X, 2.0) + pow(GoalY-Y, 2.0))
+                    sqrt(pow(realSubtract(GoalX,X), 2.0) + pow(realSubtract(GoalY,Y), 2.0))
             in
                 dogsCost(X,Y, Dogs) + (
                 case Goal
-                 of rect(point(GoalX, GoalY), size(W,H)) =>
+                 of rect(P as point(GoalX, GoalY), S as size(W,H)) =>
                     goalCost(X,Y,GoalX,GoalY)
-                  | circle(point(GoalX, GoalY), radius(R)) =>
+                  | circle(P as point(GoalX, GoalY), Ra as radius(R)) =>
                     goalCost(X,Y,GoalX,GoalY)
             )
             end
@@ -353,20 +362,20 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
                     case realEqual(CurrentX, X)
                      of true => (
                         case realEqual(CurrentY, Y)
-                         of true => Cost/Num
+                         of true => realDivide(Cost,Num)
                           | false => costDriver(CurrentX+DeltaX,
                                                 CurrentY+DeltaY,
                                                 DeltaX,
                                                 DeltaY,
-                                                Cost+cost(CurrentX, CurrentY),
-                                                Num+1.0)
+                                                realAdd(Cost,cost(CurrentX, CurrentY)),
+                                                realAdd(Num,1.0))
                         )
                       | false => costDriver(CurrentX+DeltaX,
                                             CurrentY+DeltaY,
                                             DeltaX,
                                             DeltaY,
-                                            Cost+cost(CurrentX, CurrentY),
-                                            Num+1.0)
+                                            realAdd(Cost,cost(CurrentX, CurrentY)),
+                                            realAdd(Num,1.0))
                 and getEndPoint((Coord, DeltaCoord, Distance) : real * real * real) : real =
                     case realEqual(DeltaCoord, 0.0)
                      of true => Coord
@@ -401,9 +410,9 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
             end
     in
         case Self
-         of rect(point(X,Y), size(W,H)) =>
+         of rect(P as point(X,Y), S as size(W,H)) =>
             chooseDirection(directionCosts(X,Y, 2.0))
-          | circle(point(X,Y), radius(R)) =>
+          | circle(P as point(X,Y), Ra as radius(R)) =>
             chooseDirection(directionCosts(X,Y, 2.0))
     end
 
@@ -654,10 +663,46 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
             | visit_cons(Cells, VisitRest) =>
               H(Weight, VisitRest, Sum + Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0))
     in
-      case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0)
-       of (Gamma, Delta, Epsilon, P1, P2, P3) =>
-          ((Gamma*T(P1) + Delta*S(P2, 50.0, 3.0) + Epsilon*H(P3, Visits, 0.0))/(Gamma+Delta+Epsilon))
+      case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+      case ((Gamma*T(P1) + Delta*S(P2, 50.0, 3.0) + Epsilon*H(P3, Visits, 0.0))/(Gamma+Delta+Epsilon)) of Interest => Interest
     end
+
+(* Used to compare two results in new version of ADATE *)
+fun resultEqual( Result1 : result, Result2 : result ) : bool =
+let
+  val result( N1, Ts1, Vs1 ) = Result1
+  val result( N2, Ts2, Vs2 ) = Result1
+  
+  fun ticksEqual( Ticks1 : ticks, Ticks2 : ticks ) : bool =
+    case ( Ticks1, Ticks2 ) of 
+      ( tick_nil, tick_nil ) => true
+    | ( tick_cons( Tick1, RTicks1 ), tick_cons( Tick2, RTicks2 ) ) => (
+        case realEqual( Tick1, Tick2 ) of 
+          true => ticksEqual( RTicks1, RTicks2 ) 
+        | false => false )
+    | _ => false
+
+  fun cellsEqual( Cells1 : cells, Cells2 : cells ) : bool =
+    case ( Cells1, Cells2 ) of 
+      ( cell_nil, cell_nil ) => true
+    | ( cell_cons( Cell1, RCells1 ), cell_cons( Cell2, RCells2 ) ) => (
+        case realEqual( Cell1, Cell2 ) of 
+          true => cellsEqual( RCells1, RCells2 ) 
+        | false => false )
+    | _ => false
+
+  fun visitsEqual( Visits1 : visits, Visits2 : visits ) : bool =
+    case ( Visits1, Visits2 ) of 
+      ( visit_nil, visit_nil ) => true
+    | ( visit_cons( Cells1, RVisits1 ), visit_cons( Cells2, RVisits2 ) ) => (
+        case cellsEqual( Cells1, Cells2 ) of 
+          true => visitsEqual( RVisits1, RVisits2 ) 
+        | false => false )
+    | _ => false
+
+in 
+  realEqual(N1, N2) andalso ticksEqual( Ts1, Ts2 ) andalso visitsEqual( Vs1, Vs2 )
+end 
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
 val Outputs = []
@@ -707,7 +752,7 @@ val Abstract_types = []
 fun sqr( X : real ) = X * X
 
 fun to( G : real ) : LargeInt.int =
-  Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e14 )
+  Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e10 )
 
 fun output_eval_fun( I : int, _ , Y : result  ) =
   { numCorrect = 1, numWrong = 0, grade = to( interest Y ) }
@@ -717,3 +762,31 @@ val Max_output_genus_card = 8
 
 val Max_time_limit = 1024
 val Time_limit_base = 1024.0
+
+(* New ADATE 
+val AllAtOnce = false
+fun compile_transform D = D
+val print_synted_program  = Print.print_dec'
+
+fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) ) 
+    : { grade: Grade.grade, numCorrect : int, numWrong : int } list  =
+  [{ numCorrect = 1, numWrong = 0, grade = to( interest Y ) }]
+
+
+val OnlyCountCalls = false
+val max_time_limit : unit -> Word64.word = fn () => 0w262144
+val max_test_time_limit : unit -> Word64.word= fn () => 0w262144
+val time_limit_base = fn () => 262144.0
+
+fun max_syntactic_complexity() = 500.0
+fun min_syntactic_complexity() = 0.0
+val Use_test_data_for_max_syntactic_complexity = false
+
+val main_range_eq = resultEqual 
+val File_name_extension = ""
+val Resolution = NONE
+val StochasticMode = false
+
+val Number_of_output_attributes : int = 4
+
+fun terminate( Nc, G )  = false *)
