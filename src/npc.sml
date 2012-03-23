@@ -7,6 +7,7 @@ val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
 val log = Math.ln
+val realFloor = Real.realFloor
 val realAdd = Real.+
 val realSubtract = Real.-
 val fromInt = Real.fromInt
@@ -37,7 +38,6 @@ fun abs((X) : real) : real =
      of true => realUnaryMinus(X)
       | false => X
 
-fun realFloor((X) : real) : real = fromInt(trunc X)
 
 datatype point = point of real * real
 datatype size = size of real * real
