@@ -6,7 +6,7 @@ val realEqual = Real.==
 val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
-val log10 = Math.log10
+val log = Math.ln
 val realAdd = Real.+
 val realSubtract = Real.-
 val fromInt = Real.fromInt
@@ -648,7 +648,7 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
       and S((Weight, TMax, TMin) : real * real * real) : real =
         case (tickSum(Ticks, 0.0)/N)
          of Avg =>
-            pow((tickStd(Ticks, Avg, 0.0) / (0.5 * sqrt(N / (N - 1.0))) * (TMax - TMin)),
+            pow((tickStd(Ticks, Avg, 0.0) / ((0.5 * sqrt(N / (N - 1.0))) * (TMax - TMin))),
                 Weight)
       and cellSum((Cells, Sum) : cells * real) : real =
           case Cells
@@ -659,11 +659,11 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
            of true => 0.0
             | false =>
               case Cells
-               of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
+               of cell_nil => pow((~1.0 / log(VisitSum))*Acc, Weight)
                 | cell_cons(Cell, CellRest) =>
                   case realEqual(Cell, 0.0)
                    of true => Hn(Weight, CellRest, VisitSum, Acc)
-                    | false => Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
+                    | false => Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log(Cell/VisitSum)))
       and H((Weight, Visits, Sum) : real * visits * real) : real =
           case Visits
            of visit_nil => (Sum/N)
