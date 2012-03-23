@@ -771,27 +771,36 @@ fun to( G : real ) : LargeInt.int =
   Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e10 )
 
 fun output_eval_fun( I : int, _ , Y : result  ) =
-  { numCorrect = 1, numWrong = 0, grade = to( interest Y ) }
+  case interest Y of G =>
+  if G > 1.0E30 orelse not( Real.isFinite G ) then
+    { numCorrect = 0, numWrong = 1, grade = to 1.0e30 }
+  else
+    { numCorrect = 1, numWrong = 0, grade = to G }
 
 
 val Max_output_genus_card = 8
 
-val Max_time_limit = 1024
-val Time_limit_base = 1024.0
+val Max_time_limit = 1048576
+val Time_limit_base = 1048576.0
 
-(* New ADATE
+(* New ADATE *)
+(*
 val AllAtOnce = false
 fun compile_transform D = D
 val print_synted_program  = Print.print_dec'
 
 fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) )
     : { grade: Grade.grade, numCorrect : int, numWrong : int } list  =
-  [{ numCorrect = 1, numWrong = 0, grade = to( interest Y ) }]
+  case interest Y of G =>
+  if G > 1.0E30 orelse not( Real.isFinite G ) then
+    [{ numCorrect = 1, numWrong = 0, grade = to 1.0e30 }]
+  else
+    [{ numCorrect = 1, numWrong = 0, grade = to G }]
 
 
 val OnlyCountCalls = false
-val max_time_limit : unit -> Word64.word = fn () => 0w262144
-val max_test_time_limit : unit -> Word64.word= fn () => 0w262144
+val max_time_limit  = fn () => 262144
+val max_test_time_limit = fn () => 262144
 val time_limit_base = fn () => 262144.0
 
 fun max_syntactic_complexity() = 500.0
@@ -805,4 +814,5 @@ val StochasticMode = false
 
 val Number_of_output_attributes : int = 4
 
-fun terminate( Nc, G )  = false *)
+fun terminate( Nc, G )  = false
+*)
