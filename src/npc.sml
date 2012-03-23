@@ -33,9 +33,12 @@ exception D1
 exception D2
 exception D3
 (*CUT BEFORE*)
+
+fun rMinus(X : real) : real = 0.0 - X
+
 fun abs((X) : real) : real =
     case realLess(X, 0.0)
-     of true => realUnaryMinus(X)
+     of true => rMinus(X)
       | false => X
 
 
@@ -384,7 +387,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
                     costDriver(
                       getEndPoint(X,DeltaX,Distance),
                       getEndPoint(Y,DeltaY,Distance),
-                      realUnaryMinus(DeltaX), realUnaryMinus(DeltaY), 0.0, 0.0)
+                      rMinus(DeltaX), rMinus(DeltaY), 0.0, 0.0)
             in
                 cost_cons(dir_cost(directionCost(0.5, 0.0), right),
                 cost_cons(dir_cost(directionCost(~0.5, 0.0), left),
