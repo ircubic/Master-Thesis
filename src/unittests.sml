@@ -322,12 +322,17 @@ assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with du
 
 (* main *)
 
-val main_result = main(knearest_dogs);
+val main_result = main(knearest_dogs, cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)));
 case main_result
  of result(N, Visits, Ticks) => (
-    assertRealSigmaEqual N 100.0 "Did not run the necessary amount of times"
+    assertRealSigmaEqual N 100.0 ("Did not run the necessary amount of times (" ^ (Real.toString(N)) ^ " != 100)")
   );
 
+val main_result = main(knearest_dogs, cat_ai_cons(1, cat_ai_nil));
+case main_result
+ of result(N, Visits, Ticks) => (
+    assertRealSigmaEqual N 50.0 ("Did not run the necessary amount of times (" ^ (Real.toString(N)) ^ " != 50)")
+  );
 
 (* randReal *)
 case MLton.Random.useed()

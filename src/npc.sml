@@ -544,7 +544,7 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
 (*****
  * The main driver function of the simulation
  *****)
-fun main( (Dogs) : entity_list ) : result  =
+fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
     let
         fun mainLoop((Tick,
                       State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
@@ -559,8 +559,8 @@ fun main( (Dogs) : entity_list ) : result  =
                   | false =>
                     case simtick(State, Cells, AI)
                      of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells, AI)
-        and runSimsForCats((Ticks, Visits, CatAIs) : ticks * visits * cat_ai_list) : ticks * visits =
-            case CatAIs
+        and runSimsForCats((Ticks, Visits, RunAIs) : ticks * visits * cat_ai_list) : ticks * visits =
+            case RunAIs
              of cat_ai_nil => (Ticks, Visits)
               | cat_ai_cons(AI, Rest) =>
                 case mainLoop(1.0,
@@ -571,12 +571,15 @@ fun main( (Dogs) : entity_list ) : result  =
                              initCells(16.0, 16.0),
                              AI)
                  of (Tick, Cells) => runSimsForCats(tick_cons(Tick, Ticks), visit_cons(Cells, Visits), Rest)
+        and countCats((AIs, N) : cat_ai_list * real) : real =
+            case AIs
+             of cat_ai_nil => N
+              | cat_ai_cons(A,R) => countCats(R, N+1.0)
         and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
             case realEqual(N,I)
-             of true => result(N*2.0, Ticks, Visits)
+             of true => result(N*countCats(CatAIs, 0.0), Ticks, Visits)
               | false =>
-                case runSimsForCats(Ticks, Visits,
-                                    cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
+                case runSimsForCats(Ticks, Visits, CatAIs)
                  of (NewTicks, NewVisits) =>
                     runSims(N, I+1.0, NewTicks, NewVisits)
     in
@@ -626,15 +629,16 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
 fun generateDogLists((Amount,
                       Dognumber,
                       Dogsize as size(Dogwidth, Dogheight),
-                      Fieldsize as size(Fieldwidth, Fieldheight)
-                     ) : int * int * size * size)  =
+                      Fieldsize as size(Fieldwidth, Fieldheight),
+                      CatAIs
+                     ) : int * int * size * size * cat_ai_list)  =
     let
       fun nextDogs((Left, Dogfield as size(Dogfieldwidth, Dogfieldheight))
                    : int * size) =
           case Left <= 0
            of true => nil
             | false =>
-                randomDogs(Dogfield, Dogsize, Dognumber) :: nextDogs(Left-1, Dogfield)
+                (randomDogs(Dogfield, Dogsize, Dognumber), CatAIs) :: nextDogs(Left-1, Dogfield)
     in
       (* Dogs will be placed within the upper half of the
        * simulation field, so we must make sure that the position
@@ -734,7 +738,8 @@ in
   realEqual(N1, N2) andalso ticksEqual( Ts1, Ts2 ) andalso visitsEqual( Vs1, Vs2 )
 end
 
-val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0))
+val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0),
+                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
 val Outputs = []
 
 val Validation_inputs = []
