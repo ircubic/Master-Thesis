@@ -320,6 +320,15 @@ val found = kNearest(dog2, knearest_with_dup, 2.0, 3.0);
 val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
 assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
 
+(* main *)
+
+val main_result = main(knearest_dogs);
+case main_result
+ of result(N, Visits, Ticks) => (
+    assertRealSigmaEqual N 100.0 "Did not run the necessary amount of times"
+  );
+
+
 (* randReal *)
 case MLton.Random.useed()
  of NONE => ()
