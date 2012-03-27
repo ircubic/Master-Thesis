@@ -321,18 +321,25 @@ val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
 assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
 
 (* main *)
+fun countTicks(Ticks as tick_cons(T,R), N) =
+    countTicks(R, N+1.0)
+  | countTicks(Ticks as tick_nil, N) = N;
+fun countVisits(Visits as visit_cons(V,R), N) =
+    countVisits(R, N+1.0)
+  | countVisits(Visits as visit_nil, N) = N;
 
-val main_result = main(knearest_dogs, cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)));
-case main_result
- of result(N, Visits, Ticks) => (
-    assertRealSigmaEqual N 100.0 ("Did not run the necessary amount of times (" ^ (Real.toString(N)) ^ " != 100)")
-  );
+fun checkResult(derp as result(N, Ticks, Visits), CheckN) =
+  let
+     val tick_count = countTicks(Ticks, 0.0);
+     val visit_count = countVisits(Visits, 0.0);
+   in
+    assertRealSigmaEqual CheckN N ("Did not run the necessary amount of times (" ^ (Real.toString(N)) ^ " != " ^ (Real.toString(CheckN)) ^ ")");
+    assertRealSigmaEqual CheckN tick_count ("Did not create the necessary amount of ticks (" ^ (Real.toString(tick_count)) ^ " != " ^ (Real.toString(CheckN)) ^ ")");
+    assertRealSigmaEqual CheckN visit_count ("Did not create the necessary amount of visits (" ^ (Real.toString(visit_count)) ^ " != " ^ (Real.toString(CheckN)) ^ ")")
+  end;
+checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil))), 100.0);
+checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_nil)), 50.0);
 
-val main_result = main(knearest_dogs, cat_ai_cons(1, cat_ai_nil));
-case main_result
- of result(N, Visits, Ticks) => (
-    assertRealSigmaEqual N 50.0 ("Did not run the necessary amount of times (" ^ (Real.toString(N)) ^ " != 50)")
-  );
 
 (* randReal *)
 case MLton.Random.useed()
