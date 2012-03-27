@@ -437,9 +437,11 @@ fun exitAchiever( (Self, Cat, Dogs, Goal)
               | false => up)
 
 (* The AI of the cat *)
-fun catAI( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity)
+fun catAI( (Self, Cat, Dogs, Goal,  AI) : entity * entity * entity_list * entity * int)
     : direction =
-    exitAchiever(Self, Cat, Dogs, Goal)
+    case AI = 1
+      of true => exitAchiever(Self, Cat, Dogs, Goal)
+       | false => potentialFieldCat(Self, Cat, Dogs, Goal)
 
 (* Choose the k nearest dogs to a given dog *)
 fun kNearest((Self, Dogs, K, SelfIndex) : entity * entity_list * real * real) : entity_list =
@@ -491,7 +493,7 @@ fun kNearest((Self, Dogs, K, SelfIndex) : entity * entity_list * real * real) : 
     end
 
 (* Do the ai steps for all the entities and generate a list of moves *)
-fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
+fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), AI) : state * int)
     : direction_list =
     let
         fun stepDogs((Dogrest, I) : entity_list * real) : direction_list =
@@ -502,19 +504,19 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win)) : state)
                          stepDogs(Rest, I+1.0))
     in
       dir_cons(
-        catAI(Cat, Cat, Dogs, Goal),
+        catAI(Cat, Cat, Dogs, Goal, AI),
         stepDogs(Dogs, 0.0))
     end
 
 (* Do one tick of the simulation. This does one AI step, applies all the
  * moves, then checks the if the game has been won or lost
  *)
-fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Cells) : state * cells)
+fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Cells, AI) : state * cells * int)
     : state * cells =
     case Gameover
      of false => (State, Cells)
       | true =>
-        case applyMoves(State, aiStep(State), Cells)
+        case applyMoves(State, aiStep(State, AI), Cells)
          of (NewState, NewCells) => (checkWinCondition(NewState), NewCells)
 
 (* Initialize the state of the game based on the given sizes and passed in dogs *)
@@ -546,27 +548,37 @@ fun main( (Dogs) : entity_list ) : result  =
     let
         fun mainLoop((Tick,
                       State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
-                      Cells
-                     ) : real * state * cells) : real * cells =
+                      Cells,
+                      AI
+                     ) : real * state * cells * int) : real * cells =
             case realGreater(Tick, 50.0)
              of true => (Tick-1.0, Cells)
               | false =>
                 case Gameover
                  of true => (Tick-1.0, Cells)
                   | false =>
-                    case simtick(State, Cells)
-                     of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells)
-        and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
-            case realEqual(N,I)
-             of true => result(N, Ticks, Visits)
-              | false =>
+                    case simtick(State, Cells, AI)
+                     of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells, AI)
+        and runSimsForCats((Ticks, Visits, CatAIs) : ticks * visits * cat_ai_list) : ticks * visits =
+            case CatAIs
+             of cat_ai_nil => (Ticks, Visits)
+              | cat_ai_cons(AI, Rest) =>
                 case mainLoop(1.0,
                              initState(size(16.0,16.0),
                                        radius(0.75),
                                        Dogs,
                                        size(5.0, 2.0)),
-                             initCells(16.0, 16.0))
-                 of (Tick, Cells) => runSims(N, I+1.0, tick_cons(Tick, Ticks), visit_cons(Cells, Visits))
+                             initCells(16.0, 16.0),
+                             AI)
+                 of (Tick, Cells) => runSimsForCats(tick_cons(Tick, Ticks), visit_cons(Cells, Visits), Rest)
+        and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
+            case realEqual(N,I)
+             of true => result(N*2.0, Ticks, Visits)
+              | false =>
+                case runSimsForCats(Ticks, Visits,
+                                    cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
+                 of (NewTicks, NewVisits) =>
+                    runSims(N, I+1.0, NewTicks, NewVisits)
     in
         runSims(50.0, 0.0, tick_nil, visit_nil)
     end

@@ -303,7 +303,7 @@ assertDirectionsEqual (exitAchiever(eacat3, eacat3, dogs, eagoal)) left "Did not
 
 (* aiStep *)
 val expecteddirections = dir_cons(up, dir_cons(right, dir_cons(right, dir_cons(right, dir_nil))));
-assertDirectionListsEqual (aiStep(state1)) expecteddirections "Directions were wrong";
+assertDirectionListsEqual (aiStep(state1, 1)) expecteddirections "Directions were wrong";
 
 (* kNearest *)
 val knearest_dogs = entity_cons(dog4, entity_cons(dog1, entity_cons(dog2, entity_cons(dog3, entity_nil))));
