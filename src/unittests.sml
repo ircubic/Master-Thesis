@@ -355,6 +355,44 @@ fun testRands (N:int) =
   else ();
 testRands(10000);
 
+
+(* randomDogs *)
+val rand_field_size = size(15.0, 7.0)
+val rand_dog_size = size(1.0, 1.0)
+val rand_dog_num = 5
+val rand_dogs = randomDogs(
+  rand_field_size,
+  rand_dog_size,
+  rand_dog_num)
+fun checkDog(thedog) =
+    case thedog
+     of circle(P, R) => false
+      | rect(point(X, Y), size(W,H)) =>
+        (realGreaterOrEqual(X, 0.5) andalso realLessOrEqual(X, 15.5) andalso
+         realGreaterOrEqual(Y, 0.5) andalso realLessOrEqual(Y, 7.5) andalso
+         realEqual(W, 1.0) andalso realEqual(H, 1.0))
+fun checkDogs(dogs as entity_cons(dog, rest), N) =
+    checkDog(dog) andalso checkDogs(rest, N+1)
+  | checkDogs(dogs as entity_nil, N) = (N = 5);
+
+assertTrue (checkDogs(rand_dogs, 0)) "Dogs did not pass bounds check";
+
+(* generateDogLists *)
+fun checkDogList(thelist) = checkDogs(thelist, 0)
+fun testDogLists(N) =
+let
+  val rand_dog_list = generateDogLists(20, rand_dog_num, rand_dog_size, rand_field_size)
+  val rand_result = List.foldl (fn (x,y) => y andalso checkDogList x) true rand_dog_list
+in
+  if N > 0 then (
+      assertTrue (rand_result) "Dogs did not pass bounds check";
+      assertEqual (List.length rand_dog_list) 20 "Not the right amount of dogs";
+      testDogLists(N-1)
+    )
+  else ()
+end;
+testDogLists(100);
+
 (* interest *)
 fun sanityTestResults(N:int) =
   let

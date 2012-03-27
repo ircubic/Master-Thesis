@@ -644,7 +644,7 @@ fun generateDogLists((Amount,
        * simulation field, so we must make sure that the position
        * field compensates for the width of the dogs.
        *)
-      nextDogs(Amount, size(Fieldwidth-Dogwidth, Fieldheight/2.0))
+      nextDogs(Amount, size(Fieldwidth-Dogwidth, (Fieldheight/2.0)-Dogheight))
     end
 
 fun interest((Result as result(N, Ticks, Visits)) : result) : real =
