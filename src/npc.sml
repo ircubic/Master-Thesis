@@ -63,6 +63,11 @@ datatype visits = visit_nil
                 | visit_cons of cells * visits
 datatype result = result of real * ticks * visits
 
+datatype dir_cost = dir_cost of real * direction
+datatype cost_list = cost_nil | cost_cons of dir_cost * cost_list
+
+datatype cat_ai_list = cat_ai_nil | cat_ai_cons of int * cat_ai_list
+
 
 (*****
  * Helper methods
@@ -324,9 +329,6 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal,
 (* The induced function *)
 fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
     right (* Placeholder, induction startpoint *)
-
-datatype dir_cost = dir_cost of real * direction
-datatype cost_list = cost_nil | cost_cons of dir_cost * cost_list
 
 (* The potential field based cat *)
 fun potentialFieldCat( (Self, Cat, Dogs, Goal)
