@@ -211,10 +211,15 @@ assertRealSigmaEqual (getQuadDistance(dog2, dog3)) (sqrt(pow(0.4, 2.0))) "(0.0, 
 fun countCell(Cells as cell_cons(Cell, Rest), I) = countCell(Rest, I+1.0)
   | countCell(Cells as cell_nil, I) = I;
 
+fun sumCell(Cells as cell_cons(Cell, Rest), I) = sumCell(Rest, I+Cell)
+  | sumCell(Cells as cell_nil, I) = I;
+
 val testcells1 = initCells(16.0, 16.0);
-val testcells2 = initCells(3.0, 3.0);
+val testcells2 = initCells(3.0, 2.0);
 assertRealSigmaEqual (countCell(testcells1, 0.0)) (16.0*16.0) "Cell count wrong for 16x16";
-assertRealSigmaEqual (countCell(testcells2, 0.0)) (3.0*3.0) "Cell count wrong for 3x3";
+assertRealSigmaEqual (sumCell(testcells1, 0.0)) 0.0 "Wrong sum for 16x16";
+assertRealSigmaEqual (countCell(testcells2, 0.0)) (3.0*2.0) "Cell count wrong for 3x2";
+assertRealSigmaEqual (sumCell(testcells2, 0.0)) 0.0 "Wrong sum for 3x2";
 
 (* increaseCell *)
 
@@ -222,6 +227,8 @@ val checkcell = increaseCell(testcells1, point(1.0, 1.0), 16.0);
 assertTrue (checkCell(checkcell, 17, 0, 1.0)) "Did not increase correct cell";
 val checkcell = increaseCell(testcells1, point(15.5, 2.5), 16.0);
 assertTrue (checkCell(checkcell, 47, 0, 1.0)) "Partial coordinates did not increase correct cell";
+val checkcell = increaseCell(increaseCell(increaseCell(increaseCell(increaseCell(testcells1, point(15.5, 2.5), 16.0), point(15.5, 4.5), 16.0), point(12.5, 2.5), 16.0), point(3.5, 2.5), 16.0), point(15.5, 2.5), 16.0);
+assertRealSigmaEqual (sumCell(checkcell, 0.0)) 5.0 "Sum of visited cells != 5.0";
 
 (*****
  * Unit tests for game methods
