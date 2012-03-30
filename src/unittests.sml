@@ -378,10 +378,10 @@ fun checkDogs(dogs as entity_cons(dog, rest), N) =
 assertTrue (checkDogs(rand_dogs, 0)) "Dogs did not pass bounds check";
 
 (* generateDogLists *)
-fun checkDogList(thelist) = checkDogs(thelist, 0)
+fun checkDogList(thelist) = case thelist of (doglist, ai) => checkDogs(doglist, 0)
 fun testDogLists(N) =
 let
-  val rand_dog_list = generateDogLists(20, rand_dog_num, rand_dog_size, rand_field_size)
+  val rand_dog_list = generateDogLists(20, rand_dog_num, rand_dog_size, rand_field_size, cat_ai_nil)
   val rand_result = List.foldl (fn (x,y) => y andalso checkDogList x) true rand_dog_list
 in
   if N > 0 then (
