@@ -203,6 +203,9 @@ assertRealSigmaEqual (getQuadDistance(dog1, dog2)) quadDistance "Dog-Dog distanc
 assertRealSigmaEqual (getQuadDistance(cat1, dog2)) quadDistance "Cat-Dog distance wrong";
 assertRealSigmaEqual (getQuadDistance(dog1, cat2)) quadDistance "Dog-Cat distance wrong";
 assertRealSigmaEqual (getQuadDistance(cat1, cat2)) quadDistance "Cat-Cat distance wrong";
+assertRealSigmaEqual (getQuadDistance(dog1, dog4)) (sqrt(pow(4.0, 2.0) * 2.0)) "(1.0, 1.0) -> (5.0, 5.0) distance wrong";
+assertRealSigmaEqual (getQuadDistance(dog4, dog1)) (sqrt(pow(4.0, 2.0) * 2.0)) "(5.0, 5.0) -> (1.0, 1.0) distance wrong";
+assertRealSigmaEqual (getQuadDistance(dog2, dog3)) (sqrt(pow(0.4, 2.0))) "(0.0, 0.0) -> (0.4, 0.0) distance wrong";
 
 (* initCells *)
 fun countCell(Cells as cell_cons(Cell, Rest), I) = countCell(Rest, I+1.0)
