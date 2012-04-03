@@ -514,8 +514,8 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), AI) : st
 fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Cells, AI) : state * cells * int)
     : state * cells =
     case Gameover
-     of false => (State, Cells)
-      | true =>
+     of true => (State, Cells)
+      | false =>
         case applyMoves(State, aiStep(State, AI), Cells)
          of (NewState, NewCells) => (checkWinCondition(NewState), NewCells)
 
