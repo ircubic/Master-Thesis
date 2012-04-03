@@ -113,6 +113,12 @@ fun printCells(Cells as cell_nil, W, I) : unit = (print "\n")
       printCells(Rest, W, I+1)
     );
 
+fun countCell(Cells as cell_cons(Cell, Rest), I) = countCell(Rest, I+1.0)
+  | countCell(Cells as cell_nil, I) = I;
+
+fun sumCell(Cells as cell_cons(Cell, Rest), I) = sumCell(Rest, I+Cell)
+  | sumCell(Cells as cell_nil, I) = I;
+
 (*****
  * Unittests for helper methods
  *****)
@@ -208,12 +214,6 @@ assertRealSigmaEqual (getQuadDistance(dog4, dog1)) (sqrt(pow(4.0, 2.0) * 2.0)) "
 assertRealSigmaEqual (getQuadDistance(dog2, dog3)) (sqrt(pow(0.4, 2.0))) "(0.0, 0.0) -> (0.4, 0.0) distance wrong";
 
 (* initCells *)
-fun countCell(Cells as cell_cons(Cell, Rest), I) = countCell(Rest, I+1.0)
-  | countCell(Cells as cell_nil, I) = I;
-
-fun sumCell(Cells as cell_cons(Cell, Rest), I) = sumCell(Rest, I+Cell)
-  | sumCell(Cells as cell_nil, I) = I;
-
 val testcells1 = initCells(16.0, 16.0);
 val testcells2 = initCells(3.0, 2.0);
 assertRealSigmaEqual (countCell(testcells1, 0.0)) (16.0*16.0) "Cell count wrong for 16x16";
@@ -291,15 +291,18 @@ assertWon (checkWinCondition(winlosestate)) "Did not tiebreak to win";
 val neutralstate = state(cornercat, topdogs, centercat, size(16.0, 16.0), false, false);
 assertNotOver (checkWinCondition(neutralstate)) "Game was over";
 
-(* initState *)
+(* simtick *)
+val (tickstate, tickcells) = simtick(state1, initCells(16.0, 16.0), 1);
+assertFalse (compareStates(state1, tickstate)) "State did not change during tick";
+assertTrue (realGreater(sumCell(tickcells, 0.0), 0.0)) "Did not visit any cells";
 
+(* initState *)
 val expectedcat = circle(point(8.0, 15.5), catradius); (* Cat on bottom center *)
 val expectedgoal = rect(point(8.0, 1.0), goalsize);
 val expectedstate = state(expectedcat, dogs, expectedgoal, size(16.0, 16.0), false, false);
 assertStatesEqual (initState(size(16.0, 16.0), catradius, dogs, goalsize)) expectedstate "Init wrong state";
 
 (* exitAchiever *)
-
 val eagoal = rect(point(8.0, 1.0), goalsize);
 val eacat1 = circle(point(0.0, 4.0), catradius);
 
