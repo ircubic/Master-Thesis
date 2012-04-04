@@ -6,7 +6,7 @@ val realEqual = Real.==
 val realLess = Real.<
 val sqrt = Math.sqrt
 val realUnaryMinus = Real.~
-val log = Math.ln
+val log10 = Math.ln
 val realFloor = Real.realFloor
 val realAdd = Real.+
 val realSubtract = Real.-
@@ -680,11 +680,11 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
            of true => 0.0
             | false =>
               case Cells
-               of cell_nil => pow((~1.0 / log(VisitSum))*Acc, Weight)
+               of cell_nil => pow((~1.0 / log10(VisitSum))*Acc, Weight)
                 | cell_cons(Cell, CellRest) =>
                   case realEqual(Cell, 0.0)
                    of true => Hn(Weight, CellRest, VisitSum, Acc)
-                    | false => Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log(Cell/VisitSum)))
+                    | false => Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
       and H((Weight, Visits, Sum) : real * visits * real) : real =
           case Visits
            of visit_nil => (Sum/N)
