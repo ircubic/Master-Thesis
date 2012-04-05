@@ -327,12 +327,12 @@ fun checkWinCondition((State as state(Cat, Dogs, Goal,
  *****)
 
 (* The induced function *)
-fun f( (Self, Cat, Dogs, Goal) : entity * entity * entity_list * entity ) : direction =
+fun f( (Self, Cat, Dogs, Goal, Field) : entity * entity * entity_list * entity * size) : direction =
     right (* Placeholder, induction startpoint *)
 
 (* The potential field based cat *)
-fun potentialFieldCat( (Self, Cat, Dogs, Goal)
-                       : entity * entity * entity_list * entity) : direction =
+fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field)
+                       : entity * entity * entity_list * entity * size) : direction =
     let
         fun cost((X, Y) : real * real) : real =
             let
@@ -422,8 +422,8 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal)
     end
 
 (* The exit-achieving cat *)
-fun exitAchiever( (Self, Cat, Dogs, Goal)
-                  : entity * entity * entity_list * entity) : direction =
+fun exitAchiever( (Self, Cat, Dogs, Goal, Field)
+                  : entity * entity * entity_list * entity * size) : direction =
     case getDistance(Self, Goal)
      of point(Dist_x, Dist_y) =>
         case realGreater(abs(Dist_x), abs(Dist_y))
@@ -437,11 +437,11 @@ fun exitAchiever( (Self, Cat, Dogs, Goal)
               | false => up)
 
 (* The AI of the cat *)
-fun catAI( (Self, Cat, Dogs, Goal,  AI) : entity * entity * entity_list * entity * int)
+fun catAI( (Self, Cat, Dogs, Goal, Field, AI) : entity * entity * entity_list * entity * size * int)
     : direction =
     case AI = 1
-      of true => exitAchiever(Self, Cat, Dogs, Goal)
-       | false => potentialFieldCat(Self, Cat, Dogs, Goal)
+      of true => exitAchiever(Self, Cat, Dogs, Goal, Field)
+       | false => potentialFieldCat(Self, Cat, Dogs, Goal, Field)
 
 (* Choose the k nearest dogs to a given dog *)
 fun kNearest((Self, Dogs, K, SelfIndex) : entity * entity_list * real * real) : entity_list =
@@ -500,11 +500,11 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), AI) : st
             case Dogrest
              of entity_nil => dir_nil
               | entity_cons(Dog, Rest) =>
-                dir_cons(f(Dog, Cat, kNearest(Dog, Dogs, 2.0, I), Goal),
+                dir_cons(f(Dog, Cat, kNearest(Dog, Dogs, 2.0, I), Goal, Fieldsize),
                          stepDogs(Rest, I+1.0))
     in
       dir_cons(
-        catAI(Cat, Cat, Dogs, Goal, AI),
+        catAI(Cat, Cat, Dogs, Goal, Fieldsize, AI),
         stepDogs(Dogs, 0.0))
     end
 

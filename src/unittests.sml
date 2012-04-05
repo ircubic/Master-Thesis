@@ -305,14 +305,15 @@ assertStatesEqual (initState(size(16.0, 16.0), catradius, dogs, goalsize)) expec
 (* exitAchiever *)
 val eagoal = rect(point(8.0, 1.0), goalsize);
 val eacat1 = circle(point(0.0, 4.0), catradius);
+val fieldsize = size(16.0, 16.0);
 
-assertDirectionsEqual (exitAchiever(eacat1, eacat1, dogs, eagoal)) right "Did not move right";
+assertDirectionsEqual (exitAchiever(eacat1, eacat1, dogs, eagoal, fieldsize)) right "Did not move right";
 
 val eacat2 = circle(point(8.0, 16.0), catradius);
-assertDirectionsEqual (exitAchiever(eacat2, eacat2, dogs, eagoal)) up "Did not move up";
+assertDirectionsEqual (exitAchiever(eacat2, eacat2, dogs, eagoal, fieldsize)) up "Did not move up";
 
 val eacat3 = circle(point(16.0, 4.0), catradius);
-assertDirectionsEqual (exitAchiever(eacat3, eacat3, dogs, eagoal)) left "Did not move left";
+assertDirectionsEqual (exitAchiever(eacat3, eacat3, dogs, eagoal, fieldsize)) left "Did not move left";
 
 (* aiStep *)
 val expecteddirections = dir_cons(up, dir_cons(right, dir_cons(right, dir_cons(right, dir_nil))));
