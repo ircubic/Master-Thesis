@@ -752,8 +752,16 @@ val Test_inputs = Validation_inputs
 val Funs_to_use = [
   "false", "true",
   "realLess", "realAdd", "realSubtract", "realMultiply",
-  "realDivide", "sigmoid"
+  "realDivide", "tanh",
+  "point", "size", "radius",
+  "left", "right", "up", "down",
+  "dir_nil", "dir_cons",
+  "rect", "circle",
+  "entity_nil", "entity_cons",
+  "getDistance", "getQuadDistance",
+  "clamp", "collide", "ensureInside"
   ]
+
 
 val Reject_funs = []
 
@@ -799,8 +807,8 @@ fun output_eval_fun( I : int, _ , Y : result  ) =
 
 val Max_output_genus_card = 8
 
-val Max_time_limit = 1048576
-val Time_limit_base = 1048576.0
+val Max_time_limit = 1073741824
+val Time_limit_base = 1073741824.0
 
 (* New ADATE *)
 (*
