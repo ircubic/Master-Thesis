@@ -315,11 +315,95 @@ assertDirectionsEqual (exitAchiever(eacat2, eacat2, dogs, eagoal, fieldsize)) up
 val eacat3 = circle(point(16.0, 4.0), catradius);
 assertDirectionsEqual (exitAchiever(eacat3, eacat3, dogs, eagoal, fieldsize)) left "Did not move left";
 
+(* potentialFieldCat *)
+print "potentialFieldCat\n";
+val pfbcat = circle(point(4.271713, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(12.217634, 5.983015), size(1.500000, 1.500000)),
+              entity_cons(rect(point(12.741442, 4.797336), size(1.500000, 1.500000)),
+              entity_cons(rect(point(2.833914, 0.981422), size(1.500000, 1.500000)),
+              entity_cons(rect(point(1.856975, 1.472135), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 0";
+
+val pfbcat = circle(point(12.388265, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(10.327999, 4.639546), size(1.500000, 1.500000)),
+              entity_cons(rect(point(10.546643, 6.618748), size(1.500000, 1.500000)),
+              entity_cons(rect(point(15.161072, 1.246131), size(1.500000, 1.500000)),
+              entity_cons(rect(point(5.341735, 6.924311), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 1";
+
+val pfbcat = circle(point(13.944114, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(8.313818, 5.239870), size(1.500000, 1.500000)),
+              entity_cons(rect(point(4.873439, 6.506942), size(1.500000, 1.500000)),
+              entity_cons(rect(point(15.048927, 1.726095), size(1.500000, 1.500000)),
+              entity_cons(rect(point(11.393722, 1.974984), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 2";
+
+val pfbcat = circle(point(0.954620, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(11.628552, 2.682986), size(1.500000, 1.500000)),
+              entity_cons(rect(point(15.222803, 5.150528), size(1.500000, 1.500000)),
+              entity_cons(rect(point(5.911611, 5.619977), size(1.500000, 1.500000)),
+              entity_cons(rect(point(7.010520, 2.608596), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 3";
+
+val pfbcat = circle(point(6.197611, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(10.930163, 5.212526), size(1.500000, 1.500000)),
+              entity_cons(rect(point(2.122579, 2.373812), size(1.500000, 1.500000)),
+              entity_cons(rect(point(14.627464, 5.980349), size(1.500000, 1.500000)),
+              entity_cons(rect(point(1.621318, 6.231706), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (down) "Did not generate the right direction 4";
+
+val pfbcat = circle(point(9.289694, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(13.455911, 3.836153), size(1.500000, 1.500000)),
+              entity_cons(rect(point(0.920928, 5.479856), size(1.500000, 1.500000)),
+              entity_cons(rect(point(4.891652, 2.503801), size(1.500000, 1.500000)),
+              entity_cons(rect(point(5.319712, 5.578139), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 5";
+
+val pfbcat = circle(point(7.323272, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(1.141562, 4.923918), size(1.500000, 1.500000)),
+              entity_cons(rect(point(8.418577, 3.695147), size(1.500000, 1.500000)),
+              entity_cons(rect(point(2.767205, 2.122635), size(1.500000, 1.500000)),
+              entity_cons(rect(point(6.524598, 5.193550), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 6";
+
+val pfbcat = circle(point(4.125964, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(1.573731, 1.914029), size(1.500000, 1.500000)),
+              entity_cons(rect(point(11.342211, 3.829649), size(1.500000, 1.500000)),
+              entity_cons(rect(point(9.372836, 0.893532), size(1.500000, 1.500000)),
+              entity_cons(rect(point(5.200656, 2.765739), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 7";
+
+val pfbcat = circle(point(7.153173, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(13.698880, 4.151029), size(1.500000, 1.500000)),
+              entity_cons(rect(point(9.060883, 4.706791), size(1.500000, 1.500000)),
+              entity_cons(rect(point(2.526429, 5.654302), size(1.500000, 1.500000)),
+              entity_cons(rect(point(11.412399, 1.456510), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 8";
+
+val pfbcat = circle(point(13.047648, 15.250000), radius(0.750000));
+val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
+val pfbdogs = entity_cons(rect(point(6.099161, 1.742362), size(1.500000, 1.500000)),
+              entity_cons(rect(point(7.557032, 3.789757), size(1.500000, 1.500000)),
+              entity_cons(rect(point(3.287824, 3.995932), size(1.500000, 1.500000)),
+              entity_cons(rect(point(14.629131, 6.313079), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (down) "Did not generate the right direction 9";
+
 (* aiStep *)
+print "aiStep\n";
 val expecteddirections = dir_cons(up, dir_cons(right, dir_cons(right, dir_cons(right, dir_nil))));
 assertDirectionListsEqual (aiStep(state1, 1)) expecteddirections "Directions were wrong";
 
 (* kNearest *)
+print "kNearest\n";
 val knearest_dogs = entity_cons(dog4, entity_cons(dog1, entity_cons(dog2, entity_cons(dog3, entity_nil))));
 val expected_nearest_1 = entity_cons(dog3, entity_nil);
 val found = kNearest(dog2, knearest_dogs, 1.0, 2.0);
@@ -335,6 +419,7 @@ val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
 assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
 
 (* main *)
+print "main\n";
 fun countTicks(Ticks as tick_cons(T,R), N) =
     countTicks(R, N+1.0)
   | countTicks(Ticks as tick_nil, N) = N;
@@ -351,11 +436,14 @@ fun checkResult(derp as result(N, Ticks, Visits), CheckN) =
     assertRealSigmaEqual CheckN tick_count ("Did not create the necessary amount of ticks (" ^ (Real.toString(tick_count)) ^ " != " ^ (Real.toString(CheckN)) ^ ")");
     assertRealSigmaEqual CheckN visit_count ("Did not create the necessary amount of visits (" ^ (Real.toString(visit_count)) ^ " != " ^ (Real.toString(CheckN)) ^ ")")
   end;
+print "START\n";
 checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil))), 100.0);
+print "END\n\n\n";
 checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_nil)), 50.0);
 
 
 (* randReal *)
+print "randReal\n";
 case MLton.Random.useed()
  of NONE => ()
   | SOME(seed) => MLton.Random.srand(seed);

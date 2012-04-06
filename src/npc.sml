@@ -331,7 +331,7 @@ fun f( (Self, Cat, Dogs, Goal, Field) : entity * entity * entity_list * entity *
     right (* Placeholder, induction startpoint *)
 
 (* The potential field based cat *)
-fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field)
+fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                        : entity * entity * entity_list * entity * size) : direction =
     let
         fun cost((X, Y) : real * real) : real =
@@ -351,52 +351,55 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field)
                 and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
                     sqrt(pow(realSubtract(GoalX,X), 2.0) + pow(realSubtract(GoalY,Y), 2.0))
             in
-                dogsCost(X,Y, Dogs) + (
+                dogsCost(X,Y, Dogs) + pow((
                 case Goal
                  of rect(P as point(GoalX, GoalY), S as size(W,H)) =>
                     goalCost(X,Y,GoalX,GoalY)
                   | circle(P as point(GoalX, GoalY), Ra as radius(R)) =>
-                    goalCost(X,Y,GoalX,GoalY)
+                    goalCost(X,Y,GoalX,GoalY), 2.0)
             )
             end
 
-        and directionCosts((X, Y, Distance) : real * real * real) : cost_list =
+        and directionCosts((X, Y, Distance, Stepsize, Padding) : real * real * real * real * real) : cost_list =
             let
-                fun costDriver((CurrentX, CurrentY, DeltaX, DeltaY, Cost, Num)
-                               : real * real * real * real * real * real) : real =
-                    case realEqual(CurrentX, X)
-                     of true => (
-                        case realEqual(CurrentY, Y)
-                         of true => realDivide(Cost,Num)
-                          | false => costDriver(CurrentX+DeltaX,
-                                                CurrentY+DeltaY,
-                                                DeltaX,
-                                                DeltaY,
-                                                realAdd(Cost,cost(CurrentX, CurrentY)),
-                                                realAdd(Num,1.0))
-                        )
+                fun costDriver((CurrentX, CurrentY, DeltaX, DeltaY, TargetDistance, Cost, Num)
+                               : real * real * real * real * real * real * real) : real =
+                    (* Check if we've travelled the desired distance (plus a small fudge factor) *)
+                    case realGreater(sqrt(pow(X-CurrentX, 2.0) + pow(Y-CurrentY, 2.0)), TargetDistance + 0.0001)
+                     of true => realDivide(Cost,Num)
                       | false => costDriver(CurrentX+DeltaX,
-                                            CurrentY+DeltaY,
-                                            DeltaX,
-                                            DeltaY,
-                                            realAdd(Cost,cost(CurrentX, CurrentY)),
-                                            realAdd(Num,1.0))
-                and getEndPoint((Coord, DeltaCoord, Distance) : real * real * real) : real =
-                    case realEqual(DeltaCoord, 0.0)
+                                           CurrentY+DeltaY,
+                                           DeltaX,
+                                           DeltaY,
+                                           TargetDistance,
+                                           realAdd(Cost, cost(CurrentX, CurrentY)),
+                                           realAdd(Num, 1.0))
+                and getEndPoint((Coord, Delta, Dist) : real * real * real) : real =
+                    case realEqual(Delta, 0.0)
                      of true => Coord
-                      | false => Coord + (DeltaCoord*Distance/abs(DeltaCoord))
+                      | false =>
+                        case realLess(Delta, 0.0)
+                         of true => Coord - Dist
+                          | false => Coord + Dist
+                and getEndDistance((X, Y, DeltaX, DeltaY) : real * real * real * real) : real =
+                    sqrt(pow(X - clamp(getEndPoint(X, DeltaX, Distance), Padding, W-Padding), 2.0) +
+                         pow(Y - clamp(getEndPoint(Y, DeltaY, Distance), Padding, H-Padding), 2.0))
                 and directionCost((DeltaX, DeltaY) : real * real) : real =
-                    costDriver(
-                      getEndPoint(X,DeltaX,Distance),
-                      getEndPoint(Y,DeltaY,Distance),
-                      rMinus(DeltaX), rMinus(DeltaY), 0.0, 0.0)
+                    costDriver(X, Y, DeltaX, DeltaY,
+                               getEndDistance(X, Y, DeltaX, DeltaY),
+                               0.0, 0.0)
             in
-                cost_cons(dir_cost(directionCost(0.5, 0.0), right),
-                cost_cons(dir_cost(directionCost(~0.5, 0.0), left),
-                cost_cons(dir_cost(directionCost(0.0, ~0.5), up),
-                cost_cons(dir_cost(directionCost(0.0, 0.5), down), cost_nil))))
+                cost_cons(dir_cost(directionCost(Stepsize, 0.0), right),
+                cost_cons(dir_cost(directionCost(rMinus(Stepsize), 0.0), left),
+                cost_cons(dir_cost(directionCost(0.0, rMinus(Stepsize)), up),
+                cost_cons(dir_cost(directionCost(0.0, Stepsize), down), cost_nil))))
             end
-
+        and dirToString((Dir) : direction) : string =
+            case Dir
+             of left => "left"
+              | right => "right"
+              | up => "up"
+              | down => "down"
         and chooseDirection((CostList) : cost_list) : direction =
             let
                 fun findMin((CostRest,
@@ -406,19 +409,21 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field)
                      of cost_nil => CurrMin
                       | cost_cons(DirCost as dir_cost(Cost, Direction),
                                   Rest) => (
+                        print ((dirToString(Direction)) ^ ": " ^ (Real.toString(Cost)) ^ "\n");
                         case realLess(Cost, MinCost)
                          of true => findMin(Rest, DirCost)
                           | false => findMin(Rest, CurrMin))
             in
                 case findMin(CostList, dir_cost(10000.0, up))
-                 of (MinDirCost as dir_cost(MinCost, MinDir)) => MinDir
+                 of (MinDirCost as dir_cost(MinCost, MinDir)) => (
+                  print ("Best: " ^ (dirToString(MinDir)) ^ ", " ^ (Real.toString(MinCost)) ^ "\n\n");
+                  MinDir)
             end
     in
         case Self
-         of rect(P as point(X,Y), S as size(W,H)) =>
-            chooseDirection(directionCosts(X,Y, 2.0))
+         of rect(P as point(X,Y), S as size(W,H)) => raise D1
           | circle(P as point(X,Y), Ra as radius(R)) =>
-            chooseDirection(directionCosts(X,Y, 2.0))
+            chooseDirection(directionCosts(X,Y, 2.0, 0.5, R))
     end
 
 (* The exit-achieving cat *)
