@@ -337,7 +337,9 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
         fun cost((X, Y) : real * real) : real =
             let
                 fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
-                    1000.0 / (abs(realSubtract(DogX, X)) + abs(realSubtract(DogY, Y)))
+                    (print ("Dog: " ^ (Real.toString(DogX)) ^ "," ^ (Real.toString(DogY)) ^ "\n");
+                    1000.0 / ((abs(realSubtract(DogX, X)) + abs(realSubtract(DogY, Y)))*10.0)
+                    )
                 and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
                     case Dogs
                      of entity_nil => 0.0
@@ -349,15 +351,16 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                             dogCost(X,Y,EntX,EntY),
                         dogsCost(X,Y,Rest))
                 and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
-                    sqrt(pow(realSubtract(GoalX,X), 2.0) + pow(realSubtract(GoalY,Y), 2.0))
+                    abs(realSubtract(GoalX,X)) + abs(realSubtract(GoalY,Y))
             in
-                dogsCost(X,Y, Dogs) + pow((
-                case Goal
-                 of rect(P as point(GoalX, GoalY), S as size(W,H)) =>
-                    goalCost(X,Y,GoalX,GoalY)
-                  | circle(P as point(GoalX, GoalY), Ra as radius(R)) =>
-                    goalCost(X,Y,GoalX,GoalY), 2.0)
-            )
+                dogsCost(X,Y, Dogs) +
+                pow(
+                  case Goal
+                   of rect(P as point(GoalX, GoalY), S as size(W,H)) =>
+                      goalCost(X,Y,GoalX,GoalY)
+                    | circle(P as point(GoalX, GoalY), Ra as radius(R)) =>
+                      goalCost(X,Y,GoalX,GoalY),
+                  2.0)
             end
 
         and directionCosts((X, Y, Distance, Stepsize, Padding) : real * real * real * real * real) : cost_list =
@@ -389,10 +392,11 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                                getEndDistance(X, Y, DeltaX, DeltaY),
                                0.0, 0.0)
             in
+                (print ("Cat: " ^ (Real.toString(X)) ^ "," ^ (Real.toString(Y)) ^ "\n");
                 cost_cons(dir_cost(directionCost(Stepsize, 0.0), right),
                 cost_cons(dir_cost(directionCost(rMinus(Stepsize), 0.0), left),
                 cost_cons(dir_cost(directionCost(0.0, rMinus(Stepsize)), up),
-                cost_cons(dir_cost(directionCost(0.0, Stepsize), down), cost_nil))))
+                cost_cons(dir_cost(directionCost(0.0, Stepsize), down), cost_nil)))))
             end
         and dirToString((Dir) : direction) : string =
             case Dir
@@ -583,10 +587,11 @@ fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
         and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
             case realEqual(N,I)
              of true => result(N*countCats(CatAIs, 0.0), Ticks, Visits)
-              | false =>
+              | false =>(
+                print ("Starting new run" ^ (Real.toString(I)) ^ "\n");
                 case runSimsForCats(Ticks, Visits, CatAIs)
                  of (NewTicks, NewVisits) =>
-                    runSims(N, I+1.0, NewTicks, NewVisits)
+                    runSims(N, I+1.0, NewTicks, NewVisits))
     in
         runSims(50.0, 0.0, tick_nil, visit_nil)
     end
