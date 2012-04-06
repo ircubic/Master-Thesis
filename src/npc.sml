@@ -337,10 +337,8 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
         fun cost((X, Y) : real * real) : real =
             let
                 fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
-                    (print ("Dog: " ^ (Real.toString(DogX)) ^ "," ^ (Real.toString(DogY)) ^ "\n");
                     realDivide(75.0,
                                sqrt(pow(realSubtract(DogX, X), 2.0) + pow(realSubtract(DogY, Y),2.0)))
-                    )
                 and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
                     case Dogs
                      of entity_nil => 0.0
@@ -390,11 +388,10 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                                getEndDistance(X, Y, DeltaX, DeltaY),
                                0.0, 0.0)
             in
-                (print ("Cat: " ^ (Real.toString(X)) ^ "," ^ (Real.toString(Y)) ^ "\n");
                 cost_cons(dir_cost(directionCost(Stepsize, 0.0), right),
                 cost_cons(dir_cost(directionCost(rMinus(Stepsize), 0.0), left),
                 cost_cons(dir_cost(directionCost(0.0, rMinus(Stepsize)), up),
-                cost_cons(dir_cost(directionCost(0.0, Stepsize), down), cost_nil)))))
+                cost_cons(dir_cost(directionCost(0.0, Stepsize), down), cost_nil))))
             end
         and dirToString((Dir) : direction) : string =
             case Dir
@@ -410,16 +407,13 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                     case CostRest
                      of cost_nil => CurrMin
                       | cost_cons(DirCost as dir_cost(Cost, Direction),
-                                  Rest) => (
-                        print ((dirToString(Direction)) ^ ": " ^ (Real.toString(Cost)) ^ "\n");
+                                  Rest) =>
                         case realLess(Cost, MinCost)
                          of true => findMin(Rest, DirCost)
-                          | false => findMin(Rest, CurrMin))
+                          | false => findMin(Rest, CurrMin)
             in
                 case findMin(CostList, dir_cost(10000.0, up))
-                 of (MinDirCost as dir_cost(MinCost, MinDir)) => (
-                  print ("Best: " ^ (dirToString(MinDir)) ^ ", " ^ (Real.toString(MinCost)) ^ "\n\n");
-                  MinDir)
+                 of (MinDirCost as dir_cost(MinCost, MinDir)) => MinDir
             end
     in
         case Self
@@ -585,11 +579,10 @@ fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
         and runSims((N, I, Ticks, Visits) : real * real * ticks * visits) : result =
             case realEqual(N,I)
              of true => result(N*countCats(CatAIs, 0.0), Ticks, Visits)
-              | false =>(
-                print ("Starting new run" ^ (Real.toString(I)) ^ "\n");
+              | false =>
                 case runSimsForCats(Ticks, Visits, CatAIs)
                  of (NewTicks, NewVisits) =>
-                    runSims(N, I+1.0, NewTicks, NewVisits))
+                    runSims(N, I+1.0, NewTicks, NewVisits)
     in
         runSims(50.0, 0.0, tick_nil, visit_nil)
     end

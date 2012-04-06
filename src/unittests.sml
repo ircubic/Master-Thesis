@@ -397,12 +397,10 @@ val pfbdogs = entity_cons(rect(point(6.370148, 4.593856), size(1.500000, 1.50000
 assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (up) "Did not generate the right direction 9";
 
 (* aiStep *)
-print "aiStep\n";
 val expecteddirections = dir_cons(up, dir_cons(right, dir_cons(right, dir_cons(right, dir_nil))));
 assertDirectionListsEqual (aiStep(state1, 1)) expecteddirections "Directions were wrong";
 
 (* kNearest *)
-print "kNearest\n";
 val knearest_dogs = entity_cons(dog4, entity_cons(dog1, entity_cons(dog2, entity_cons(dog3, entity_nil))));
 val expected_nearest_1 = entity_cons(dog3, entity_nil);
 val found = kNearest(dog2, knearest_dogs, 1.0, 2.0);
@@ -418,7 +416,6 @@ val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
 assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
 
 (* main *)
-print "main\n";
 fun countTicks(Ticks as tick_cons(T,R), N) =
     countTicks(R, N+1.0)
   | countTicks(Ticks as tick_nil, N) = N;
@@ -435,14 +432,11 @@ fun checkResult(derp as result(N, Ticks, Visits), CheckN) =
     assertRealSigmaEqual CheckN tick_count ("Did not create the necessary amount of ticks (" ^ (Real.toString(tick_count)) ^ " != " ^ (Real.toString(CheckN)) ^ ")");
     assertRealSigmaEqual CheckN visit_count ("Did not create the necessary amount of visits (" ^ (Real.toString(visit_count)) ^ " != " ^ (Real.toString(CheckN)) ^ ")")
   end;
-print "START\n";
 checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil))), 100.0);
-print "END\n\n\n";
 checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_nil)), 50.0);
 
 
 (* randReal *)
-print "randReal\n";
 case MLton.Random.useed()
  of NONE => ()
   | SOME(seed) => MLton.Random.srand(seed);
