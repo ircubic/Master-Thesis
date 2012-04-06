@@ -338,7 +338,8 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
             let
                 fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
                     (print ("Dog: " ^ (Real.toString(DogX)) ^ "," ^ (Real.toString(DogY)) ^ "\n");
-                    1000.0 / ((abs(realSubtract(DogX, X)) + abs(realSubtract(DogY, Y)))*10.0)
+                    realDivide(75.0,
+                               sqrt(pow(realSubtract(DogX, X), 2.0) + pow(realSubtract(DogY, Y),2.0)))
                     )
                 and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
                     case Dogs
@@ -351,16 +352,13 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                             dogCost(X,Y,EntX,EntY),
                         dogsCost(X,Y,Rest))
                 and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
-                    abs(realSubtract(GoalX,X)) + abs(realSubtract(GoalY,Y))
+                    pow(abs(realSubtract(GoalX,X)) + abs(realSubtract(GoalY,Y)), 2.0)
             in
-                dogsCost(X,Y, Dogs) +
-                pow(
-                  case Goal
+                dogsCost(X,Y, Dogs) + (case Goal
                    of rect(P as point(GoalX, GoalY), S as size(W,H)) =>
                       goalCost(X,Y,GoalX,GoalY)
                     | circle(P as point(GoalX, GoalY), Ra as radius(R)) =>
-                      goalCost(X,Y,GoalX,GoalY),
-                  2.0)
+                      goalCost(X,Y,GoalX,GoalY))
             end
 
         and directionCosts((X, Y, Distance, Stepsize, Padding) : real * real * real * real * real) : cost_list =

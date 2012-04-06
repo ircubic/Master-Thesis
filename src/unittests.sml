@@ -316,86 +316,85 @@ val eacat3 = circle(point(16.0, 4.0), catradius);
 assertDirectionsEqual (exitAchiever(eacat3, eacat3, dogs, eagoal, fieldsize)) left "Did not move left";
 
 (* potentialFieldCat *)
-print "potentialFieldCat\n";
-val pfbcat = circle(point(4.271713, 15.250000), radius(0.750000));
+val pfbcat = circle(point(12.678196, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(12.217634, 5.983015), size(1.500000, 1.500000)),
-              entity_cons(rect(point(12.741442, 4.797336), size(1.500000, 1.500000)),
-              entity_cons(rect(point(2.833914, 0.981422), size(1.500000, 1.500000)),
-              entity_cons(rect(point(1.856975, 1.472135), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 0";
+val pfbdogs = entity_cons(rect(point(5.202365, 6.007207), size(1.500000, 1.500000)),
+              entity_cons(rect(point(3.906677, 2.837593), size(1.500000, 1.500000)),
+              entity_cons(rect(point(4.624321, 3.300351), size(1.500000, 1.500000)),
+              entity_cons(rect(point(6.350092, 4.929192), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 0";
 
-val pfbcat = circle(point(12.388265, 15.250000), radius(0.750000));
+val pfbcat = circle(point(1.122862, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(10.327999, 4.639546), size(1.500000, 1.500000)),
-              entity_cons(rect(point(10.546643, 6.618748), size(1.500000, 1.500000)),
-              entity_cons(rect(point(15.161072, 1.246131), size(1.500000, 1.500000)),
-              entity_cons(rect(point(5.341735, 6.924311), size(1.500000, 1.500000)), entity_nil))));
+val pfbdogs = entity_cons(rect(point(4.832332, 2.547553), size(1.500000, 1.500000)),
+              entity_cons(rect(point(4.362792, 3.075027), size(1.500000, 1.500000)),
+              entity_cons(rect(point(9.642768, 1.773553), size(1.500000, 1.500000)),
+              entity_cons(rect(point(2.083688, 6.908737), size(1.500000, 1.500000)), entity_nil))));
 assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 1";
 
-val pfbcat = circle(point(13.944114, 15.250000), radius(0.750000));
+val pfbcat = circle(point(8.637816, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(8.313818, 5.239870), size(1.500000, 1.500000)),
-              entity_cons(rect(point(4.873439, 6.506942), size(1.500000, 1.500000)),
-              entity_cons(rect(point(15.048927, 1.726095), size(1.500000, 1.500000)),
-              entity_cons(rect(point(11.393722, 1.974984), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 2";
+val pfbdogs = entity_cons(rect(point(9.683803, 6.768601), size(1.500000, 1.500000)),
+              entity_cons(rect(point(2.187700, 4.529318), size(1.500000, 1.500000)),
+              entity_cons(rect(point(3.113659, 6.400661), size(1.500000, 1.500000)),
+              entity_cons(rect(point(10.948328, 0.999753), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (up) "Did not generate the right direction 2";
 
-val pfbcat = circle(point(0.954620, 15.250000), radius(0.750000));
+val pfbcat = circle(point(4.100925, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(11.628552, 2.682986), size(1.500000, 1.500000)),
-              entity_cons(rect(point(15.222803, 5.150528), size(1.500000, 1.500000)),
-              entity_cons(rect(point(5.911611, 5.619977), size(1.500000, 1.500000)),
-              entity_cons(rect(point(7.010520, 2.608596), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 3";
+val pfbdogs = entity_cons(rect(point(14.055367, 3.616983), size(1.500000, 1.500000)),
+              entity_cons(rect(point(7.974229, 3.511837), size(1.500000, 1.500000)),
+              entity_cons(rect(point(13.118111, 5.650652), size(1.500000, 1.500000)),
+              entity_cons(rect(point(8.523403, 5.312626), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 3";
 
-val pfbcat = circle(point(6.197611, 15.250000), radius(0.750000));
+val pfbcat = circle(point(12.307397, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(10.930163, 5.212526), size(1.500000, 1.500000)),
-              entity_cons(rect(point(2.122579, 2.373812), size(1.500000, 1.500000)),
-              entity_cons(rect(point(14.627464, 5.980349), size(1.500000, 1.500000)),
-              entity_cons(rect(point(1.621318, 6.231706), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (down) "Did not generate the right direction 4";
+val pfbdogs = entity_cons(rect(point(4.699375, 1.229002), size(1.500000, 1.500000)),
+              entity_cons(rect(point(0.915708, 2.398130), size(1.500000, 1.500000)),
+              entity_cons(rect(point(6.937085, 5.007756), size(1.500000, 1.500000)),
+              entity_cons(rect(point(8.335199, 0.887783), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 4";
 
-val pfbcat = circle(point(9.289694, 15.250000), radius(0.750000));
+val pfbcat = circle(point(9.836667, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(13.455911, 3.836153), size(1.500000, 1.500000)),
-              entity_cons(rect(point(0.920928, 5.479856), size(1.500000, 1.500000)),
-              entity_cons(rect(point(4.891652, 2.503801), size(1.500000, 1.500000)),
-              entity_cons(rect(point(5.319712, 5.578139), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 5";
+val pfbdogs = entity_cons(rect(point(8.630828, 1.720254), size(1.500000, 1.500000)),
+              entity_cons(rect(point(10.703360, 3.176901), size(1.500000, 1.500000)),
+              entity_cons(rect(point(8.377096, 3.071316), size(1.500000, 1.500000)),
+              entity_cons(rect(point(4.704751, 6.242350), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 5";
 
-val pfbcat = circle(point(7.323272, 15.250000), radius(0.750000));
+val pfbcat = circle(point(1.087577, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(1.141562, 4.923918), size(1.500000, 1.500000)),
-              entity_cons(rect(point(8.418577, 3.695147), size(1.500000, 1.500000)),
-              entity_cons(rect(point(2.767205, 2.122635), size(1.500000, 1.500000)),
-              entity_cons(rect(point(6.524598, 5.193550), size(1.500000, 1.500000)), entity_nil))));
+val pfbdogs = entity_cons(rect(point(11.529223, 5.941070), size(1.500000, 1.500000)),
+              entity_cons(rect(point(11.695907, 5.679923), size(1.500000, 1.500000)),
+              entity_cons(rect(point(6.048183, 5.391677), size(1.500000, 1.500000)),
+              entity_cons(rect(point(8.763626, 5.110556), size(1.500000, 1.500000)), entity_nil))));
 assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (right) "Did not generate the right direction 6";
 
-val pfbcat = circle(point(4.125964, 15.250000), radius(0.750000));
+val pfbcat = circle(point(9.259264, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(1.573731, 1.914029), size(1.500000, 1.500000)),
-              entity_cons(rect(point(11.342211, 3.829649), size(1.500000, 1.500000)),
-              entity_cons(rect(point(9.372836, 0.893532), size(1.500000, 1.500000)),
-              entity_cons(rect(point(5.200656, 2.765739), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 7";
+val pfbdogs = entity_cons(rect(point(8.079236, 3.131562), size(1.500000, 1.500000)),
+              entity_cons(rect(point(11.103833, 7.135100), size(1.500000, 1.500000)),
+              entity_cons(rect(point(6.370609, 2.821092), size(1.500000, 1.500000)),
+              entity_cons(rect(point(10.037263, 6.902399), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (up) "Did not generate the right direction 7";
 
-val pfbcat = circle(point(7.153173, 15.250000), radius(0.750000));
+val pfbcat = circle(point(15.125602, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(13.698880, 4.151029), size(1.500000, 1.500000)),
-              entity_cons(rect(point(9.060883, 4.706791), size(1.500000, 1.500000)),
-              entity_cons(rect(point(2.526429, 5.654302), size(1.500000, 1.500000)),
-              entity_cons(rect(point(11.412399, 1.456510), size(1.500000, 1.500000)), entity_nil))));
+val pfbdogs = entity_cons(rect(point(12.800516, 2.391220), size(1.500000, 1.500000)),
+              entity_cons(rect(point(14.076107, 4.653940), size(1.500000, 1.500000)),
+              entity_cons(rect(point(0.936711, 2.482010), size(1.500000, 1.500000)),
+              entity_cons(rect(point(0.906935, 5.614521), size(1.500000, 1.500000)), entity_nil))));
 assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (left) "Did not generate the right direction 8";
 
-val pfbcat = circle(point(13.047648, 15.250000), radius(0.750000));
+val pfbcat = circle(point(8.546024, 15.250000), radius(0.750000));
 val pfbgoal = rect(point(8.000000, 1.000000), size(5.0, 2.0));
-val pfbdogs = entity_cons(rect(point(6.099161, 1.742362), size(1.500000, 1.500000)),
-              entity_cons(rect(point(7.557032, 3.789757), size(1.500000, 1.500000)),
-              entity_cons(rect(point(3.287824, 3.995932), size(1.500000, 1.500000)),
-              entity_cons(rect(point(14.629131, 6.313079), size(1.500000, 1.500000)), entity_nil))));
-assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (down) "Did not generate the right direction 9";
+val pfbdogs = entity_cons(rect(point(6.370148, 4.593856), size(1.500000, 1.500000)),
+              entity_cons(rect(point(6.452047, 3.473053), size(1.500000, 1.500000)),
+              entity_cons(rect(point(14.455731, 3.100848), size(1.500000, 1.500000)),
+              entity_cons(rect(point(11.563294, 1.895398), size(1.500000, 1.500000)), entity_nil))));
+assertEqual (potentialFieldCat(pfbcat, pfbcat, pfbdogs, pfbgoal, size(16.000000, 16.000000))) (up) "Did not generate the right direction 9";
 
 (* aiStep *)
 print "aiStep\n";
