@@ -8,11 +8,19 @@ game opponents. With that in mind, we describe a prototype game to be used for
 simulation and the learning method in detail. In addition, we will briefly cover
 the simulation platform (ADATE).
 
+We will be basing our experimental method on the one presented in
+\citet{yannakakis2005ai}, due their high applicability to our goals. More
+specifically, we will be using our own implementation of the Dead End game
+testbed as described in \citet[Chap.~5]{yannakakis2005ai}, as well as the
+interest metrics described in \citet[Chap.~2]{yannakakis2005ai}. The details of
+the testbed and the interest metrics, as well as our changes to them, will be
+noted throughout this chapter.
+
 \section{The Dead End Game}
 \label{sec:game}
 
 The simulation environment we will be using is an adapted version of the Dead
-End computer game used in \citet{yannakakis2005ai}, a predator-prey game where
+End computer game \citep[Chap.~5]{yannakakis2005ai}, a predator-prey game where
 the player (the prey) has to reach the goal before being captured by a group of
 opponents (the predators). This game environment is sufficiently simple that
 it's easy to model, but also sufficiently complex and dynamic to provide a good
