@@ -364,7 +364,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                 fun costDriver((CurrentX, CurrentY, DeltaX, DeltaY, TargetDistance, Cost, Num)
                                : real * real * real * real * real * real * real) : real =
                     (* Check if we've travelled the desired distance (plus a small fudge factor) *)
-                    case realGreater(sqrt(pow(X-CurrentX, 2.0) + pow(Y-CurrentY, 2.0)), TargetDistance + 0.0001)
+                    case realGreater(sqrt(pow(realSubtract(X, CurrentX), 2.0) + pow(realSubtract(Y, CurrentY), 2.0)), TargetDistance + 0.0001)
                      of true => realDivide(Cost,Num)
                       | false => costDriver(CurrentX+DeltaX,
                                            CurrentY+DeltaY,
@@ -378,11 +378,11 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                      of true => Coord
                       | false =>
                         case realLess(Delta, 0.0)
-                         of true => Coord - Dist
-                          | false => Coord + Dist
+                         of true => realSubtract(Coord, Dist)
+                          | false => realAdd(Coord, Dist)
                 and getEndDistance((X, Y, DeltaX, DeltaY) : real * real * real * real) : real =
-                    sqrt(pow(X - clamp(getEndPoint(X, DeltaX, Distance), Padding, W-Padding), 2.0) +
-                         pow(Y - clamp(getEndPoint(Y, DeltaY, Distance), Padding, H-Padding), 2.0))
+                    sqrt(pow(realSubtract(X, clamp(getEndPoint(X, DeltaX, Distance), Padding, W-Padding)), 2.0) +
+                         pow(realSubtract(Y, clamp(getEndPoint(Y, DeltaY, Distance), Padding, H-Padding)), 2.0))
                 and directionCost((DeltaX, DeltaY) : real * real) : real =
                     costDriver(X, Y, DeltaX, DeltaY,
                                getEndDistance(X, Y, DeltaX, DeltaY),
@@ -827,9 +827,9 @@ fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) )
 
 
 val OnlyCountCalls = false
-val max_time_limit  = fn () => 262144
-val max_test_time_limit = fn () => 262144
-val time_limit_base = fn () => 262144.0
+val max_time_limit : unit -> word = fn () => 0w1073741824
+val max_test_time_limit : unit -> word = fn () => 0w1073741824
+val time_limit_base = fn () => 1073741824.0
 
 fun max_syntactic_complexity() = 500.0
 fun min_syntactic_complexity() = 0.0
