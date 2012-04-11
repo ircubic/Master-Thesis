@@ -393,12 +393,6 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                 cost_cons(dir_cost(directionCost(0.0, rMinus(Stepsize)), up),
                 cost_cons(dir_cost(directionCost(0.0, Stepsize), down), cost_nil))))
             end
-        and dirToString((Dir) : direction) : string =
-            case Dir
-             of left => "left"
-              | right => "right"
-              | up => "up"
-              | down => "down"
         and chooseDirection((CostList) : cost_list) : direction =
             let
                 fun findMin((CostRest,
