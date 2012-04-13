@@ -4,9 +4,10 @@
 
 This chapter presents the methodology used to complete the aims of the thesis,
 primarily the use of inductive programming, via ADATE, to evolve interesting
-game opponents. With that in mind, we describe a prototype game to be used for
-simulation and the learning method in detail. In addition, we will briefly cover
-the simulation platform (ADATE).
+game opponents. With that in mind, we describe the overall experimental method,
+followed by the description of a prototype game to be used for simulation and
+then we will briefly cover some details of the actual implementation of the
+simulation platform and its specification.
 
 We will be basing our experimental method on the one presented in
 \citet{yannakakis2005ai}, due their high applicability to our goals. More
@@ -20,22 +21,22 @@ noted throughout this chapter.
 \label{sec:game}
 
 The simulation environment we will be using is an adapted version of the Dead
-End computer game \citep[Chap.~5]{yannakakis2005ai}, a predator-prey game where
-the player (the prey) has to reach the goal before being captured by a group of
-opponents (the predators). This game environment is sufficiently simple that
-it's easy to model, but also sufficiently complex and dynamic to provide a good
-basis for using evolutionary techniques to create interesting AI strategies. The
-game will be considered from the viewpoint of the opponents (the predators) in
-an attempt to evolve characters that exhibit the ability to cooperate based on
-partial information, with the capability to play effectively against a player
-following a fixed strategy.
+End computer game used in \citet{yannakakis2005ai}; it is a predator-prey game
+where the player (the prey) has to reach the goal before being captured by a
+group of opponents (the predators). This game environment is sufficiently simple
+that it's easy to model, but also sufficiently complex and dynamic to provide a
+good basis for using evolutionary techniques to create interesting AI
+strategies. The game will be considered from the viewpoint of the opponents (the
+predators) in an attempt to evolve characters that exhibit the ability to
+cooperate based on partial information, with the capability to play effectively
+against a player following a fixed strategy.
 
 \subsection{Game Description}
 \label{sec:game-description}
 
 In this section we will describe our implementation of the Dead End game in
-sufficient detail to give a good understanding for how it works, as well as in
-which ways it differs from the reference implementation.
+sufficient detail to give a good understanding for how it works, as well the
+ways in which it differs from the reference implementation.
 \citep[see][Chap.~5]{yannakakis2005ai}
 
 The game is played on a two-dimensional field of size 16cm x 16cm (while we use
@@ -193,15 +194,50 @@ closely they can cooperate.
 
 The output is the Dog's chosen movement direction: left, right, up, or down.
 
+
 \section{Experiment}
 \label{sec:experiment}
 
+The experimental method followed had three main steps: implementing the
+simulation platform and specification, generating promising candidate opponents
+for further evaluation,\marginpar{Use online learning methods to improve (?).}
+and evaluating the generated candidate opponents vs. pre-programmed opponents.
+%These three steps are introduced here, then expanded on in further sections.
 
-\subsection{Specification}
-\label{sec:specification}
+The simulation platform consisted of two parts: the simulation environment and
+the ADATE specification. The simulation environment was an ADATE-ML
+implementation of the Dead End game, included in the specification, and an
+accompanying Python version for visualizing; the specification, in addition to
+the specification, contained an input generation function, an evaluation
+function for generated opponents, some support code needed by these, and various
+parameters to configure the ADATE system.
 
-\subsection{Testbed}
-\label{sec:testbed}
+We then let the ADATE system run for a period of XXX\marginpar{Insert time here}
+to generate individuals. The generated individuals were examined and various
+individuals were picked out for further examination were picked out based on
+their interest metrics and some other factors.
+
+To examine the chosen opponent individuals further we put them up against pre-
+programmed AI player characters, while monitoring their behaviour and
+performance in higher detail. This data was then collated and compared against
+the performance of a selection pre-programmed opponent behaviour.
+
+\section{Simulation platform}
+\label{sec:sim-platform}
+
+The implementation of the simulation platform started with a rough mockup of the
+game written using Python and the Pygame framework \citep{pygame}. The mockup
+was created to get an idea of the complexity of the solution as well as to serve
+as a way to visually present the platform. The solution was then gradually
+translated into ADATE-ML, with the Python version serving as a reference
+implementation.
+
+Spec.
+
+Interest function.
+
+\section{Running the system}
+\label{sec:running-system}
 
 
 
