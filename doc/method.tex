@@ -198,16 +198,16 @@ The output is the Dog's chosen movement direction: left, right, up, or down.
 \section{Experiment}
 \label{sec:experiment}
 
-The experimental method followed had three main steps: implementing the
-simulation platform and specification, generating promising candidate opponents
-for further evaluation,\marginpar{Use online learning methods to improve (?).}
+\marginpar{Also use online learning methods to improve (?).} The experimental
+method followed had three main steps: implementing the simulation platform and
+specification, generating promising candidate opponents for further evaluation,
 and evaluating the generated candidate opponents vs. pre-programmed opponents.
 %These three steps are introduced here, then expanded on in further sections.
 
-The simulation platform consisted of two parts: the simulation environment and
-the ADATE specification. The simulation environment was an ADATE-ML
+The simulation platform consisted of two parts: a simulation environment and a
+specification for use in ADATE. The simulation environment was an ADATE-ML
 implementation of the Dead End game, included in the specification, and an
-accompanying Python version for visualizing; the specification, in addition to
+accompanying Python version for visualizing. The specification, in addition to
 the specification, contained an input generation function, an evaluation
 function for generated opponents, some support code needed by these, and various
 parameters to configure the ADATE system.
@@ -225,19 +225,39 @@ the performance of a selection pre-programmed opponent behaviour.
 \section{Simulation platform}
 \label{sec:sim-platform}
 
-The implementation of the simulation platform started with a rough mockup of the
-game written using Python and the Pygame framework \citep{pygame}. The mockup
-was created to get an idea of the complexity of the solution as well as to serve
-as a way to visually present the platform. The solution was then gradually
-translated into ADATE-ML, with the Python version serving as a reference
-implementation.
+The simulation platform used in our experiment had two main parts: the
+simulation environment, the Dead End game as described in
+Section~\ref{sec:game}, and a specification for the ADATE system that will be
+used to generate opponents.
 
-Spec.
+\subsection{Simulation environment}
+\label{sec:sim-environment}
 
-Interest function.
+When we implemented the Dead End game, our simulation environment, we made two
+separate implementations of it with slightly different goals. One was
+implemented in ADATE-ML to be used as the simulation platform in our
+specification; the other was implemented in Python using the Pygame framework
+\citep{pygame} to serve as a way to visualize the game, as well as to leave the
+option open for having humans play the game in place of AI if necessary.
 
-\section{Running the system}
-\label{sec:running-system}
+As the ADATE-ML implementation was created with the sole goal of being used in
+the specification, it lacked any of the structure needed for it to resemble a
+real consumer game; therefore, it was not well suited for visualizing the
+platform, supporting alternative methods of play or collecting data other than
+what was needed to measure the performance of individuals.
+
+\marginpar{Include picture here} To address this problem, and to give us a
+better platform to study the behaviour of generated individuals, the game was
+reimplemented in Python using the Pygame framework \citep{pygame}. This
+implementation was done in a manner more resembling a consumer game, included
+facilities to allow humans to play the game in place of an AI player character,
+and contained much better facilities for gathering data about the performance of
+the characters in the game.
+
+\subsection{Specification}
+\label{sec:specification}
+
+\subsubsection{Interest function}
 
 
 
