@@ -34,6 +34,12 @@ exception D2
 exception D3
 (*CUT BEFORE*)
 
+fun rconstLess( ( X, C ) : real * rconst ) : bool =
+  case C of rconst( Compl, StepSize, Current ) => realLess( X, Current )
+
+fun tor( C : rconst ) : real =
+  case C of rconst( Compl, StepSize, Current ) => Current
+
 fun rMinus(X : real) : real = 0.0 - X
 
 fun abs((X) : real) : real =
@@ -748,6 +754,7 @@ val Funs_to_use = [
   "false", "true",
   "realLess", "realAdd", "realSubtract", "realMultiply",
   "realDivide", "tanh",
+  "sqrt", "tor", "rconstLess",
   "point", "size", "radius",
   "left", "right", "up", "down",
   "dir_nil", "dir_cons",
@@ -802,8 +809,8 @@ fun output_eval_fun( I : int, _ , Y : result  ) =
 
 val Max_output_genus_card = 8
 
-val Max_time_limit = 1073741824
-val Time_limit_base = 1073741824.0
+val Max_time_limit = 4194304
+val Time_limit_base = 4194304.0
 
 (* New ADATE *)
 (*
