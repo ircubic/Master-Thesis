@@ -297,10 +297,12 @@ assertFalse (compareStates(state1, tickstate)) "State did not change during tick
 assertTrue (realGreater(sumCell(tickcells, 0.0), 0.0)) "Did not visit any cells";
 
 (* initState *)
-val expectedcat = circle(point(8.0, 15.5), catradius); (* Cat on bottom center *)
 val expectedgoal = rect(point(8.0, 1.0), goalsize);
-val expectedstate = state(expectedcat, dogs, expectedgoal, size(16.0, 16.0), false, false);
-assertStatesEqual (initState(size(16.0, 16.0), catradius, dogs, goalsize)) expectedstate "Init wrong state";
+val teststate = initState(size(16.0, 16.0), catradius, dogs, goalsize);
+case teststate
+ of state(circle(point(X,Y), radius(R)), _,_,_,_,_) => (
+    assertStatesEqual (teststate) (state(circle(point(X, 15.5), catradius), dogs, expectedgoal, size(16.0, 16.0), false, false)) "Init wrong state")
+ | _ => assertTrue (false) "Wrong cat";
 
 (* exitAchiever *)
 val eagoal = rect(point(8.0, 1.0), goalsize);

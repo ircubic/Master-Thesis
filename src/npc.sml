@@ -532,8 +532,9 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
                Goalsize as size(Goalwidth, Goalheight)
               ) : size * radius * entity_list * size) : state =
     state(
-      (* Cat is placed on the bottom center. *)
-      circle(point(Fieldwidth/2.0, Fieldheight - Radius),
+      (* Cat is placed randomly on the bottom. *)
+      circle(point(Radius + aRand(0.0)*(Fieldwidth - (Radius*2.0)),
+                   Fieldheight - Radius),
              Catradius),
       (* Use the passed in dogs *)
       Dogs,
