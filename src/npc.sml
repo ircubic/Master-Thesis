@@ -442,12 +442,27 @@ fun exitAchiever( (Self, Cat, Dogs, Goal, Field)
              of true => down
               | false => up)
 
+fun randomCat( (Self, Cat, Dogs, Goal, Field)
+                : entity * entity * entity_list * entity * size ) : direction =
+    case aRand(0.0) of Value =>
+    case Value < 0.25
+     of true => left | false =>
+     case Value < 0.5
+      of true => up | false =>
+      case Value < 0.75
+       of true => right
+        | false => down
+
+
 (* The AI of the cat *)
 fun catAI( (Self, Cat, Dogs, Goal, Field, AI) : entity * entity * entity_list * entity * size * int)
     : direction =
     case AI = 1
       of true => exitAchiever(Self, Cat, Dogs, Goal, Field)
-       | false => potentialFieldCat(Self, Cat, Dogs, Goal, Field)
+       | false =>
+       case AI = 2
+        of true => potentialFieldCat(Self, Cat, Dogs, Goal, Field)
+         | false => randomCat(Self, Cat, Dogs, Goal, Field)
 
 (* Choose the k nearest dogs to a given dog *)
 fun kNearest((Self, Dogs, K, SelfIndex) : entity * entity_list * real * real) : entity_list =
@@ -590,7 +605,10 @@ fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
                  of (NewTicks, NewVisits) =>
                     runSims(N, I+1.0, NewTicks, NewVisits)
     in
-        runSims(50.0, 0.0, tick_nil, visit_nil)
+        (
+          sRand(0);
+          runSims(50.0, 0.0, tick_nil, visit_nil)
+        )
     end
 
 (*****
@@ -735,7 +753,7 @@ in
 end
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0),
-                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
+                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_cons(3, cat_ai_nil))))
 val Outputs = []
 
 val Validation_inputs = []
