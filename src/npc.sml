@@ -32,6 +32,17 @@ exception D0
 exception D1
 exception D2
 exception D3
+
+fun sRand(Seed:int):int = (
+  case MLton.Random.useed()
+         of NONE => ()
+          | SOME(seed) => MLton.Random.srand(seed); 0)
+
+fun aRand(Dummy:real):real =
+    (* Fairly unsure if this is correct actually (I'm assuming
+     * an MLton word is 32 bits)
+     *)
+    (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
 (*CUT BEFORE*)
 
 fun rMinus(X : real) : real = 0.0 - X
@@ -587,15 +598,6 @@ fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
 
 (*%%*)
 
-
-
-(* Generate a random real between 0.0 and 1.0 *)
-fun randReal() : real =
-    (* Fairly unsure if this is correct actually (I'm assuming
-     * an MLton word is 32 bits)
-     *)
-    (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
-
 (* Generate randomly placed dogs inside the given field *)
 fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
                 Dogsize as size(Dogwidth, Dogheight),
@@ -605,8 +607,8 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
         fun nextDog((Rest):int) : entity_list =
             entity_cons(
               rect(
-                point(Dogwidth/2.0 + (randReal()*Fieldwidth),
-                      Dogheight/2.0 + (randReal()*Fieldheight)),
+                point(Dogwidth/2.0 + (aRand(0.0)*Fieldwidth),
+                      Dogheight/2.0 + (aRand(0.0)*Fieldheight)),
                 Dogsize),
               (* If we are not on the last index, add another dog *)
               case Rest > 0
@@ -615,9 +617,7 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
             )
     in
         (* Start counting down the indexes *)
-        case MLton.Random.useed()
-         of NONE => ()
-          | SOME(seed) => MLton.Random.srand(seed);
+        sRand(0);
         nextDog(Dognumber-1)
     end
 

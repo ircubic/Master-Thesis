@@ -436,19 +436,21 @@ checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil))), 100
 checkResult(main(knearest_dogs, cat_ai_cons(1, cat_ai_nil)), 50.0);
 
 
-(* randReal *)
-case MLton.Random.useed()
- of NONE => ()
-  | SOME(seed) => MLton.Random.srand(seed);
+(* aRand *)
+sRand(0);
 
-fun testRands (N:int) =
+fun testRands (N:int, Max:real, Min:real) =
   if N > 0 then
-    let val rand = randReal() in (
+    let val rand = aRand(0.0) in (
       assertTrue (rand >= 0.0 andalso rand <= 1.0) "Rand not within bounds";
-      testRands(N-1))
+      testRands(N-1,
+                (if rand > Max then rand else Max),
+                (if rand < Min then rand else Min)))
     end
-  else ();
-testRands(10000);
+  else
+    assertTrue (Min < 0.05 andalso Max > 0.95) "Rand did not seem uniform";
+
+testRands(10000, 0.0, 2.0);
 
 
 (* randomDogs *)
@@ -493,18 +495,18 @@ fun sanityTestResults(N:int) =
   let
     fun genGame (N, I, Ticks, Visits) =
       if I < N then
-        genGame(N, I+1.0, tick_cons(realFloor(randReal()*49.0+1.0), Ticks), visit_cons(genRandCells(), Visits))
+        genGame(N, I+1.0, tick_cons(realFloor(aRand(0.0)*49.0+1.0), Ticks), visit_cons(genRandCells(), Visits))
       else
         result(N, Ticks, Visits)
     and genRandCells () =
-      genRandCell(realFloor(randReal()*16.0*16.0+1.0), 0.0, cell_nil)
+      genRandCell(realFloor(aRand(0.0)*16.0*16.0+1.0), 0.0, cell_nil)
     and genRandCell(N, I, Cells) =
       if N < I then
         Cells
       else
-        genRandCell(N, I+1.0, cell_cons(realFloor(randReal() * 50.0), Cells))
+        genRandCell(N, I+1.0, cell_cons(realFloor(aRand(0.0) * 50.0), Cells))
     and genResult () =
-      genGame(realFloor((randReal() * 99.0) + 1.0), 0.0, tick_nil, visit_nil)
+      genGame(realFloor((aRand(0.0) * 99.0) + 1.0), 0.0, tick_nil, visit_nil)
   in
     if 0 < N then
       let val I = interest(genResult()) in
