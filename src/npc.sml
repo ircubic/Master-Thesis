@@ -741,14 +741,9 @@ end
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0),
                               cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
-val Outputs = []
 
-val Validation_inputs = []
-val Validation_outputs = []
-
-val Test_inputs = Validation_inputs
-
-(*val All_outputs =  Vector.fromList( Outputs @ Validation_outputs )*)
+val Test_inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0),
+                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
 
 val Funs_to_use = [
   "false", "true",
