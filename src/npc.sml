@@ -45,6 +45,12 @@ fun aRand(Dummy:real):real =
     (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
 (*CUT BEFORE*)
 
+fun rconstLess( ( X, C ) : real * rconst ) : bool =
+  case C of rconst( Compl, StepSize, Current ) => realLess( X, Current )
+
+fun tor( C : rconst ) : real =
+  case C of rconst( Compl, StepSize, Current ) => Current
+
 fun rMinus(X : real) : real = 0.0 - X
 
 fun abs((X) : real) : real =
@@ -442,27 +448,12 @@ fun exitAchiever( (Self, Cat, Dogs, Goal, Field)
              of true => down
               | false => up)
 
-fun randomCat( (Self, Cat, Dogs, Goal, Field)
-                : entity * entity * entity_list * entity * size ) : direction =
-    case aRand(0.0) of Value =>
-    case Value < 0.25
-     of true => left | false =>
-     case Value < 0.5
-      of true => up | false =>
-      case Value < 0.75
-       of true => right
-        | false => down
-
-
 (* The AI of the cat *)
 fun catAI( (Self, Cat, Dogs, Goal, Field, AI) : entity * entity * entity_list * entity * size * int)
     : direction =
     case AI = 1
       of true => exitAchiever(Self, Cat, Dogs, Goal, Field)
-       | false =>
-       case AI = 2
-        of true => potentialFieldCat(Self, Cat, Dogs, Goal, Field)
-         | false => randomCat(Self, Cat, Dogs, Goal, Field)
+       | false => potentialFieldCat(Self, Cat, Dogs, Goal, Field)
 
 (* Choose the k nearest dogs to a given dog *)
 fun kNearest((Self, Dogs, K, SelfIndex) : entity * entity_list * real * real) : entity_list =
@@ -547,9 +538,8 @@ fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
                Goalsize as size(Goalwidth, Goalheight)
               ) : size * radius * entity_list * size) : state =
     state(
-      (* Cat is placed randomly on the bottom. *)
-      circle(point(Radius + aRand(0.0)*(Fieldwidth - (Radius*2.0)),
-                   Fieldheight - Radius),
+      (* Cat is placed on the bottom center. *)
+      circle(point(Fieldwidth/2.0, Fieldheight - Radius),
              Catradius),
       (* Use the passed in dogs *)
       Dogs,
@@ -605,10 +595,7 @@ fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
                  of (NewTicks, NewVisits) =>
                     runSims(N, I+1.0, NewTicks, NewVisits)
     in
-        (
-          sRand(0);
-          runSims(50.0, 0.0, tick_nil, visit_nil)
-        )
+        runSims(50.0, 0.0, tick_nil, visit_nil)
     end
 
 (*****
@@ -616,6 +603,15 @@ fun main( (Dogs, CatAIs) : entity_list * cat_ai_list ) : result  =
  *****)
 
 (*%%*)
+
+
+
+(* Generate a random real between 0.0 and 1.0 *)
+fun randReal() : real =
+    (* Fairly unsure if this is correct actually (I'm assuming
+     * an MLton word is 32 bits)
+     *)
+    (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
 
 (* Generate randomly placed dogs inside the given field *)
 fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
@@ -626,8 +622,8 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
         fun nextDog((Rest):int) : entity_list =
             entity_cons(
               rect(
-                point(Dogwidth/2.0 + (aRand(0.0)*Fieldwidth),
-                      Dogheight/2.0 + (aRand(0.0)*Fieldheight)),
+                point(Dogwidth/2.0 + (randReal()*Fieldwidth),
+                      Dogheight/2.0 + (randReal()*Fieldheight)),
                 Dogsize),
               (* If we are not on the last index, add another dog *)
               case Rest > 0
@@ -636,7 +632,9 @@ fun randomDogs((Dogfield as size(Fieldwidth, Fieldheight),
             )
     in
         (* Start counting down the indexes *)
-        sRand(0);
+        case MLton.Random.useed()
+         of NONE => ()
+          | SOME(seed) => MLton.Random.srand(seed);
         nextDog(Dognumber-1)
     end
 
@@ -753,20 +751,16 @@ in
 end
 
 val Inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0),
-                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_cons(3, cat_ai_nil))))
-val Outputs = []
+                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
 
-val Validation_inputs = []
-val Validation_outputs = []
-
-val Test_inputs = Validation_inputs
-
-(*val All_outputs =  Vector.fromList( Outputs @ Validation_outputs )*)
+val Test_inputs = generateDogLists(50, 4, size(1.5, 1.5), size(16.0,16.0),
+                              cat_ai_cons(1, cat_ai_cons(2, cat_ai_nil)))
 
 val Funs_to_use = [
   "false", "true",
   "realLess", "realAdd", "realSubtract", "realMultiply",
   "realDivide", "tanh",
+  "sqrt", "tor", "rconstLess",
   "point", "size", "radius",
   "left", "right", "up", "down",
   "dir_nil", "dir_cons",
@@ -821,8 +815,8 @@ fun output_eval_fun( I : int, _ , Y : result  ) =
 
 val Max_output_genus_card = 8
 
-val Max_time_limit = 1073741824
-val Time_limit_base = 1073741824.0
+val Max_time_limit = 4194304
+val Time_limit_base = 4194304.0
 
 (* New ADATE *)
 (*
