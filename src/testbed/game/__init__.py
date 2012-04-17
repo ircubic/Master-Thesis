@@ -224,6 +224,8 @@ class Game(object):
             elif event.type == KEYDOWN:
                 if event.key in DIR_MAP:
                     self.input.keydown(DIR_MAP[event.key])
+                elif event.key == K_ESCAPE:
+                    self.run = False
             elif event.type == KEYUP:
                 if event.key in DIR_MAP:
                     self.input.keyup(DIR_MAP[event.key])
