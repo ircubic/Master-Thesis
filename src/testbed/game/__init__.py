@@ -143,7 +143,7 @@ class Game(object):
         """
         """
         self.input = InputState()
-        self.simulation = Simulation(ai.random_ai, ai.random_ai, num_dogs=4)
+        self.simulation = Simulation(ai.potential_field_cat, ai.random_ai, num_dogs=4)
         self.simstate = self.simulation.getState()
         field = self.simulation.getFieldSize()
 
