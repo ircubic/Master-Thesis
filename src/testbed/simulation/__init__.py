@@ -119,10 +119,12 @@ class Simulation(object):
         state = self.getState()
         moves = []
         moves.append(self._cat_ai(state["cat"], state["cat"],
-                                  state["dogs"], state["goal"]))
+                                  state["dogs"], state["goal"],
+                                  self._field_size))
         for i in range(len(self._dogs)):
             moves.append(self._dog_ai(state["dogs"][i], state["cat"],
-                                      state["dogs"], state["goal"]))
+                                      state["dogs"], state["goal"],
+                                      self._field_size))
         return moves
 
     def circleBox(self, radius):
