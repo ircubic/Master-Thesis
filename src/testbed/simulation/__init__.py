@@ -1,8 +1,8 @@
 import random
 from datetime import datetime
 
-import simulation.ai as ai
-from simulation.chars import Entity
+import ai
+from chars import Entity
 
 class Simulation(object):
     """Represents the simulation part of the test bed.
@@ -11,10 +11,10 @@ class Simulation(object):
     decision making for the entities.
     """
 
-    CAT_SIZE = (1.5, 1.5)
-    DOG_RADIUS = CAT_SIZE[0]/2
+    CAT_RADIUS = 0.75
+    DOG_SIZE = (1.5, 1.5)
     GOAL_SIZE = (5, 2)
-    CAT_SPEED = CAT_SIZE[0]
+    CAT_SPEED = 2.0
     DOG_SPEED = CAT_SPEED*3.0/4.0
 
 
@@ -37,25 +37,25 @@ class Simulation(object):
         self._field_size = field_size
 
         # Set up the field and place entities within
-        centerx = field_size[0]*0.5
         height = field_size[1]
         width = field_size[0]
         # We want the cat to start flush with the bottom, in the center
-        self._cat = Entity((centerx, height-self.CAT_SIZE[1]*0.5),
+        self._cat = Entity((random.uniform(self.CAT_RADIUS, width-self.CAT_RADIUS),
+                            height-self.CAT_RADIUS),
                            self.CAT_SPEED)
 
         # The goal is flush with the top, also centered
-        self._goal = Entity((centerx, self.GOAL_SIZE[1]*0.5), 0)
+        self._goal = Entity((width/2.0, self.GOAL_SIZE[1]/2.0), 0)
 
         # The dogs are arranged randomly within the top half of the screen
         self._dogs = []
-        dog_padding = (self.DOG_RADIUS,self.DOG_RADIUS)
+        dog_padding = (self.DOG_SIZE[0]/2.0,self.DOG_SIZE[1]/2.0)
         x_range = (dog_padding[0], width-dog_padding[0])
-        y_range = (dog_padding[1], (height/2)-dog_padding[1])
+        y_range = (dog_padding[1], (height/2.0)-dog_padding[1])
         for i in range(num_dogs):
             dogx = random.uniform(x_range[0], x_range[1])
             dogy = random.uniform(y_range[0], y_range[1])
-            self._dogs.append(Entity((dogx,dogy), self.DOG_SPEED))
+            self._dogs.append(Entity((dogx, dogy), self.DOG_SPEED))
 
         self._cat_ai = cat_ai
         self._dog_ai = dog_ai
@@ -119,11 +119,13 @@ class Simulation(object):
         moves = []
         moves.append(self._cat_ai(state["cat"], state["cat"],
                                   state["dogs"], state["goal"]))
-        for i, dog in enumerate(self._dogs):
+        for i in range(len(self._dogs)):
             moves.append(self._dog_ai(state["dogs"][i], state["cat"],
                                       state["dogs"], state["goal"]))
         return moves
 
+    def circleBox(self, radius):
+        return (radius*2.0, radius*2.0)
 
     def _updateState(self, moves):
         """Update the positions of entities according to the moves.
@@ -133,18 +135,18 @@ class Simulation(object):
         the remaining are for the dogs.
         """
         self._cat.move(moves[0])
-        self._ensureInside(self._cat, self.CAT_SIZE)
-        for i in range(len(self._dogs)):
-            self._dogs[i].move(moves[i+1])
-            self._ensureInside(self._dogs[i], (self.DOG_RADIUS*2, self.DOG_RADIUS*2))
+        self._ensureInside(self._cat, self.circleBox(self.CAT_RADIUS))
+        for i, dog in enumerate(self._dogs):
+            dog.move(moves[i+1])
+            self._ensureInside(dog, self.DOG_SIZE)
 
 
     def _ensureInside(self, entity, size):
         """Ensure that the entity is inside the field.
 
         Arguments:
-        - `entity`:
-        - `size`:
+        - `entity`: The given entity
+        - `size`: The bounding box of the entity
         """
         pos = entity.getPosition()
         new_pos = list(pos)
@@ -175,13 +177,13 @@ class Simulation(object):
         """Check for collisions between cat and other entities.
         """
         collisions = []
-        cat_rect = self._cat.getPosition() + self.CAT_SIZE
+        cat_circle = self._cat.getPosition() + (self.CAT_RADIUS,)
         goal_rect = self._goal.getPosition() + self.GOAL_SIZE
         for dog in self._dogs:
-            dog_circle = dog.getPosition() + (self.DOG_RADIUS,)
-            if self._collideCircleWithRect(dog_circle, cat_rect):
+            dog_rect = dog.getPosition() + self.DOG_SIZE
+            if self._collideCircleWithRect(cat_circle, dog_rect):
                 collisions.append("dog")
-        if self._collideRectWithRect(cat_rect, goal_rect):
+        if self._collideCircleWithRect(cat_circle, goal_rect):
             collisions.append("goal")
         return collisions
 
@@ -245,3 +247,12 @@ class Simulation(object):
                               (distance_y - collide_height)**2)
 
         return (square_corner_dist <= circle[2]**2)
+
+if __name__ == '__main__':
+    from pprint import pprint
+    sim = Simulation(ai.random_ai, ai.follower_ai, num_dogs=4)
+    pprint(sim.getState())
+    sim.simtick()
+    pprint(sim.getState())
+    sim.simtick()
+    pprint(sim.getState())

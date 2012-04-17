@@ -143,7 +143,7 @@ class Game(object):
         """
         """
         self.input = InputState()
-        self.simulation = Simulation(ai.control_ai, ai.follower_ai, num_dogs=4)
+        self.simulation = Simulation(ai.random_ai, ai.random_ai, num_dogs=4)
         self.simstate = self.simulation.getState()
         field = self.simulation.getFieldSize()
 
@@ -201,13 +201,17 @@ class Game(object):
             rect2 = pygame.Rect(0,0, 5*self.PPU, 2*self.PPU)
             rect2.center = self.goal.position
             pygame.draw.rect(self.screen, (255,0,0), rect2, 1)
-        for entity in self.dogs + [self.cat]:
+        for entity in self.dogs:
             rect = entity.getRect()
             self.screen.blit(entity.image, rect)
             if self.DEBUG:
-                rect2 = pygame.Rect(0,0, 1.5*self.PPU, 1.5*self.PPU)
+                dogsize = self.simulation.DOG_SIZE
+                rect2 = pygame.Rect(0,0, dogsize[0]*self.PPU, dogsize[1]*self.PPU)
                 rect2.center = entity.position
                 pygame.draw.rect(self.screen, (255,0,0), rect2, 1)
+        catrect = self.cat.getRect()
+        self.screen.blit(self.cat.image, catrect)
+        pygame.draw.circle(self.screen, (255,0,0), catrect.center, int(round(self.simulation.CAT_RADIUS*self.PPU)), 1)
         pygame.display.flip()
 
 
