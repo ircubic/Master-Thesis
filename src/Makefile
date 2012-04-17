@@ -1,7 +1,9 @@
 default: compile
 
-spec: npc.sml specscrubber.sed
+specfile: npc.sml specscrubber.sed
 	sed -f specscrubber.sed npc.sml > npc.spec
+
+spec: specfile
 	makespec npc.spec
 	cat main1.sml npc.spec.sml main2.sml > main.sml
 	mlt
