@@ -158,6 +158,8 @@ class Game(object):
         self.subfont = pygame.font.Font(None, 25)
 
         self.clock = pygame.time.Clock()
+        self.wins = 0
+        self.losses = 0
         self.entityInit()
 
 
@@ -198,6 +200,13 @@ class Game(object):
             self.clock.tick(30)
             self.draw()
 
+    def draw_text(self, text, x, y):
+        text_s = self.subfont.render(text, True, (255,255,255))
+        text_r = text_s.get_rect()
+        text_r.x = x
+        text_r.y = y
+        self.screen.blit(text_s, text_r)
+        return text_r.bottom
 
     def draw(self):
         """
@@ -218,7 +227,10 @@ class Game(object):
                 pygame.draw.rect(self.screen, (255,0,0), rect2, 1)
         catrect = self.cat.getRect()
         self.screen.blit(self.cat.image, catrect)
-        pygame.draw.circle(self.screen, (255,0,0), catrect.center, int(round(self.simulation.CAT_RADIUS*self.PPU)), 1)
+        pygame.draw.circle(self.screen, (255,0,0), catrect.center,
+                           int(round(self.simulation.CAT_RADIUS*self.PPU)), 1)
+        next_y = self.draw_text("Wins: %d" % self.wins, 5, 5)
+        self.draw_text("Losses: %d" % self.losses, 5, next_y)
         pygame.display.flip()
 
 
@@ -268,5 +280,9 @@ class Game(object):
 
             self.tickcount += 1
         else:
+            if self.simstate["win"]:
+                self.wins += 1
+            else:
+                self.losses += 1
             self.simulationInit()
             self.entityInit()
