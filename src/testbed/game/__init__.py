@@ -162,7 +162,7 @@ class Game(object):
         self.background.fill((200,200,200))
 
         self.font = pygame.font.Font(None, 35)
-        self.subfont = pygame.font.Font(None, 25)
+        self.subfont = pygame.font.Font(None, 20)
 
         self.clock = pygame.time.Clock()
         self.wins = 0
