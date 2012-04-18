@@ -1,6 +1,7 @@
 import pygame
 import os.path
 import math
+import pprint
 from pygame.locals import *
 
 from simulation import Simulation

@@ -23,8 +23,10 @@ def exit_achiever(current, cat, dogs, goal, field):
     """Exit-achieving cat
 
     """
-    x_diff = goal[0]-cat[0]
-    y_diff = goal[1]-cat[1]
+    (currentx, currenty) = current.getPosition()
+    (goalx, goaly) = goal.getPosition()
+    x_diff = goalx-currentx
+    y_diff = goaly-currenty
     if abs(x_diff) > abs(y_diff):
         if x_diff > 0:
             return 'right'
@@ -38,9 +40,11 @@ def exit_achiever(current, cat, dogs, goal, field):
 
 def pfb_cost(x,y,dogs,goal):
         cost = 0.0
-        for dogx, dogy in dogs:
+        for dog in dogs:
+            (dogx, dogy) = dog.getPosition()
             cost += 75 / (abs(dogx-x) + abs(dogy-y))
-        cost += sqrt((4*(goal[0]-x))**2 + (4*(goal[1]-y))**2)
+        (goalx, goaly) = goal.getPosition()
+        cost += sqrt((4*(goalx-x))**2 + (4*(goaly-y))**2)
         return cost
 
 def potential_field_cat(current, cat, dogs, goal, field):
@@ -49,13 +53,14 @@ def potential_field_cat(current, cat, dogs, goal, field):
     """
     def diravgcost(dogs, goal, begin, end, step):
         def ensureInside(pos):
+            radius = cat.getShape().getRadius()
             return (
-                max(0.75, #HAX
+                max(radius,
                     min(pos[0],
-                        field[0]-0.75)), #HAX
-                max(0.75, #HAX
+                        field[0]-radius)),
+                max(radius,
                     min(pos[1],
-                        field[1]-0.75)) #HAX
+                        field[1]-radius))
             )
 
         end = ensureInside(end)
@@ -79,19 +84,22 @@ def potential_field_cat(current, cat, dogs, goal, field):
             if traveled > 1.001:
                 going = False
         return costsum/steps
+
+    speed = current.getSpeed()
     DIRS = {
-        "left": (-2.0, 0.0), #HAX
-        "right": (2.0, 0.0), #HAX
-        "up": (0.0, -2.0), #HAX
-        "down": (0.0, 2.0) #HAX
+        "left": (-speed, 0.0),
+        "right": (speed, 0.0),
+        "up": (0.0, -speed),
+        "down": (0.0, speed)
     }
     mindir = ""
     mincost = 1000000. #Arbitrary high number
 
     # Order specified to ensure match with ML-code
+    (catx, caty) = cat.getPosition()
     for direction in ("right", "left", "up", "down"):
-        v = DIRS[direction]
-        c = diravgcost(dogs, goal, cat, (cat[0]+v[0], cat[1]+v[1]), 0.5)
+        (vx, vy) = DIRS[direction]
+        c = diravgcost(dogs, goal, (catx, caty), (catx+vx, caty+vy), 0.5)
         if c < mincost:
             mindir = direction
             mincost = c
@@ -102,8 +110,10 @@ def follower_ai(current, cat, dogs, goal, field):
 
     Tries to minimize the manhattan distance between self and cat.
     """
-    diffx = cat[0] - current[0]
-    diffy = cat[1] - current[1]
+    (catx, caty) = cat.getPosition()
+    (currentx, currenty) = current.getPosition()
+    diffx = catx - currentx
+    diffy = caty - currenty
     if abs(diffx) > abs(diffy):
         if diffx > 0:
             return 'right'

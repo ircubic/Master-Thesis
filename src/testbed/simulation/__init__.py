@@ -126,14 +126,13 @@ class Simulation(object):
         Call the AI functions for all the entities and gather up their movement
         decisions, then return them.
         """
-        state = self.getState()
         moves = []
-        moves.append(self._cat_ai(state["cat"], state["cat"],
-                                  state["dogs"], state["goal"],
+        moves.append(self._cat_ai(self._cat, self._cat,
+                                  self._dogs, self._goal,
                                   self._field_size))
-        for i in range(len(self._dogs)):
-            moves.append(self._dog_ai(state["dogs"][i], state["cat"],
-                                      state["dogs"], state["goal"],
+        for dog in self._dogs:
+            moves.append(self._dog_ai(dog, self._cat,
+                                      self._dogs, self._goal,
                                       self._field_size))
         return moves
 
