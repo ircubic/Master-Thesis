@@ -1,3 +1,5 @@
+from math import *
+
 def collideRectWithRect(rect1, rect2):
     """Check for collision between two rectangles
 
@@ -60,7 +62,7 @@ def collideCircleWithCircle(circle1, circle2):
     (x2, y2) = circle2.getPosition()
     return (sum_radius <= sqrt((x1-x2)**2 + (y1-y2)**2))
 
-def _collideShapes(shape1, shape2):
+def collideShapes(shape1, shape2):
     if hasattr(shape1,'getSize'):
         if hasattr(shape2, 'getSize'):
             return collideRectWithRect(shape1, shape2)
@@ -74,4 +76,12 @@ def _collideShapes(shape1, shape2):
     return false
 
 def collide(entity1, entity2):
-    return _collideShapes(entity1.getShape(), entity2.getShape())
+    return collideShapes(entity1.getShape(), entity2.getShape())
+
+def getDistance(entity1, entity2):
+    return (entity2.x-entity1.x,
+            entity2.x-entity1.x)
+
+def getQuadDistance(entity1, entity2):
+    diffx, diffy = getDistance(entity1, entity2)
+    return sqrt(diffx**2 + diffy**2)

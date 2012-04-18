@@ -1,6 +1,7 @@
 import random
 from math import *
-
+from simulation.chars import *
+from simulation.util import *
 
 _cat_move = ""
 
@@ -121,3 +122,29 @@ def follower_ai(current, cat, dogs, goal, field):
             return 'down'
         else:
             return 'up'
+
+# fun f( Self, Cat, Dogs, Goal, Field ) =
+#  case
+#    collide(
+#      circle(getDistance( Self, Goal ),
+#             radius(getQuadDistance(Goal, Cat))),
+#      Self
+#    )
+#   of true => right
+#    | false => (
+#      case
+#        collide( Goal,
+#                 rect( getDistance( Goal, Cat ), Field ) )
+#       of false => up
+#        | true => left
+#      )
+def f(current, cat, dogs, goal, field):
+    if collideShapes(Circle(getDistance(current, goal), getQuadDistance(goal, cat)),
+                     current.getShape()):
+        return 'right'
+    else:
+        if collideShapes(goal.getShape(),
+                         Rect(getDistance(goal, cat), field)):
+            return 'up'
+        else:
+            return 'left'
