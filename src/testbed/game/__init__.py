@@ -43,6 +43,7 @@ class GameEntity(object):
         self.image = load_png(image)
         self.position = list(position)
         self.current_target = position
+        self.old_target = position
         self.rect = self.image.get_rect()
         self.rect.center = self.position
 
@@ -143,12 +144,10 @@ class Game(object):
         """
         """
         self.input = InputState()
-        self.simulation = Simulation(ai.potential_field_cat, ai.random_ai, num_dogs=4)
-        self.simstate = self.simulation.getState()
-        field = self.simulation.getFieldSize()
+        self.simulationInit()
 
-        self.screen = pygame.display.set_mode((int(math.ceil(field[0]*self.PPU)),
-                                               int(math.ceil(field[1]*self.PPU))))
+        self.screen = pygame.display.set_mode((int(math.ceil(self.field[0]*self.PPU)),
+                                               int(math.ceil(self.field[1]*self.PPU))))
         pygame.display.set_caption('Dead End')
 
         bg = pygame.Surface(self.screen.get_size())
@@ -159,10 +158,19 @@ class Game(object):
         self.subfont = pygame.font.Font(None, 25)
 
         self.clock = pygame.time.Clock()
+        self.entityInit()
+
+
+
+    def simulationInit(self):
+        self.simulation = Simulation(ai.potential_field_cat, ai.random_ai, num_dogs=4)
+        self.simstate = self.simulation.getState()
+        self.field = self.simulation.getFieldSize()
         self.tickcount = 0
         self.run = True
         self.gameover = False
 
+    def entityInit(self):
         self.cat = GameEntity(self.CAT_IMG,
                               self._simToGamePosition(self.simstate["cat"]))
         self.dogs = []
@@ -170,7 +178,6 @@ class Game(object):
             self.dogs.append(GameEntity(self.DOG_IMG, self._simToGamePosition(dog)))
         self.goal = GameEntity(self.GOAL_IMG,
                                self._simToGamePosition(self.simstate["goal"]))
-
 
 
     def _simToGamePosition(self, position):
@@ -260,3 +267,6 @@ class Game(object):
                 dog.updatePosition(percentage)
 
             self.tickcount += 1
+        else:
+            self.simulationInit()
+            self.entityInit()
