@@ -36,6 +36,7 @@ class Simulation(object):
         self._gameover = False
         self._win = False
         self._field_size = field_size
+        self._ticks = 0
 
         # Set up the field and place entities within
         height = field_size[1]
@@ -98,10 +99,12 @@ class Simulation(object):
         return self._field_size
 
 
-
     def simtick(self, ):
         """Do one tick of the simulation.
         """
+        if self._ticks >= 50:
+            self._gameover = True
+            self._win = True
         if not self._gameover:
             self._last_tick = datetime.now()
             moves = self._aiStep()
@@ -113,6 +116,7 @@ class Simulation(object):
                     self._win = True
                 if "dog" in collisions:
                     self._win = False
+        self._ticks += 1
         return self.getState()
 
 
