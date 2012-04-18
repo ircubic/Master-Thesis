@@ -148,6 +148,9 @@ class Game(object):
         self.input = InputState()
         self.logger = game.datalogger.GameDataLogger()
 
+        self.cat_ais = [ai.random_ai, ai.exit_achiever, ai.potential_field_cat]
+        self.current_ai = 0
+
         self.simulationInit()
 
         self.screen = pygame.display.set_mode((int(math.ceil(self.field[0]*self.PPU)),
@@ -170,7 +173,9 @@ class Game(object):
 
 
     def simulationInit(self):
-        self.simulation = Simulation(ai.potential_field_cat, ai.random_ai, num_dogs=4)
+        cat_ai = self.cat_ais[self.current_ai]
+        self.current_ai = (self.current_ai + 1) % len(self.cat_ais)
+        self.simulation = Simulation(cat_ai, ai.f, num_dogs=4)
         self.simstate = self.simulation.getState()
         self.field = self.simulation.getFieldSize()
         self.tickcount = 0
