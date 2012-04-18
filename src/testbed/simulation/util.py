@@ -8,19 +8,10 @@ def collideRectWithRect(rect1, rect2):
     - `rect1`: Rectangle 1
     - `rect2`: Rectangle 2
     """
-
-    left1 = rect1[0]-(rect1[2]*0.5)
-    right1 = rect1[0]+(rect1[2]*0.5)
-    top1 = rect1[1]-(rect1[3]*0.5)
-    bottom1 = rect1[1]+(rect1[3]*0.5)
-
-    left2 = rect2[0]-(rect2[2]*0.5)
-    right2 = rect2[0]+(rect2[2]*0.5)
-    top2 = rect2[1]-(rect2[3]*0.5)
-    bottom2 = rect2[1]+(rect2[3]*0.5)
-
-    if (bottom1 < top2 or top1 > bottom2 or
-        right1 < left2 or left1 > right2):
+    if (rect1.getBottom() < rect2.getTop() or
+        rect1.getTop() > rect2.getBottom() or
+        rect1.getRight() < rect2.getLeft() or
+        rect1.getLeft() > rect2.getRight()):
         return False
     else:
         return True
@@ -38,14 +29,19 @@ def collideCircleWithRect(circle, rect):
     - `circle`: The circle to check
     - `rect`: The rectangle to check
     """
-    distance_x = abs(circle[0] - rect[0])
-    distance_y = abs(circle[1] - rect[1])
-    collide_width = rect[2]/2
-    collide_height = rect[3]/2
+    (cx, cy) = circle.getPosition()
+    radius = circle.getRadius()
+    (rx, ry) = rect.getPosition()
+    (rw, rh) = rect.getSize()
 
-    if distance_x > (collide_width + circle[2]):
+    distance_x = abs(cx - rx)
+    distance_y = abs(cy - ry)
+    collide_width = rw/2.
+    collide_height = rh/2.
+
+    if distance_x > (collide_width + radius):
         return False
-    if distance_y > (collide_height + circle[2]):
+    if distance_y > (collide_height + radius):
         return False
 
     if distance_x <= collide_width:
@@ -56,4 +52,26 @@ def collideCircleWithRect(circle, rect):
     square_corner_dist = ((distance_x - collide_width)**2 +
                           (distance_y - collide_height)**2)
 
-    return (square_corner_dist <= circle[2]**2)
+    return (square_corner_dist <= radius**2)
+
+def collideCircleWithCircle(circle1, circle2):
+    sum_radius = circle1.getRadius() + circle2.getRadius()
+    (x1, y1) = circle1.getPosition()
+    (x2, y2) = circle2.getPosition()
+    return (sum_radius <= sqrt((x1-x2)**2 + (y1-y2)**2))
+
+def _collideShapes(shape1, shape2):
+    if hasattr(shape1,'getSize'):
+        if hasattr(shape2, 'getSize'):
+            return collideRectWithRect(shape1, shape2)
+        elif hasattr(shape2, 'getRadius'):
+            return collideCircleWithRect(shape2, shape1)
+    elif hasattr(shape1, 'getRadius'):
+        if hasattr(shape2, 'getSize'):
+            return collideCircleWithRect(shape1, shape2)
+        elif hasattr(shape2, 'getRadius'):
+            return collidieCircleWithCircle(shape1, shape2)
+    return false
+
+def collide(entity1, entity2):
+    return _collideShapes(entity1.getShape(), entity2.getShape())

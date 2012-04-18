@@ -3,7 +3,7 @@ from datetime import datetime
 
 from util import *
 import ai
-from chars import Entity
+from chars import Entity, Rect, Circle
 
 class Simulation(object):
     """Represents the simulation part of the test bed.
@@ -41,12 +41,16 @@ class Simulation(object):
         height = field_size[1]
         width = field_size[0]
         # We want the cat to start flush with the bottom, in the center
-        self._cat = Entity((random.uniform(self.CAT_RADIUS, width-self.CAT_RADIUS),
-                            height-self.CAT_RADIUS),
+        self._cat = Entity(Circle((random.uniform(self.CAT_RADIUS,
+                                                  width-self.CAT_RADIUS),
+                                   height-self.CAT_RADIUS),
+                                  self.CAT_RADIUS),
                            self.CAT_SPEED)
 
         # The goal is flush with the top, also centered
-        self._goal = Entity((width/2.0, self.GOAL_SIZE[1]/2.0), 0)
+        self._goal = Entity(Rect((width/2.0, self.GOAL_SIZE[1]/2.0),
+                                 self.GOAL_SIZE),
+                            0.0)
 
         # The dogs are arranged randomly within the top half of the screen
         self._dogs = []
@@ -56,7 +60,9 @@ class Simulation(object):
         for i in range(num_dogs):
             dogx = random.uniform(x_range[0], x_range[1])
             dogy = random.uniform(y_range[0], y_range[1])
-            self._dogs.append(Entity((dogx, dogy), self.DOG_SPEED))
+            dog = Entity(Rect((dogx, dogy), self.DOG_SIZE),
+                         self.DOG_SPEED)
+            self._dogs.append(dog)
 
         self._cat_ai = cat_ai
         self._dog_ai = dog_ai
@@ -127,9 +133,6 @@ class Simulation(object):
                                       self._field_size))
         return moves
 
-    def circleBox(self, radius):
-        return (radius*2.0, radius*2.0)
-
     def _updateState(self, moves):
         """Update the positions of entities according to the moves.
 
@@ -138,13 +141,13 @@ class Simulation(object):
         the remaining are for the dogs.
         """
         self._cat.move(moves[0])
-        self._ensureInside(self._cat, self.circleBox(self.CAT_RADIUS))
+        self._ensureInside(self._cat)
         for i, dog in enumerate(self._dogs):
             dog.move(moves[i+1])
-            self._ensureInside(dog, self.DOG_SIZE)
+            self._ensureInside(dog)
 
 
-    def _ensureInside(self, entity, size):
+    def _ensureInside(self, entity):
         """Ensure that the entity is inside the field.
 
         Arguments:
@@ -152,24 +155,23 @@ class Simulation(object):
         - `size`: The bounding box of the entity
         """
         pos = entity.getPosition()
+        shape = entity.getShape()
         new_pos = list(pos)
 
-        left = pos[0]-size[0]*0.5
-        right = pos[0]+size[0]*0.5
-        top = pos[1]-size[1]*0.5
-        bottom = pos[1]+size[1]*0.5
+        width = shape.getRight() - shape.getLeft()
+        height = shape.getBottom() - shape.getTop()
 
-        if left < 0:
-            new_pos[0] = size[0]*0.5
-        elif right > self._field_size[0]:
-            new_pos[0] = self._field_size[0]-size[0]*0.5
+        if shape.getLeft() < 0:
+            new_pos[0] = width*0.5
+        elif shape.getRight() > self._field_size[0]:
+            new_pos[0] = self._field_size[0]-width*0.5
         else:
             new_pos[0] = pos[0]
 
-        if top < 0:
-            new_pos[1] = size[1]*0.5
-        elif bottom > self._field_size[1]:
-            new_pos[1] = self._field_size[1]-size[0]*0.5
+        if shape.getTop() < 0:
+            new_pos[1] = height*0.5
+        elif shape.getBottom() > self._field_size[1]:
+            new_pos[1] = self._field_size[1]-height*0.5
         else:
             new_pos[1] = pos[1]
 
@@ -180,13 +182,10 @@ class Simulation(object):
         """Check for collisions between cat and other entities.
         """
         collisions = []
-        cat_circle = self._cat.getPosition() + (self.CAT_RADIUS,)
-        goal_rect = self._goal.getPosition() + self.GOAL_SIZE
         for dog in self._dogs:
-            dog_rect = dog.getPosition() + self.DOG_SIZE
-            if collideCircleWithRect(cat_circle, dog_rect):
+            if collide(self._cat, dog):
                 collisions.append("dog")
-        if collideCircleWithRect(cat_circle, goal_rect):
+        if collide(self._cat, self._goal):
             collisions.append("goal")
         return collisions
 
