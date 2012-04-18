@@ -6,6 +6,7 @@ from pygame.locals import *
 
 from simulation import Simulation
 import simulation.ai as ai
+import game.datalogger
 
 def load_png(name):
 	""" Load image and return image object"""
@@ -145,6 +146,8 @@ class Game(object):
         """
         """
         self.input = InputState()
+        self.logger = game.datalogger.GameDataLogger()
+
         self.simulationInit()
 
         self.screen = pygame.display.set_mode((int(math.ceil(self.field[0]*self.PPU)),
@@ -161,6 +164,7 @@ class Game(object):
         self.clock = pygame.time.Clock()
         self.wins = 0
         self.losses = 0
+        self.interest = 0.
         self.entityInit()
 
 
@@ -172,6 +176,7 @@ class Game(object):
         self.tickcount = 0
         self.run = True
         self.gameover = False
+        self.logger.gameStarted(self.field)
 
     def entityInit(self):
         self.cat = GameEntity(self.CAT_IMG,
@@ -230,8 +235,10 @@ class Game(object):
         self.screen.blit(self.cat.image, catrect)
         pygame.draw.circle(self.screen, (255,0,0), catrect.center,
                            int(round(self.simulation.CAT_RADIUS*self.PPU)), 1)
+
         next_y = self.draw_text("Wins: %d" % self.wins, 5, 5)
-        self.draw_text("Losses: %d" % self.losses, 5, next_y)
+        next_y = self.draw_text("Losses: %d" % self.losses, 5, next_y)
+        self.draw_text("Interest: %.8f" % self.interest, 5, next_y)
         pygame.display.flip()
 
 
@@ -265,6 +272,7 @@ class Game(object):
             # final position, as we are on the final tick of this game
             if self.simstate["gameover"] == False:
                 self.simstate = self.simulation.simtick()
+                self.logger.gameTicked(self.simstate)
                 self.cat.updateTarget(self._simToGamePosition(self.simstate["cat"]))
                 for simdog, gamedog in zip(self.simstate["dogs"], self.dogs):
                     gamedog.updateTarget(self._simToGamePosition(simdog))
@@ -281,9 +289,11 @@ class Game(object):
 
             self.tickcount += 1
         else:
-            if self.simstate["win"]:
-                self.wins += 1
-            else:
-                self.losses += 1
+            self.logger.gameEnded(self.simstate["win"])
+            N, wins, interest = self.logger.getStats(1.0, 1.0, 1.0)
+
+            self.wins = wins
+            self.losses = N-wins
+            self.interest = interest
             self.simulationInit()
             self.entityInit()
