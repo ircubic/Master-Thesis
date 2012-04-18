@@ -139,3 +139,19 @@ class Entity(object):
 
     def setSpeed(self, new_speed):
         self._speed = float(new_speed)
+
+    @property
+    def x(self):
+        return self.getPosition()[0]
+
+    @property
+    def y(self):
+        return self.getPosition()[1]
+
+    @property
+    def radius(self):
+        return self._shape.getRadius()
+
+    @property
+    def size(self):
+        return self._shape.getSize()
