@@ -114,7 +114,7 @@ class Simulation(object):
                 self._gameover = True
                 if "goal" in collisions:
                     self._win = True
-                if "dog" in collisions:
+                elif "dog" in collisions:
                     self._win = False
         self._ticks += 1
         return self.getState()
