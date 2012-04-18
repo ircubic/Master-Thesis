@@ -134,7 +134,7 @@ class Game(object):
     # Pixels Per (simulation) Unit
     PPU = 30.0
     # Game ticks per sim tick
-    TICKFACTOR = 6.0
+    TICKFACTOR = 1.0
 
     CAT_IMG = 'nyan.png'
     DOG_IMG = 'dog.png'
@@ -208,7 +208,7 @@ class Game(object):
         while self.run:
             self.handleEvents()
             self.updateGameState()
-            self.clock.tick(30)
+            self.clock.tick(60)
             self.draw()
 
     def draw_text(self, text, x, y):
