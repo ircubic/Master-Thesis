@@ -11,3 +11,7 @@ auto/
 test.sml
 npc.spec
 npc.spec.sml
+/src/main.sml
+/src/main1.sml
+/src/main2.sml
+/src/test
