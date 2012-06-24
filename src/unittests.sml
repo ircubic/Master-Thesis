@@ -405,15 +405,15 @@ assertDirectionListsEqual (aiStep(state1, 1)) expecteddirections "Directions wer
 (* kNearest *)
 val knearest_dogs = entity_cons(dog4, entity_cons(dog1, entity_cons(dog2, entity_cons(dog3, entity_nil))));
 val expected_nearest_1 = entity_cons(dog3, entity_nil);
-val found = kNearest(dog2, knearest_dogs, 1.0, 2.0);
+val found = kNearest(dog2, knearest_dogs, 1.0, 2);
 assertDogsEqual (found) expected_nearest_1 "Not the right nearest dogs; k=1";
 
 val expected_nearest_2 = entity_cons(dog3, entity_cons(dog1, entity_nil));
-val found = kNearest(dog2, knearest_dogs, 2.0, 2.0);
+val found = kNearest(dog2, knearest_dogs, 2.0, 2);
 assertDogsEqual (found) expected_nearest_2 "Not the right nearest dogs; k=2";
 
 val knearest_with_dup = entity_cons(dog2, knearest_dogs);
-val found = kNearest(dog2, knearest_with_dup, 2.0, 3.0);
+val found = kNearest(dog2, knearest_with_dup, 2.0, 3);
 val expected_nearest_dup = entity_cons(dog2, entity_cons(dog3, entity_nil));
 assertDogsEqual (found) expected_nearest_dup "Not the right nearest dogs with dup; k=2";
 
@@ -595,4 +595,3 @@ val I = interest(
 ])));
 
 assertRealSigmaEqual (I) (0.50450121054301633) ("The interest value returned (" ^ (Real.toString(I)) ^ ") was not correct");
-
