@@ -625,14 +625,14 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
 
 (*%%*)
 
+val Seed1 = 719561528
+val Seed2 = 937436219
 
-
-(* Generate a random real between 0.0 and 1.0 *)
-fun randReal() : real =
-    (* Fairly unsure if this is correct actually (I'm assuming
-     * an MLton word is 32 bits)
-     *)
-    (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
+val RandState = Random.rand( Seed1, Seed2 )
+val randInt = fn() => Random.randInt (RandState)
+val randNat = fn() => Random.randNat (RandState)
+val randReal = fn() => Random.randReal (RandState)
+val randRange = fn(Low,High) => Random.randRange (Low,High) (RandState)
 
 fun interest((Result as result(N, Ticks, Visits)) : result) : real =
     let
@@ -6280,38 +6280,25 @@ fun sqr( X : real ) = X * X
 fun to( G : real ) : LargeInt.int =
   Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e10 )
 
-fun output_eval_fun( I : int, _ , Y : result  ) =
-  case interest Y of G =>
-  if G > 1.0E30 orelse not( Real.isFinite G ) then
-    { numCorrect = 0, numWrong = 1, grade = to 1.0e30 }
-  else
-    { numCorrect = 1, numWrong = 0, grade = to G }
-
-
-val Max_output_genus_card = 8
-
-val Max_time_limit = 4194304
-val Time_limit_base = 4194304.0
 
 (* New ADATE *)
-(*
 val AllAtOnce = false
 fun compile_transform D = D
 val print_synted_program  = Print.print_dec'
 
 fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) )
     : { grade: Grade.grade, numCorrect : int, numWrong : int } list  =
-  case interest Y of G =>
-  if G > 1.0E30 orelse not( Real.isFinite G ) then
+  case ~( interest Y ) of G =>
+  if abs G > 1.0E30 orelse not( Real.isFinite G ) then
     [{ numCorrect = 1, numWrong = 0, grade = to 1.0e30 }]
   else
     [{ numCorrect = 1, numWrong = 0, grade = to G }]
 
 
 val OnlyCountCalls = false
-val max_time_limit : unit -> word = fn () => 0w1073741824
-val max_test_time_limit : unit -> word = fn () => 0w1073741824
-val time_limit_base = fn () => 1073741824.0
+val max_time_limit  = fn () => 50000000
+val max_test_time_limit = fn () => 50000000
+val time_limit_base = fn () => 50000000.0
 
 fun max_syntactic_complexity() = 500.0
 fun min_syntactic_complexity() = 0.0
@@ -6325,4 +6312,3 @@ val StochasticMode = false
 val Number_of_output_attributes : int = 4
 
 fun terminate( Nc, G )  = false
-*)
