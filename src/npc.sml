@@ -44,6 +44,8 @@ fun aRand(Dummy:real):real =
      * an MLton word is 32 bits)
      *)
     (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
+datatype rconst = rconst of real * real * real
+
 (*CUT BEFORE*)
 
 fun rconstLess( ( X, C ) : real * rconst ) : bool =
@@ -646,11 +648,13 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
 val Seed1 = 719561528
 val Seed2 = 937436219
 
+(*
 val RandState = Random.rand( Seed1, Seed2 )
 val randInt = fn() => Random.randInt (RandState)
 val randNat = fn() => Random.randNat (RandState)
 val randReal = fn() => Random.randReal (RandState)
 val randRange = fn(Low,High) => Random.randRange (Low,High) (RandState)
+*)
 
 fun interest((Result as result(N, Ticks, Visits)) : result) : real =
     let
@@ -737,11 +741,20 @@ let
         | false => false )
     | _ => false
 
+  fun cellListsEqual( List1 : cell_list, List2 : cell_list) : bool =
+      case ( List1, List2 )
+       of (cell_list_nil, cell_list_nil) => true
+        | (cell_list_cons(Cells1, Rest1), cell_list_cons(Cells2, Rest2)) => (
+          case cellsEqual(Cells1, Cells2)
+           of true => cellListsEqual(Rest1, Rest2)
+            | false => false
+          )
+        | _ => false
   fun visitsEqual( Visits1 : visits, Visits2 : visits ) : bool =
     case ( Visits1, Visits2 ) of
       ( visit_nil, visit_nil ) => true
-    | ( visit_cons( Cells1, RVisits1 ), visit_cons( Cells2, RVisits2 ) ) => (
-        case cellsEqual( Cells1, Cells2 ) of
+    | ( visit_cons( List1, RVisits1 ), visit_cons( List2, RVisits2 ) ) => (
+        case cellListsEqual( List1, List2 ) of
           true => visitsEqual( RVisits1, RVisits2 )
         | false => false )
     | _ => false
@@ -6306,7 +6319,7 @@ fun to( G : real ) : LargeInt.int =
   Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e10 )
 
 
-(* New ADATE *)
+(* New ADATE
 val AllAtOnce = false
 fun compile_transform D = D
 val print_synted_program  = Print.print_dec'
@@ -6337,3 +6350,4 @@ val StochasticMode = false
 val Number_of_output_attributes : int = 4
 
 fun terminate( Nc, G )  = false
+*)
