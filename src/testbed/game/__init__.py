@@ -175,13 +175,14 @@ class Game(object):
     def simulationInit(self):
         cat_ai = self.cat_ais[self.current_ai]
         self.current_ai = (self.current_ai + 1) % len(self.cat_ais)
-        self.simulation = Simulation(cat_ai, ai.f, num_dogs=4)
+        num_dogs = 4
+        self.simulation = Simulation(cat_ai, ai.f, num_dogs=num_dogs)
         self.simstate = self.simulation.getState()
         self.field = self.simulation.getFieldSize()
         self.tickcount = 0
         self.run = True
         self.gameover = False
-        self.logger.gameStarted(self.field)
+        self.logger.gameStarted(self.field, self.simstate["dogs"])
 
     def entityInit(self):
         self.cat = GameEntity(self.CAT_IMG,
