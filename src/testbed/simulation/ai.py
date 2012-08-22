@@ -138,7 +138,7 @@ def follower_ai(current, cat, dogs, goal, field):
 #       of false => up
 #        | true => left
 #      )
-def f(current, cat, dogs, goal, field):
+def f2(current, cat, dogs, goal, field):
     if collideShapes(Circle(getDistance(current, goal), getQuadDistance(goal, cat)),
                      current.getShape()):
         return 'right'
@@ -148,3 +148,30 @@ def f(current, cat, dogs, goal, field):
             return 'up'
         else:
             return 'left'
+
+def f(current, cat, dogs, goal, field):
+    pos = (current.x, current.y)
+    size = current.size
+    def fun1(fun1_point):
+        fun1_x = fun1_point[0]
+        fun1_y = fun1_point[1]
+        circle1 = Circle(fun1_point, current.x)
+        ensureInside(circle1, [fun1_y, 0.0])
+        rect1 = Rect(pos, [current.y, tanh(fun1_x)])
+        if collideShapes(circle1, rect1):
+            if fun1_x < fun1_y:
+                return 'down'
+            else:
+                return 'right'
+        else:
+            return 'left'
+    if tanh(size[1])**2 < current.y:
+        if current.x < size[0]:
+            return 'up'
+        else:
+            return fun1(getDistance(current, cat))
+    else:
+        if current.x < 15.0013528642:
+            return fun1(pos)
+        else:
+            return 'down'

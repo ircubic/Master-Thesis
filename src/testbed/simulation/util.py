@@ -85,3 +85,24 @@ def getDistance(entity1, entity2):
 def getQuadDistance(entity1, entity2):
     diffx, diffy = getDistance(entity1, entity2)
     return sqrt(diffx**2 + diffy**2)
+
+def clamp(x, low, high):
+    return min(high, max(x, low))
+
+def ensureInside(shape, field):
+    f_width, f_height = field
+    pos = shape.getPosition()
+    newpos = None
+    if hasattr(shape, 'getSize'):
+        width, height = shape.getSize()
+        newpos = [
+            clamp(pos[0], width*0.5, f_width-(width*0.5)),
+            clamp(pos[1], height*0.5, f_height-(height*0.5))
+        ]
+    else:
+        radius = shape.getRadius()
+        newpos = [
+            clamp(pos[0], radius, f_width-radius),
+            clamp(pos[1], radius, f_height-radius)
+        ]
+    shape.setPosition(newpos)
