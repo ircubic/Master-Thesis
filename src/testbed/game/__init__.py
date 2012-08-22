@@ -296,7 +296,7 @@ class Game(object):
             self.tickcount += 1
         else:
             self.logger.gameEnded(self.simstate["win"])
-            N, wins, interest = self.logger.getStats(1.0, 1.0, 1.0)
+            N, wins, interest = self.logger.getStats(0.5, 1.0, 4.0)
 
             self.wins = wins
             self.losses = N-wins

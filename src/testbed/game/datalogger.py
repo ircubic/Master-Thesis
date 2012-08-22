@@ -1,4 +1,5 @@
 import numpy
+from game.interest import interest
 
 class _gamestats:
 
@@ -64,15 +65,27 @@ class GameDataLogger:
         self.currentgame.won = won
         self.currentgame = None
 
-    def calculateInterest(self, ):
+    def calculateInterest(self, g, d, e):
         """
         """
-        return 0
+        ticks = [game.ticks for game in self.games]
+        dogvisits = []
+        for i in range(len(self.games[0].entropy)):
+            dogvisits.append([])
 
-    def getStats(self, x, y, z):
+        for _game in self.games:
+            for i, dogentropy in enumerate(_game.entropy):
+                dogvisits[i].append(dogentropy)
+
+        I = interest(ticks, dogvisits, g, d, e)
+        return I
+
+    def getStats(self, g, d, e):
         """
         """
         N = len(self.games)
         wins = sum([1 if x.won else 0 for x in self.games])
-        interest = self.calculateInterest()
-        return N, wins, interest
+        I = 0
+        if N > 2:
+            I = self.calculateInterest(g,d,e)
+        return N, wins, I
