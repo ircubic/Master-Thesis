@@ -26,29 +26,41 @@ def _S(ticks, p2, tmax=50, tmin=3):
 
 def _Hn(cells, p3):
     Vn = float(numpy.sum(cells))
+    if Vn < 2.0:
+        return 0.0
     value = 0.0
     for row in cells:
         for cell in row:
             if cell > 0:
                 value += (cell/Vn)*math.log10(cell/Vn)
-    value = -(1.0/math.log10(Vn))*value
-    return value
+    value = (-1.0/math.log10(Vn))*value
+    return value**p3
 
 def _H(dogvisits, p3):
     accum = 0.0
     N = 0
     for visits in dogvisits:
+        v_accum = 0.0
+        v_n = 0
         for cells in visits:
             Hn = _Hn(cells, p3)
-            accum += Hn
-            N += 1
+            v_accum += Hn
+            v_n += 1
+        accum += (v_accum/v_n)
+        N += 1
     return accum/N
 
-def interest(ticks, dogvisits, gamma, delta, epsilon):
+def interest(ticks, dogvisits, p1, p2, p3):
     """
     """
-    p1 = 1.0
-    p2 = 1.0
-    p3 = 1.0
-    top = (gamma*_T(ticks, p1) + delta*_S(ticks, p2) + epsilon*_H(dogvisits, p3))
+    gamma = 1.0
+    delta = 1.0
+    epsilon = 1.0
+    T = _T(ticks, p1)
+    S = _S(ticks, p2)
+    H = _H(dogvisits, p3)
+    #print "T =", T
+    #print "S =", S
+    #print "H =", H
+    top = (gamma*T + delta*S + epsilon*H)
     return top / (gamma+delta+epsilon)
