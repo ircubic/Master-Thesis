@@ -710,10 +710,12 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
     in
       case realGreater(N, 0.0)
         of true => (
-        case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
-        case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0)) of (M1, M2, M3) =>
-            case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon)) of
-                 Interest => Interest)
+           case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0)
+            of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+               case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0))
+                of (M1, M2, M3) =>
+                   case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon))
+                    of Interest => Interest)
          | false => 0.0
     end
 
