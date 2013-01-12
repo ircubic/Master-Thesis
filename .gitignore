@@ -1,4 +1,5 @@
 auto/
+*.pyc
 *.aux
 *.toc
 *.bbl
@@ -15,3 +16,8 @@ npc.spec.sml
 /src/main1.sml
 /src/main2.sml
 /src/test
+doc/_region_.tex
+src/thoughts.html
+src/testbed/replication
+src/testbed/testfile
+
