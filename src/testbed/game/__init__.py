@@ -213,7 +213,7 @@ class Game(object):
             self.draw()
 
     def draw_text(self, text, x, y):
-        text_s = self.subfont.render(text, True, (255,255,255))
+        text_s = self.subfont.render(text, True, (255,255,50))
         text_r = text_s.get_rect()
         text_r.x = x
         text_r.y = y

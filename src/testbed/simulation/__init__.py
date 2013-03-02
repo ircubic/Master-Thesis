@@ -102,9 +102,6 @@ class Simulation(object):
     def simtick(self, ):
         """Do one tick of the simulation.
         """
-        if self._ticks >= 50:
-            self._gameover = True
-            self._win = True
         if not self._gameover:
             self._last_tick = datetime.now()
             moves = self._aiStep()
@@ -116,7 +113,10 @@ class Simulation(object):
                     self._win = True
                 elif "dog" in collisions:
                     self._win = False
-        self._ticks += 1
+            self._ticks += 1
+            if not self._gameover and self._ticks >= 50:
+                self._gameover = True
+                self._win = True
         return self.getState()
 
 

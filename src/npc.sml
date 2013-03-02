@@ -44,8 +44,6 @@ fun aRand(Dummy:real):real =
      * an MLton word is 32 bits)
      *)
     (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
-datatype rconst = rconst of real * real * real
-
 (*CUT BEFORE*)
 
 fun rconstLess( ( X, C ) : real * rconst ) : bool =
@@ -79,10 +77,8 @@ datatype ticks = tick_nil
                | tick_cons of real * ticks
 datatype cells = cell_nil
                | cell_cons of real * cells
-datatype cell_list = cell_list_nil
-                   | cell_list_cons of cells * cell_list
 datatype visits = visit_nil
-                | visit_cons of cell_list * visits
+                | visit_cons of cells * visits
 datatype result = result of real * ticks * visits
 
 datatype dir_cost = dir_cost of real * direction
@@ -196,17 +192,6 @@ fun initCells((W, H) : real * real) : cells =
         driver((W*H), 0.0)
     end
 
-fun initCellList((W, H, Dogs) : real * real * entity_list) : cell_list =
-    let
-        fun driver((Dogs) : entity_list) : cell_list =
-            case Dogs
-             of entity_nil => cell_list_nil
-              | entity_cons(E, Rest) =>
-                cell_list_cons(initCells(W, H), driver(Rest))
-    in
-        driver(Dogs)
-    end
-
 
 (*****
  * Functions directly relevant to the game that do not depend on f()
@@ -260,8 +245,8 @@ fun collide ((E1, E2) : entity * entity) : bool =
 
 (* Apply the given moves to the game's entities *)
 fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameover, Win),
-                Moves, CellList)
-               : state * direction_list * cell_list) : state * cell_list =
+                Moves, Cells)
+               : state * direction_list * cells) : state * cells =
     let
       (* Move a point in the given direction, the given amount *)
         fun movePoint((Point as point(X,Y),
@@ -275,20 +260,15 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
               | up => point(X, Y-Speed)
 
         (* Count these entities cell visits, but only if they're dogs *)
-        and countCellVisits((Entities, CellList) : entity_list * cell_list) : cell_list =
+        and countCellVisits((Entities, Cells) : entity_list * cells) : cells =
             case Entities
-             of entity_nil => CellList
+             of entity_nil => Cells
               | entity_cons(Entity, Rest) =>
                 case Entity
-                 of rect(Point, S as size(W,H)) => (
-                    case CellList
-                     of cell_list_nil => cell_list_nil
-                      | cell_list_cons(Cells, CellRest) =>
-                        cell_list_cons(increaseCell(Cells, Point, FW),
-                                       countCellVisits(Rest, CellRest))
-                    )
+                 of rect(Point, S as size(W,H)) =>
+                    countCellVisits(Rest, increaseCell(Cells, Point, FW))
                   | circle(Point, Radius as radius(R)) =>
-                    countCellVisits(Rest, CellList)
+                    countCellVisits(Rest, Cells)
 
         (* Move a single entity the chosen direction *)
         and moveEntity((Entity, Move, Fieldsize) : entity * direction * size)
@@ -324,7 +304,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
          (* In case there are no passed in moves (should not happen), we just
           * return the same state
           *)
-         of dir_nil => (State, CellList)
+         of dir_nil => (State, Cells)
 
           (* We have to separate the cat's move (always the first) from the dogs
            * moves, to be able to put it into the state properly
@@ -339,7 +319,7 @@ fun applyMoves((State as state(Cat, Dogs, Goal, Fieldsize as size(FW,FH), Gameov
                   NewDogs,
                   (* Rest stays the same *)
                   Goal, Fieldsize, Gameover, Win),
-                 countCellVisits(NewDogs, CellList))
+                 countCellVisits(NewDogs, Cells))
     end
 
 (* Check the win conditions of the game and update the game's state *)
@@ -557,13 +537,13 @@ fun aiStep ((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), AI) : st
 (* Do one tick of the simulation. This does one AI step, applies all the
  * moves, then checks the if the game has been won or lost
  *)
-fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), CellList, AI) : state * cell_list * int)
-    : state * cell_list =
+fun simtick((State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win), Cells, AI) : state * cells * int)
+    : state * cells =
     case Gameover
-     of true => (State, CellList)
+     of true => (State, Cells)
       | false =>
-        case applyMoves(State, aiStep(State, AI), CellList)
-         of (NewState, NewCellList) => (checkWinCondition(NewState), NewCellList)
+        case applyMoves(State, aiStep(State, AI), Cells)
+         of (NewState, NewCells) => (checkWinCondition(NewState), NewCells)
 
 (* Initialize the state of the game based on the given sizes and passed in dogs *)
 fun initState((Fieldsize as size(Fieldwidth, Fieldheight),
@@ -593,17 +573,17 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
     let
         fun mainLoop((Tick,
                       State as state(Cat, Dogs, Goal, Fieldsize, Gameover, Win),
-                      CellList,
+                      Cells,
                       AI
-                     ) : real * state * cell_list * int) : real * cell_list =
+                     ) : real * state * cells * int) : real * cells =
             case realGreater(Tick, 50.0)
-             of true => (Tick-1.0, CellList)
+             of true => (Tick-1.0, Cells)
               | false =>
                 case Gameover
-                 of true => (Tick-1.0, CellList)
+                 of true => (Tick-1.0, Cells)
                   | false =>
-                    case simtick(State, CellList, AI)
-                     of (NewState, NewCellList) => mainLoop(Tick+1.0, NewState, NewCellList, AI)
+                    case simtick(State, Cells, AI)
+                     of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells, AI)
 
         and runSimsForCat((Ticks, Visits, RunAIs, Cat)
                            : ticks * visits * cat_ai_list * entity
@@ -617,11 +597,11 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
                                        Dogs,
                                        size(5.0, 2.0),
                                        Cat),
-                             initCellList(16.0, 16.0, Dogs),
+                             initCells(16.0, 16.0),
                              AI)
-                 of (Tick, CellList) =>
+                 of (Tick, Cells) =>
                     runSimsForCat(tick_cons(Tick, Ticks),
-                                   visit_cons(CellList, Visits),
+                                   visit_cons(Cells, Visits),
                                    Rest, Cat)
 
         and countCats((AIs, N) : cat_ai_list * real) : real =
@@ -648,13 +628,11 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
 val Seed1 = 719561528
 val Seed2 = 937436219
 
-(*
 val RandState = Random.rand( Seed1, Seed2 )
 val randInt = fn() => Random.randInt (RandState)
 val randNat = fn() => Random.randNat (RandState)
 val randReal = fn() => Random.randReal (RandState)
 val randRange = fn(Low,High) => Random.randRange (Low,High) (RandState)
-*)
 
 fun interest((Result as result(N, Ticks, Visits)) : result) : real =
     let
@@ -694,28 +672,19 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
                   case realEqual(Cell, 0.0)
                    of true => Hn(Weight, CellRest, VisitSum, Acc)
                     | false => Hn(Weight, CellRest, VisitSum, Acc + ((Cell/VisitSum)*log10(Cell/VisitSum)))
-      and AverageHn((CellList, Weight,  Sum, I) : cell_list * real * real * real) : real =
-          case CellList
-           of cell_list_nil => (Sum/I)
-            | cell_list_cons(Cells, Rest) =>
-              case Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0)
-               of NewHn => AverageHn(Rest, Weight, Sum + NewHn, I + 1.0)
-
       and H((Weight, Visits, Sum) : real * visits * real) : real =
           case Visits
            of visit_nil => (Sum/N)
-            | visit_cons(CellList, VisitRest) =>
-              case AverageHn(CellList, Weight, 0.0, 0.0) of NewAvgHn =>
-                H(Weight, VisitRest, Sum + NewAvgHn)
+            | visit_cons(Cells, VisitRest) =>
+              case Hn(Weight, Cells, cellSum(Cells, 0.0), 0.0) of NewHn =>
+                H(Weight, VisitRest, Sum + NewHn)
     in
       case realGreater(N, 0.0)
         of true => (
-           case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0)
-            of (Gamma, Delta, Epsilon, P1, P2, P3) =>
-               case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0))
-                of (M1, M2, M3) =>
-                   case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon))
-                    of Interest => Interest)
+        case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+        case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0)) of (M1, M2, M3) =>
+            case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon)) of
+                 Interest => Interest)
          | false => 0.0
     end
 
@@ -743,20 +712,11 @@ let
         | false => false )
     | _ => false
 
-  fun cellListsEqual( List1 : cell_list, List2 : cell_list) : bool =
-      case ( List1, List2 )
-       of (cell_list_nil, cell_list_nil) => true
-        | (cell_list_cons(Cells1, Rest1), cell_list_cons(Cells2, Rest2)) => (
-          case cellsEqual(Cells1, Cells2)
-           of true => cellListsEqual(Rest1, Rest2)
-            | false => false
-          )
-        | _ => false
   fun visitsEqual( Visits1 : visits, Visits2 : visits ) : bool =
     case ( Visits1, Visits2 ) of
       ( visit_nil, visit_nil ) => true
-    | ( visit_cons( List1, RVisits1 ), visit_cons( List2, RVisits2 ) ) => (
-        case cellListsEqual( List1, List2 ) of
+    | ( visit_cons( Cells1, RVisits1 ), visit_cons( Cells2, RVisits2 ) ) => (
+        case cellsEqual( Cells1, Cells2 ) of
           true => visitsEqual( RVisits1, RVisits2 )
         | false => false )
     | _ => false
@@ -6321,7 +6281,7 @@ fun to( G : real ) : LargeInt.int =
   Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e10 )
 
 
-(* New ADATE
+(* New ADATE *)
 val AllAtOnce = false
 fun compile_transform D = D
 val print_synted_program  = Print.print_dec'
@@ -6352,4 +6312,3 @@ val StochasticMode = false
 val Number_of_output_attributes : int = 4
 
 fun terminate( Nc, G )  = false
-*)

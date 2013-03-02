@@ -10,7 +10,7 @@ def _T(ticks, p1):
     """
     return (1.0 - (numpy.average(ticks)/numpy.amax(ticks)))**p1
 
-def _S(ticks, p2, tmax=50, tmin=3):
+def _S(ticks, p2, tmax=50.0, tmin=8.0):
     """
 
     Arguments:
@@ -36,31 +36,26 @@ def _Hn(cells, p3):
     value = (-1.0/math.log10(Vn))*value
     return value**p3
 
-def _H(dogvisits, p3):
-    accum = 0.0
-    N = 0
-    for visits in dogvisits:
-        v_accum = 0.0
-        v_n = 0
-        for cells in visits:
-            Hn = _Hn(cells, p3)
-            v_accum += Hn
-            v_n += 1
-        accum += (v_accum/v_n)
-        N += 1
-    return accum/N
+def _H(visits, p3):
+    v_accum = 0.0
+    v_n = 0
+    for cells in visits:
+        Hn = _Hn(cells, p3)
+        v_accum += Hn
+        v_n += 1
+    return (v_accum/v_n)
 
-def interest(ticks, dogvisits, p1, p2, p3):
+
+def interest(ticks, visits, p1, p2, p3):
     """
     """
     gamma = 1.0
-    delta = 1.0
+    delta = 2.0
     epsilon = 1.0
     T = _T(ticks, p1)
     S = _S(ticks, p2)
-    H = _H(dogvisits, p3)
-    #print "T =", T
-    #print "S =", S
-    #print "H =", H
+    H = _H(visits, p3)
+    print ticks
+    print "T =", T, "S =", S, "H =", H
     top = (gamma*T + delta*S + epsilon*H)
     return top / (gamma+delta+epsilon)

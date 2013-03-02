@@ -8,8 +8,7 @@ class _gamestats:
         """
         self.won = False
         self.ticks = 0
-        self.entropy = [ self.emptyEntropy(width, height)
-                         for i in range(numdogs) ]
+        self.entropy = self.emptyEntropy(width, height)
 
     def emptyEntropy(self, width, height):
         """
@@ -21,10 +20,10 @@ class _gamestats:
         return numpy.zeros((width, height), dtype=int)
 
     def setEntropy(self, dogs):
-        for dog, entropy in zip(dogs, self.entropy):
+        for dog in dogs:
             x = round(dog[0])
             y = round(dog[1])
-            entropy[y][x] += 1
+            self.entropy[y][x] += 1
 
 
 class GameDataLogger:
@@ -69,12 +68,12 @@ class GameDataLogger:
         """
         """
         ticks = [game.ticks for game in self.games]
-        dogvisits = []
+        visits = []
 
         for _game in self.games:
-            dogvisits.append(_game.entropy)
+            visits.append(_game.entropy)
 
-        I = interest(ticks, dogvisits, p1, p2, p3)
+        I = interest(ticks, visits, p1, p2, p3)
         return I
 
     def getStats(self, p1, p2, p3):
