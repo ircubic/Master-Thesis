@@ -46,11 +46,11 @@ fun aRand(Dummy:real):real =
     (Real.fromLargeInt(Word.toLargeInt(MLton.Random.rand()))/4294967295.0)
 (*CUT BEFORE*)
 
-fun rconstLess( ( X, C ) : real * rconst ) : bool =
+(*fun rconstLess( ( X, C ) : real * rconst ) : bool =
   case C of rconst( Compl, StepSize, Current ) => realLess( X, Current )
 
 fun tor( C : rconst ) : real =
-  case C of rconst( Compl, StepSize, Current ) => Current
+  case C of rconst( Compl, StepSize, Current ) => Current*)
 
 fun rMinus(X : real) : real = 0.0 - X
 
@@ -577,10 +577,15 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
                       AI
                      ) : real * state * cells * int) : real * cells =
             case realGreater(Tick, 50.0)
-             of true => (Tick-1.0, Cells)
+             of true => (50.0, Cells)
               | false =>
                 case Gameover
-                 of true => (Tick-1.0, Cells)
+                 of true => (
+                    (* If we have won, mark that by saying it took the maximum amount of time to kill the target *)
+                    case Win
+                      of true => (50.0, Cells)
+                      | false => (Tick-1.0, Cells)
+                    )
                   | false =>
                     case simtick(State, Cells, AI)
                      of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells, AI)
@@ -624,15 +629,6 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
  *****)
 
 (*%%*)
-
-val Seed1 = 719561528
-val Seed2 = 937436219
-
-val RandState = Random.rand( Seed1, Seed2 )
-val randInt = fn() => Random.randInt (RandState)
-val randNat = fn() => Random.randNat (RandState)
-val randReal = fn() => Random.randReal (RandState)
-val randRange = fn(Low,High) => Random.randRange (Low,High) (RandState)
 
 fun interest((Result as result(N, Ticks, Visits)) : result) : real =
     let
@@ -681,7 +677,7 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
     in
       case realGreater(N, 0.0)
         of true => (
-        case (1.0, 1.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
+        case (1.0, 2.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
         case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0)) of (M1, M2, M3) =>
             case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon)) of
                  Interest => Interest)
@@ -6281,7 +6277,7 @@ fun to( G : real ) : LargeInt.int =
   Real.toLargeInt IEEEReal.TO_NEAREST ( G * 1.0e10 )
 
 
-(* New ADATE *)
+(* New ADATE *) (*
 val AllAtOnce = false
 fun compile_transform D = D
 val print_synted_program  = Print.print_dec'
@@ -6312,3 +6308,4 @@ val StochasticMode = false
 val Number_of_output_attributes : int = 4
 
 fun terminate( Nc, G )  = false
+*)

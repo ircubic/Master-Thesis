@@ -10,7 +10,7 @@ def _T(ticks, p1):
     """
     return (1.0 - (numpy.average(ticks)/numpy.amax(ticks)))**p1
 
-def _S(ticks, p2, tmax=50.0, tmin=8.0):
+def _S(ticks, p2, tmax=50.0, tmin=4.0):
     """
 
     Arguments:

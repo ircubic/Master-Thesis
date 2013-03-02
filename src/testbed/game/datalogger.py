@@ -28,10 +28,11 @@ class _gamestats:
 
 class GameDataLogger:
 
-    def __init__(self, ):
+    def __init__(self, maxticks):
         """
         """
         self.games = []
+        self._maxticks = maxticks
         self.currentgame = None
 
     def gameStarted(self, field, dogs):
@@ -61,6 +62,8 @@ class GameDataLogger:
         Arguments:
         - `won`:
         """
+        if won:
+            self.currentgame.ticks = self._maxticks
         self.currentgame.won = won
         self.currentgame = None
 

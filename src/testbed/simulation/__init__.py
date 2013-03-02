@@ -17,6 +17,7 @@ class Simulation(object):
     GOAL_SIZE = (5, 2)
     CAT_SPEED = 2.0
     DOG_SPEED = CAT_SPEED*3.0/4.0
+    MAX_TICKS = 50
 
 
     def __init__(self, cat_ai, dog_ai, field_size=(16,16), num_dogs=5, dogs=None):
@@ -58,6 +59,7 @@ class Simulation(object):
         dog_padding = (self.DOG_SIZE[0]/2.0,self.DOG_SIZE[1]/2.0)
         x_range = (dog_padding[0], width-dog_padding[0])
         y_range = (dog_padding[1], (height/2.0)-dog_padding[1])
+        print dogs
         for i in range(num_dogs):
             if dogs is None:
                 dogx = random.uniform(x_range[0], x_range[1])
@@ -117,7 +119,7 @@ class Simulation(object):
                 elif "dog" in collisions:
                     self._win = False
             self._ticks += 1
-            if not self._gameover and self._ticks >= 50:
+            if not self._gameover and self._ticks >= self.MAX_TICKS:
                 self._gameover = True
                 self._win = True
         return self.getState()

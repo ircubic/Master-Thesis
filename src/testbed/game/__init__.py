@@ -146,7 +146,7 @@ class Game(object):
         """
         """
         self.input = InputState()
-        self.logger = game.datalogger.GameDataLogger()
+        self.logger = game.datalogger.GameDataLogger(Simulation.MAX_TICKS)
 
         self.cat_ais = [ai.random_ai, ai.exit_achiever, ai.potential_field_cat]
         self.current_ai = 0
