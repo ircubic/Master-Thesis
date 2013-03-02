@@ -19,7 +19,7 @@ class Simulation(object):
     DOG_SPEED = CAT_SPEED*3.0/4.0
 
 
-    def __init__(self, cat_ai, dog_ai, field_size=(16,16), num_dogs=5):
+    def __init__(self, cat_ai, dog_ai, field_size=(16,16), num_dogs=5, dogs=None):
         """Initialize the simulation.
 
         Sets up the entities in the simulation (cat and dogs) with the passed in
@@ -59,8 +59,11 @@ class Simulation(object):
         x_range = (dog_padding[0], width-dog_padding[0])
         y_range = (dog_padding[1], (height/2.0)-dog_padding[1])
         for i in range(num_dogs):
-            dogx = random.uniform(x_range[0], x_range[1])
-            dogy = random.uniform(y_range[0], y_range[1])
+            if dogs is None:
+                dogx = random.uniform(x_range[0], x_range[1])
+                dogy = random.uniform(y_range[0], y_range[1])
+            else:
+                dogx, dogy = dogs[i]
             dog = Entity(Rect((dogx, dogy), self.DOG_SIZE),
                          self.DOG_SPEED)
             self._dogs.append(dog)

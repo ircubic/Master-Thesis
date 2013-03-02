@@ -150,6 +150,7 @@ class Game(object):
 
         self.cat_ais = [ai.random_ai, ai.exit_achiever, ai.potential_field_cat]
         self.current_ai = 0
+        self.init_dogs = None
 
         self.simulationInit()
 
@@ -176,8 +177,10 @@ class Game(object):
         cat_ai = self.cat_ais[self.current_ai]
         self.current_ai = (self.current_ai + 1) % len(self.cat_ais)
         num_dogs = 4
-        self.simulation = Simulation(cat_ai, ai.f, num_dogs=num_dogs)
+        self.simulation = Simulation(cat_ai, ai.f, num_dogs=num_dogs, dogs=self.init_dogs)
         self.simstate = self.simulation.getState()
+        self.init_dogs = self.simstate["dogs"]
+        print self.init_dogs
         self.field = self.simulation.getFieldSize()
         self.tickcount = 0
         self.run = True
