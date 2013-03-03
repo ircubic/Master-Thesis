@@ -59,7 +59,6 @@ class Simulation(object):
         dog_padding = (self.DOG_SIZE[0]/2.0,self.DOG_SIZE[1]/2.0)
         x_range = (dog_padding[0], width-dog_padding[0])
         y_range = (dog_padding[1], (height/2.0)-dog_padding[1])
-        print dogs
         for i in range(num_dogs):
             if dogs is None:
                 dogx = random.uniform(x_range[0], x_range[1])

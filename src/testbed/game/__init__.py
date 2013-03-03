@@ -139,6 +139,7 @@ class Game(object):
     CAT_IMG = 'nyan.png'
     DOG_IMG = 'dog.png'
     GOAL_IMG = 'bow.png'
+    TARGET_GAMES = 100
 
     DEBUG = True
 
@@ -148,9 +149,14 @@ class Game(object):
         self.input = InputState()
         self.logger = game.datalogger.GameDataLogger(Simulation.MAX_TICKS)
 
-        self.cat_ais = [ai.random_ai, ai.exit_achiever, ai.potential_field_cat]
+        self.cat_ais = [
+        #ai.random_ai,
+        #ai.exit_achiever,
+        ai.potential_field_cat]
         self.current_ai = 0
         self.init_dogs = None
+        self.games = 0
+        self.trials = 0
 
         self.simulationInit()
 
@@ -177,10 +183,9 @@ class Game(object):
         cat_ai = self.cat_ais[self.current_ai]
         self.current_ai = (self.current_ai + 1) % len(self.cat_ais)
         num_dogs = 4
-        self.simulation = Simulation(cat_ai, ai.f, num_dogs=num_dogs, dogs=self.init_dogs)
+        self.simulation = Simulation(cat_ai, ai.follower_ai, num_dogs=num_dogs, dogs=self.init_dogs)
         self.simstate = self.simulation.getState()
         self.init_dogs = self.simstate["dogs"]
-        print self.init_dogs
         self.field = self.simulation.getFieldSize()
         self.tickcount = 0
         self.run = True
@@ -209,11 +214,20 @@ class Game(object):
     def mainLoop(self, ):
         """The main loop of the game.
         """
-        while self.run:
-            self.handleEvents()
-            self.updateGameState()
-            self.clock.tick(60)
-            self.draw()
+        for cost in range(5,13):
+            if not self.run:
+                return
+            ai.DOG_COST = cost
+            self.trials = 0
+            self.logger.resetTrials()
+            print
+            print "Trials for cost", cost
+            while self.run and self.trials < 25:
+                self.handleEvents()
+                self.updateGameState()
+                #self.clock.tick(60)
+                #self.draw()
+            self.logger.getTrialStats()
 
     def draw_text(self, text, x, y):
         text_s = self.subfont.render(text, True, (255,255,50))
@@ -298,11 +312,18 @@ class Game(object):
 
             self.tickcount += 1
         else:
+            self.games += 1
             self.logger.gameEnded(self.simstate["win"])
             N, wins, interest = self.logger.getStats(0.5, 1.0, 4.0)
 
             self.wins = wins
             self.losses = N-wins
             self.interest = interest
+            if(self.games == self.TARGET_GAMES):
+                self.games = 0
+                self.logger.newTrial(0.5, 1.0, 4.0)
+                self.trials += 1
+                print "Target reached,", wins, "wins; Interest:",interest
+                self.init_dogs = None
             self.simulationInit()
             self.entityInit()

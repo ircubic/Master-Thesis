@@ -4,6 +4,7 @@ from simulation.chars import *
 from simulation.util import *
 
 _cat_move = ""
+DOG_COST = 20
 
 def control_ai(current, cat, dogs, goal, field):
     """Control AI.
@@ -42,7 +43,7 @@ def pfb_cost(x,y,dogs,goal):
         for dog in dogs:
             dogdist = (abs(dog.x-x) + abs(dog.y-y))
             if dogdist > 0:
-                cost += 10 / dogdist
+                cost += DOG_COST / dogdist
             else:
                 cost += 2**32
         cost += sqrt(((goal.x-x))**2 + ((goal.y-y))**2)

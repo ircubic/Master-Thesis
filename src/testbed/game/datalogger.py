@@ -32,6 +32,8 @@ class GameDataLogger:
         """
         """
         self.games = []
+        self.trialWins = []
+        self.trialInterests = []
         self._maxticks = maxticks
         self.currentgame = None
 
@@ -86,3 +88,22 @@ class GameDataLogger:
         if N > 2:
             I = self.calculateInterest(p1,p2,p3)
         return N, wins, I
+
+    def newTrial(self, p1, p2, p3):
+        N,wins,I = self.getStats(p1, p2, p3)
+        self.trialWins.append(wins)
+        self.trialInterests.append(I)
+        self.games = []
+
+    def getTrialStats(self):
+        wins = self.trialWins
+        Is = self.trialInterests
+        if len(wins) > 0:
+            print "Wins:", numpy.average(wins),"std:",numpy.std(wins)
+            print "Interest:", numpy.average(Is),"std:",numpy.std(Is)
+        else:
+            print "No finished trials"
+
+    def resetTrials(self):
+        self.trialWins = []
+        self.trialInterests = []

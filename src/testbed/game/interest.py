@@ -59,7 +59,7 @@ def interest(ticks, visits, p1, p2, p3):
     T = _T(ticks, p1)
     S = _S(ticks, p2)
     H = _H(visits, p3)
-    print ticks
-    print "T =", T, "S =", S, "H =", H
+    #print ticks
+    #print "T =", T, "S =", S, "H =", H
     top = (gamma*T + delta*S + epsilon*H)
     return top / (gamma+delta+epsilon)
