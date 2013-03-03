@@ -8,7 +8,11 @@ def _T(ticks, p1):
     Arguments:
     - `ticks`: An array of the ticks it took to win each game
     """
-    return (1.0 - (numpy.average(ticks)/numpy.amax(ticks)))**p1
+    tmax = numpy.amax(ticks)
+    if tmax == 0.0:
+        return 0.0
+    else:
+        return (1.0 - (numpy.average(ticks)/tmax))**p1
 
 def _S(ticks, p2, tmax=50.0, tmin=4.0):
     """

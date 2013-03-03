@@ -367,7 +367,7 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
         fun cost((X, Y) : real * real) : real =
             let
                 fun dogCost((X,Y,DogX,DogY) : real * real * real * real) : real =
-                    realDivide(75.0,
+                    realDivide(10.0,
                                (abs(realSubtract(DogX, X)) + abs(realSubtract(DogY, Y))))
                 and dogsCost((X, Y, Dogs) : real * real * entity_list) : real =
                     case Dogs
@@ -380,8 +380,8 @@ fun potentialFieldCat( (Self, Cat, Dogs, Goal, Field as size(W,H))
                             dogCost(X,Y,EntX,EntY),
                         dogsCost(X,Y,Rest))
                 and goalCost((X,Y,GoalX, GoalY) : real * real * real *real) : real =
-                    sqrt(pow(realMultiply(4.0, realSubtract(GoalX,X)), 2.0) +
-                         pow(realMultiply(4.0, realSubtract(GoalY,Y)), 2.0))
+                    sqrt(pow(realSubtract(GoalX,X), 2.0) +
+                         pow(realSubtract(GoalY,Y), 2.0))
             in
                 dogsCost(X,Y, Dogs) + (case Goal
                    of rect(P as point(GoalX, GoalY), S as size(W,H)) =>

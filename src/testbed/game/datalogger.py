@@ -62,8 +62,6 @@ class GameDataLogger:
         Arguments:
         - `won`:
         """
-        if won:
-            self.currentgame.ticks = self._maxticks
         self.currentgame.won = won
         self.currentgame = None
 

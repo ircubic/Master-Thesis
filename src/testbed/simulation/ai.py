@@ -42,10 +42,10 @@ def pfb_cost(x,y,dogs,goal):
         for dog in dogs:
             dogdist = (abs(dog.x-x) + abs(dog.y-y))
             if dogdist > 0:
-                cost += 75 / dogdist
+                cost += 10 / dogdist
             else:
                 cost += 2**32
-        cost += sqrt((4*(goal.x-x))**2 + (4*(goal.y-y))**2)
+        cost += sqrt(((goal.x-x))**2 + ((goal.y-y))**2)
         return cost
 
 def potential_field_cat(current, cat, dogs, goal, field):
