@@ -580,12 +580,7 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
              of true => (50.0, Cells)
               | false =>
                 case Gameover
-                 of true => (
-                    (* If we have won, mark that by saying it took the maximum amount of time to kill the target *)
-                    case Win
-                      of true => (50.0, Cells)
-                      | false => (Tick-1.0, Cells)
-                    )
+                 of true => (Tick-1.0, Cells)
                   | false =>
                     case simtick(State, Cells, AI)
                      of (NewState, NewCells) => mainLoop(Tick+1.0, NewState, NewCells, AI)
