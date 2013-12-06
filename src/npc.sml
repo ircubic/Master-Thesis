@@ -630,7 +630,7 @@ fun main( (Dogs, CatAIs, Cats) : entity_list * cat_ai_list * entity_list ) : res
 
 (*%%*)
 
-fun interest((Result as result(N, Ticks, Visits)) : result) : real =
+fun interest((Result as result(N, Ticks, Visits), TMax, TMin) : result * real * real) : real =
     let
       fun tickMax((Ticks, Max): ticks * real)  : real =
           case Ticks
@@ -649,7 +649,7 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
             | tick_cons(Tick, TickRest) => tickStd(TickRest, Avg, Acc + pow(Tick - Avg, 2.0))
       and T((Weight) : real) : real =
           pow((1.0 - ((tickSum(Ticks, 0.0) / N) / tickMax(Ticks, 0.0))), Weight)
-      and S((Weight, TMax, TMin) : real * real * real) : real =
+      and S((Weight) : real) : real =
         case (tickSum(Ticks, 0.0)/N)
          of Avg =>
             pow((tickStd(Ticks, Avg, 0.0) / ((0.5 * sqrt(N / (N - 1.0))) * (TMax - TMin))),
@@ -678,7 +678,7 @@ fun interest((Result as result(N, Ticks, Visits)) : result) : real =
       case realGreater(N, 0.0)
         of true => (
         case (1.0, 2.0, 1.0, 0.5, 1.0, 4.0) of (Gamma, Delta, Epsilon, P1, P2, P3) =>
-        case (T(P1), S(P2, 50.0, 3.0), H(P3, Visits, 0.0)) of (M1, M2, M3) =>
+        case (T(P1), S(P2), H(P3, Visits, 0.0)) of (M1, M2, M3) =>
             case ((Gamma*M1 + Delta*M2 + Epsilon*M3)/(Gamma+Delta+Epsilon)) of
                  Interest => Interest)
          | false => 0.0
@@ -6284,7 +6284,7 @@ val print_synted_program  = Print.print_dec'
 
 fun output_eval_fun( exactlyOne( I : int, _ , Y : result ) )
     : { grade: Grade.grade, numCorrect : int, numWrong : int } list  =
-  case ~( interest Y ) of G =>
+  case ~( interest Y 50.0 3.0) of G =>
   if abs G > 1.0E30 orelse not( Real.isFinite G ) then
     [{ numCorrect = 1, numWrong = 0, grade = to 1.0e30 }]
   else
